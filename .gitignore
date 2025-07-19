@@ -1,0 +1,10 @@
+# Ignore Python virtual environment
+venv/
+
+# Ignore environment variables file
+.env
+
+# Ignore __pycache__ and other Python artifacts
+__pycache__/
+*.py[cod]
+*.egg-info/
