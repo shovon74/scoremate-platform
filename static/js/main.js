@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Check for saved theme preference or default to light mode
     const currentTheme = localStorage.getItem('theme') || 'light';
     htmlElement.setAttribute('data-theme', currentTheme);
-    updateThemeIcon(currentTheme);
 
     themeToggle.addEventListener('click', () => {
         const currentTheme = htmlElement.getAttribute('data-theme');
@@ -16,18 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         htmlElement.setAttribute('data-theme', newTheme);
         localStorage.setItem('theme', newTheme);
-        updateThemeIcon(newTheme);
     });
-
-    function updateThemeIcon(theme) {
-        if (theme === 'dark') {
-            sunIcon.style.display = 'none';
-            moonIcon.style.display = 'block';
-        } else {
-            sunIcon.style.display = 'block';
-            moonIcon.style.display = 'none';
-        }
-    }
 
     // Timer state
     let timerInterval;
