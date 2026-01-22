@@ -53,6 +53,60 @@ def check_ielts_writing(question, answer):
     except Exception as e:
         return f"Error: {str(e)}"
 
+def check_spelling_grammar(answer):
+    """
+    Use Gemini to identify spelling and grammar errors
+    """
+    prompt = f"""
+    Analyze this text for spelling and grammar errors. Return ONLY a valid JSON array.
+    
+    Text: {answer}
+    
+    For each error found, create a JSON object with these fields:
+    - "error": the misspelled or incorrect word/phrase
+    - "correction": the correct spelling or form
+    - "type": either "spelling" or "grammar"
+    - "pos": part of speech (noun, verb, adjective, adverb, pronoun, preposition, etc.)
+    - "example": a short example sentence using the correct form
+    
+    Return ONLY the JSON array, nothing else. Format:
+    [
+        {{"error": "recieve", "correction": "receive", "type": "spelling", "pos": "verb", "example": "I will receive the package tomorrow."}},
+        {{"error": "thier", "correction": "their", "type": "spelling", "pos": "pronoun", "example": "They left their books on the table."}}
+    ]
+    
+    If no errors found, return an empty array: []
+    
+    IMPORTANT: Return ONLY valid JSON, no explanations or markdown.
+    """
+    
+    try:
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt
+        )
+        
+        # Extract JSON from response
+        import json
+        import re
+        
+        text = response.text.strip()
+        
+        # Remove markdown code blocks if present
+        text = re.sub(r'^```json\s*', '', text)
+        text = re.sub(r'^```\s*', '', text)
+        text = re.sub(r'\s*```$', '', text)
+        text = text.strip()
+        
+        # Parse JSON
+        errors = json.loads(text)
+        return errors if isinstance(errors, list) else []
+        
+    except Exception as e:
+        print(f"Error in spelling/grammar check: {str(e)}")
+        return []
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -81,10 +135,14 @@ def check_writing():
         # Get feedback from Gemini
         feedback = check_ielts_writing(question, answer)
         
+        # Get spelling and grammar errors
+        spelling_errors = check_spelling_grammar(answer)
+        
         return jsonify({
             'success': True,
             'feedback': feedback,
-            'word_count': word_count
+            'word_count': word_count,
+            'spelling_errors': spelling_errors
         })
         
     except Exception as e:
