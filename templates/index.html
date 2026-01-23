@@ -7,15 +7,16 @@
     <title>ScoreMate | Professional IELTS Writing Support</title>
     <!-- CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <!-- Lucide Icons -->
+    <!-- Scripts -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
 </head>
 
 <body>
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-left">
-                <a href="/" class="logo">
+                <a href="javascript:void(0)" onclick="showSection('landing')" class="logo">
                     <i data-lucide="graduation-cap"></i>
                     <span>ScoreMate</span>
                 </a>
@@ -25,7 +26,15 @@
                         <ul class="dropdown-menu">
                             <li><a href="#">Reading Practice</a></li>
                             <li><a href="#">Listening Practice</a></li>
-                            <li><a href="#">Writing Practice</a></li>
+                            <li class="nested-dropdown">
+                                <a href="#">Writing Practice <i data-lucide="chevron-right"></i></a>
+                                <ul class="nested-menu">
+                                    <li><a href="javascript:void(0)" onclick="showSection('task1')">Writing Task 1</a>
+                                    </li>
+                                    <li><a href="javascript:void(0)" onclick="showSection('task2')">Writing Task 2</a>
+                                    </li>
+                                </ul>
+                            </li>
                             <li><a href="#">Speaking Practice</a></li>
                         </ul>
                     </li>
@@ -46,106 +55,169 @@
     </nav>
 
     <div class="container">
-        <header>
-            <h1>ScoreMate</h1>
-            <p>Elevate your IELTS Writing Task 2 with AI-powered insights</p>
-        </header>
-
-        <main>
-            <!-- Timer Card -->
-            <div class="glass-panel timer-card">
-                <div class="timer-display" id="timerDisplay">00:00</div>
-                <div class="controls">
-                    <button id="startBtn" class="btn btn-primary">
-                        <i data-lucide="play"></i> Start Session
-                    </button>
-                    <button id="stopBtn" class="btn btn-secondary" disabled>
-                        <i data-lucide="pause"></i> Pause
-                    </button>
-                    <button id="resetBtn" class="btn btn-danger">
-                        <i data-lucide="rotate-ccw"></i> Reset
-                    </button>
+        <!-- Landing Section: Learning Tools -->
+        <section id="landingSection" class="tools-section">
+            <div class="section-title">
+                <h2>Learning Tools</h2>
+                <p>Boost your English learning success with our all-in-one toolkit.</p>
+            </div>
+            <div class="tools-grid">
+                <!-- Card 1 -->
+                <div class="tool-card">
+                    <div class="tool-icon">
+                        <img src="{{ url_for('static', filename='images/evaluation_icon.png') }}" alt="Evaluation Icon">
+                    </div>
+                    <a href="javascript:void(0)" class="tool-link">IELTS Academic Writing Task 1 <br>Evaluation</a>
+                </div>
+                <!-- Card 2 -->
+                <div class="tool-card">
+                    <div class="tool-icon">
+                        <img src="{{ url_for('static', filename='images/evaluation_icon.png') }}" alt="Evaluation Icon">
+                    </div>
+                    <a href="javascript:void(0)" class="tool-link">IELTS General Writing Task 1 <br>Evaluation</a>
+                </div>
+                <!-- Card 3 -->
+                <div class="tool-card">
+                    <div class="tool-icon">
+                        <img src="{{ url_for('static', filename='images/evaluation_icon.png') }}" alt="Evaluation Icon">
+                    </div>
+                    <a href="javascript:void(0)" onclick="showSection('task2')" class="tool-link">IELTS Writing Task 2
+                        <br>Evaluation</a>
+                </div>
+                <!-- Card 4 -->
+                <div class="tool-card">
+                    <div class="tool-icon">
+                        <img src="{{ url_for('static', filename='images/generator_icon.png') }}" alt="Generator Icon">
+                    </div>
+                    <a href="javascript:void(0)" class="tool-link">IELTS Academic Writing Task 1 <br>Generator</a>
+                </div>
+                <!-- Card 5 -->
+                <div class="tool-card">
+                    <div class="tool-icon">
+                        <img src="{{ url_for('static', filename='images/generator_icon.png') }}" alt="Generator Icon">
+                    </div>
+                    <a href="javascript:void(0)" class="tool-link">IELTS General Writing Task 1 <br>Generator</a>
+                </div>
+                <!-- Card 6 -->
+                <div class="tool-card">
+                    <div class="tool-icon">
+                        <img src="{{ url_for('static', filename='images/generator_icon.png') }}" alt="Generator Icon">
+                    </div>
+                    <a href="javascript:void(0)" class="tool-link">IELTS Writing Task 2 <br>Generator</a>
                 </div>
             </div>
+        </section>
 
-            <!-- Input Form -->
-            <form id="checkForm" class="glass-panel">
-                <div class="grid-inputs">
-                    <div class="input-wrap">
-                        <label for="question">Question</label>
-                        <textarea id="question" name="question"
-                            placeholder="Paste the IELTS Writing Task 2 prompt here..."></textarea>
+        <!-- App Section: Task 2 Checker -->
+        <section id="task2Section" class="app-section" style="display: none;">
+            <header>
+                <h1>ScoreMate</h1>
+                <p>Elevate your IELTS Writing Task 2 with AI-powered insights</p>
+                <button onclick="showSection('landing')" class="btn btn-secondary btn-sm" style="margin-top: 10px;">
+                    <i data-lucide="arrow-left"></i> Back to Tools
+                </button>
+            </header>
+
+            <main>
+                <!-- Timer Card -->
+                <div class="glass-panel timer-card">
+                    <div class="timer-display" id="timerDisplay">00:00</div>
+                    <div class="controls">
+                        <button id="startBtn" class="btn btn-primary">
+                            <i data-lucide="play"></i> Start Session
+                        </button>
+                        <button id="stopBtn" class="btn btn-secondary" disabled>
+                            <i data-lucide="pause"></i> Pause
+                        </button>
+                        <button id="resetBtn" class="btn btn-danger">
+                            <i data-lucide="rotate-ccw"></i> Reset
+                        </button>
                     </div>
-                    <div class="input-wrap">
-                        <label for="answer">Essay</label>
-                        <textarea id="answer" name="answer" placeholder="Type or paste your essay here..."></textarea>
-                        <div class="meta">
-                            <span id="wordCount" class="badge">0 WORDS</span>
+                </div>
+
+                <!-- Input Form -->
+                <form id="checkForm" class="glass-panel">
+                    <div class="grid-inputs">
+                        <div class="input-wrap">
+                            <label for="question">Question</label>
+                            <textarea id="question" name="question"
+                                placeholder="Paste the IELTS Writing Task 2 prompt here..."></textarea>
                         </div>
-                    </div>
-                </div>
-
-                <div class="submit-box">
-                    <button type="submit" id="submitBtn" class="btn btn-primary btn-large">
-                        <i data-lucide="sparkles"></i> Analyze Essay
-                    </button>
-                </div>
-            </form>
-
-            <!-- Loading State -->
-            <div id="loading" class="loading" style="display: none;">
-                <div class="shimmer"></div>
-                <p>Synthesizing feedback...</p>
-            </div>
-
-            <!-- Result Area -->
-            <div id="resultArea" class="result-area">
-                <div class="glass-panel">
-                    <h2 style="margin-bottom: 24px; font-size: 1.8rem; display: flex; align-items: center; gap: 12px;">
-                        <i data-lucide="clipboard-check" style="color: var(--accent);"></i> Results
-                    </h2>
-                    <div class="feedback-card">
-                        <div id="feedbackContent" class="feedback-content"></div>
-                    </div>
-
-                    <!-- Spelling & Grammar Section -->
-                    <div id="spellingSection" class="spelling-section" style="display: none;">
-                        <div class="spelling-header" id="spellingToggle">
-                            <div class="spelling-header-left">
-                                <h3>Spelling & Grammar Issues</h3>
-                                <span id="errorBadge" class="error-badge">0</span>
+                        <div class="input-wrap">
+                            <label for="answer">Essay</label>
+                            <textarea id="answer" name="answer"
+                                placeholder="Type or paste your essay here..."></textarea>
+                            <div class="meta">
+                                <span id="wordCount" class="badge">0 WORDS</span>
                             </div>
-                            <svg class="chevron-icon" id="chevronIcon" width="20" height="20" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="6 9 12 15 18 9"></polyline>
-                            </svg>
                         </div>
-                        <div class="spelling-content" id="spellingContent">
-                            <table class="spelling-table" id="spellingTable">
-                                <thead>
-                                    <tr>
-                                        <th>Error</th>
-                                        <th>Correction</th>
-                                        <th>Type</th>
-                                        <th>Part of Speech</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="spellingTableBody">
-                                    <!-- Rows will be inserted here -->
-                                </tbody>
-                            </table>
+                    </div>
+
+                    <div class="submit-box">
+                        <button type="submit" id="submitBtn" class="btn btn-primary btn-large">
+                            <i data-lucide="sparkles"></i> Analyze Essay
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Loading State -->
+                <div id="loading" class="loading" style="display: none;">
+                    <div class="shimmer"></div>
+                    <p>Synthesizing feedback...</p>
+                </div>
+
+                <!-- Result Area -->
+                <div id="resultArea" class="result-area">
+                    <div class="glass-panel">
+                        <h2
+                            style="margin-bottom: 24px; font-size: 1.8rem; display: flex; align-items: center; gap: 12px;">
+                            <i data-lucide="clipboard-check" style="color: var(--accent);"></i> Results
+                        </h2>
+                        <div class="feedback-card">
+                            <div id="feedbackContent" class="feedback-content"></div>
+                        </div>
+
+                        <!-- Spelling & Grammar Section -->
+                        <div id="spellingSection" class="spelling-section" style="display: none;">
+                            <div class="spelling-header" id="spellingToggle">
+                                <div class="spelling-header-left">
+                                    <h3>Spelling & Grammar Issues</h3>
+                                    <span id="errorBadge" class="error-badge">0</span>
+                                </div>
+                                <svg class="chevron-icon" id="chevronIcon" width="20" height="20" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </div>
+                            <div class="spelling-content" id="spellingContent">
+                                <table class="spelling-table" id="spellingTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Error</th>
+                                            <th>Correction</th>
+                                            <th>Type</th>
+                                            <th>Part of Speech</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="spellingTableBody">
+                                        <!-- Rows will be inserted here -->
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </main>
+            </main>
+        </section>
     </div>
 
-    <!-- Scripts -->
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script>
         // Initialize Lucide icons
-        lucide.createIcons();
+        window.addEventListener('load', () => {
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        });
     </script>
 </body>
 

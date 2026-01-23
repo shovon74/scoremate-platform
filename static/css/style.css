@@ -211,6 +211,140 @@ body {
     gap: 16px;
 }
 
+/* Nested Dropdown */
+.nested-dropdown {
+    position: relative;
+}
+
+.nested-menu {
+    position: absolute;
+    top: 0;
+    left: 100%;
+    margin-left: 1px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    min-width: 180px;
+    padding: 8px 0;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(10px);
+    transition: all 0.2s ease;
+}
+
+.nested-dropdown:hover .nested-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+}
+
+/* Tools Section (Landing Page) */
+.tools-section {
+    padding: 60px 0;
+    text-align: center;
+    animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.section-title h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+}
+
+.section-title p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    margin-bottom: 50px;
+}
+
+.tools-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.tool-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 40px 20px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-sm);
+}
+
+.tool-card:hover {
+    transform: translateY(-10px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary);
+}
+
+.tool-icon {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tool-icon img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.tool-link {
+    text-decoration: none;
+    color: var(--text-primary);
+    font-weight: 600;
+    line-height: 1.4;
+    font-size: 1rem;
+    color: #cc0000;
+    /* Matching the red links in the image */
+    transition: color 0.2s;
+}
+
+.tool-link:hover {
+    color: var(--primary);
+    text-decoration: underline;
+}
+
+[data-theme="dark"] .tool-link {
+    color: #ff4d4d;
+}
+
+@media (max-width: 900px) {
+    .tools-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .tools-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 .nav-icon-btn {
     background: transparent;
     border: none;

@@ -1,3 +1,79 @@
+// Global state for session protection
+window.sessionState = {
+    timerRunning: false,
+    analysisInProgress: false
+};
+
+// Navigation logic for switching sections
+window.showSection = function (sectionId, updateState = true) {
+    console.log('Showing section:', sectionId);
+
+    // Check if we should warn the user before leaving
+    if (sectionId === 'landing' && (window.sessionState.timerRunning || window.sessionState.analysisInProgress)) {
+        const message = window.sessionState.analysisInProgress
+            ? 'Your essay is currently being analyzed. Leaving now will interrupt the process. Are you sure?'
+            : 'Your timer is running. Leaving now will end your session. Are you sure?';
+
+        if (!confirm(message)) {
+            return; // User cancelled, don't navigate
+        }
+    }
+
+    const landingSection = document.getElementById('landingSection');
+    const task2Section = document.getElementById('task2Section');
+
+    // Hide all sections first
+    if (landingSection) landingSection.style.display = 'none';
+    if (task2Section) task2Section.style.display = 'none';
+
+    // Show requested section
+    if (sectionId === 'landing' || sectionId === '') {
+        if (landingSection) landingSection.style.display = 'block';
+        if (updateState) {
+            try {
+                history.pushState({ section: 'landing' }, '', window.location.pathname);
+            } catch (e) {
+                console.warn('History pushState failed:', e);
+            }
+        }
+    } else if (sectionId === 'task2') {
+        if (task2Section) {
+            task2Section.style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        if (updateState) {
+            try {
+                history.pushState({ section: 'task2' }, '', '#task2');
+            } catch (e) {
+                console.warn('History pushState failed:', e);
+                window.location.hash = 'task2';
+            }
+        }
+    } else if (sectionId === 'task1') {
+        alert('Writing Task 1 Evaluation is coming soon!');
+        if (landingSection) landingSection.style.display = 'block';
+    }
+}
+
+// Handle browser Back/Forward navigation
+window.addEventListener('popstate', (event) => {
+    const section = (event.state && event.state.section) ? event.state.section : 'landing';
+    showSection(section, false);
+});
+
+// Check URL on initial load and handle hashes
+window.addEventListener('load', () => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash === 'task2') {
+        showSection('task2', false);
+    } else {
+        // Ensure landing is shown if no hash
+        showSection('landing', false);
+    }
+});
+
+
+
 document.addEventListener('DOMContentLoaded', () => {
     // Theme Toggle Logic
     const themeToggle = document.getElementById('themeToggle');
@@ -57,6 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function startTimer() {
         if (!isRunning) {
             isRunning = true;
+            window.sessionState.timerRunning = true;
             startBtn.disabled = true;
             stopBtn.disabled = false;
             timerInterval = setInterval(() => {
@@ -69,6 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function stopTimer() {
         if (isRunning) {
             isRunning = false;
+            window.sessionState.timerRunning = false;
             clearInterval(timerInterval);
             startBtn.disabled = false;
             stopBtn.disabled = true;
@@ -86,6 +164,15 @@ document.addEventListener('DOMContentLoaded', () => {
     startBtn.addEventListener('click', startTimer);
     stopBtn.addEventListener('click', stopTimer);
     resetBtn.addEventListener('click', resetTimer);
+
+    // Browser beforeunload protection
+    window.addEventListener('beforeunload', (e) => {
+        if (window.sessionState.timerRunning || window.sessionState.analysisInProgress) {
+            e.preventDefault();
+            e.returnValue = ''; // Required for Chrome
+            return ''; // Required for some browsers
+        }
+    });
 
     // Word Count Logic
     answerInput.addEventListener('input', () => {
@@ -117,9 +204,10 @@ document.addEventListener('DOMContentLoaded', () => {
         submitBtn.disabled = true;
         loading.style.display = 'flex';
         resultArea.classList.remove('show');
+        window.sessionState.analysisInProgress = true;
 
         try {
-            const response = await fetch('/check', {
+            const response = await fetch('/api/writing/task2/check', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ question, answer })
@@ -153,6 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } finally {
             submitBtn.disabled = false;
             loading.style.display = 'none';
+            window.sessionState.analysisInProgress = false;
         }
     });
 
