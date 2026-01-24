@@ -73,21 +73,25 @@
                     <a href="javascript:void(0)" onclick="showSection('calculators')" class="tool-link">IELTS Band Score
                         <br>Calculator</a>
                 </div>
-                <!-- Card 1 -->
+                <!-- Card 1: Academic Task 1 -->
+                <div class="tool-card highlighted">
+                    <div class="tool-icon">
+                        <img src="{{ url_for('static', filename='images/evaluation_icon.png') }}" alt="Evaluation Icon">
+                    </div>
+                    <a href="javascript:void(0)" onclick="showSection('task1_academic')" class="tool-link">IELTS
+                        Academic Writing Task 1 <br>Evaluation (Report)</a>
+                    <span class="badge badge-accent">Multimodal AI</span>
+                </div>
 
+                <!-- Card 2: General Task 1 -->
                 <div class="tool-card">
                     <div class="tool-icon">
                         <img src="{{ url_for('static', filename='images/evaluation_icon.png') }}" alt="Evaluation Icon">
                     </div>
-                    <a href="javascript:void(0)" class="tool-link">IELTS Academic Writing Task 1 <br>Evaluation</a>
+                    <a href="javascript:void(0)" onclick="showSection('task1_general')" class="tool-link">IELTS
+                        General Writing Task 1 <br>Evaluation (Letter)</a>
                 </div>
-                <!-- Card 2 -->
-                <div class="tool-card">
-                    <div class="tool-icon">
-                        <img src="{{ url_for('static', filename='images/evaluation_icon.png') }}" alt="Evaluation Icon">
-                    </div>
-                    <a href="javascript:void(0)" class="tool-link">IELTS General Writing Task 1 <br>Evaluation</a>
-                </div>
+
                 <!-- Card 3 -->
                 <div class="tool-card">
                     <div class="tool-icon">
@@ -119,6 +123,135 @@
                 </div>
             </div>
         </section>
+
+        <!-- App Section: Task 1 Checker -->
+        <section id="task1Section" class="app-section" style="display: none;">
+            <header>
+                <h1 id="task1Header">Writing Task 1 Evaluation</h1>
+                <p id="task1Subheader">Get instant AI feedback on your report or letter</p>
+                <button onclick="showSection('landing')" class="btn btn-secondary btn-sm" style="margin-top: 10px;">
+                    <i data-lucide="arrow-left"></i> Back to Toolkit
+                </button>
+            </header>
+
+            <main>
+                <!-- Timer Card -->
+                <div class="glass-panel timer-card">
+                    <div class="timer-display" id="task1-timerDisplay">00:00</div>
+                    <div class="controls">
+                        <button id="task1-startBtn" class="btn btn-primary">
+                            <i data-lucide="play"></i> Start Session
+                        </button>
+                        <button id="task1-stopBtn" class="btn btn-secondary" disabled>
+                            <i data-lucide="pause"></i> Pause
+                        </button>
+                        <button id="task1-resetBtn" class="btn btn-danger">
+                            <i data-lucide="rotate-ccw"></i> Reset
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Input Form -->
+                <form id="task1-checkForm" class="glass-panel" enctype="multipart/form-data">
+                    <input type="hidden" id="task1-type" name="task_type" value="academic">
+                    <div id="task1Grid" class="task1-grid">
+                        <!-- Column 1: Topic -->
+                        <div class="input-wrap">
+                            <label for="task1-question" id="task1-label-1">1. Topic / Instructions</label>
+                            <textarea id="task1-question" name="question"
+                                placeholder="Paste the IELTS Writing Task 1 prompt here..."></textarea>
+                        </div>
+
+                        <!-- Column 2: Chart Upload (Only for Academic) -->
+                        <div class="input-wrap" id="task1-upload-col">
+                            <label>2. Upload Chart/Diagram</label>
+                            <div class="upload-box" id="dropZone">
+                                <input type="file" id="task1-image" name="chart_image" accept="image/*" hidden>
+                                <div class="upload-placeholder" id="uploadPlaceholder">
+                                    <i data-lucide="image-plus"
+                                        style="width: 40px; height: 40px; color: var(--text-muted); margin-bottom: 12px;"></i>
+                                    <p>Click to upload or drag & drop</p>
+                                    <span>Supports JPG, PNG (Max 5MB)</span>
+                                </div>
+                                <div id="imagePreview" class="image-preview" style="display: none;">
+                                    <img src="" alt="Chart Preview">
+                                    <button type="button" class="remove-img" id="removeImg">
+                                        <i data-lucide="x"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Column 3: Answer -->
+                        <div class="input-wrap">
+                            <label for="task1-answer" id="task1-label-3">3. Your Answer</label>
+                            <textarea id="task1-answer" name="answer"
+                                placeholder="Type your 150+ word answer here..."></textarea>
+                            <div class="meta">
+                                <span id="task1-wordCount" class="badge">0 WORDS</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="submit-box">
+                        <button type="submit" id="task1-submitBtn" class="btn btn-primary btn-large">
+                            <i data-lucide="sparkles"></i> <span id="task1-btn-text">Analyze Writing</span>
+                        </button>
+                    </div>
+                </form>
+
+
+
+                <!-- Loading State -->
+                <div id="task1-loading" class="loading" style="display: none;">
+                    <div class="shimmer"></div>
+                    <p>Evaluating your task...</p>
+                </div>
+
+                <!-- Result Area -->
+                <div id="task1-resultArea" class="result-area">
+                    <div class="glass-panel">
+                        <h2
+                            style="margin-bottom: 24px; font-size: 1.8rem; display: flex; align-items: center; gap: 12px;">
+                            <i data-lucide="clipboard-check" style="color: var(--accent);"></i> Results
+                        </h2>
+                        <div class="feedback-card">
+                            <div id="task1-feedbackContent" class="feedback-content"></div>
+                        </div>
+
+                        <!-- Spelling & Grammar Section -->
+                        <div id="task1-spellingSection" class="spelling-section" style="display: none;">
+                            <div class="spelling-header" id="task1-spellingToggle">
+                                <div class="spelling-header-left">
+                                    <h3>Spelling & Grammar Issues</h3>
+                                    <span id="task1-errorBadge" class="error-badge">0</span>
+                                </div>
+                                <svg class="chevron-icon" id="task1-chevronIcon" width="20" height="20"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </div>
+                            <div class="spelling-content" id="task1-spellingContent">
+                                <table class="spelling-table" id="task1-spellingTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Error</th>
+                                            <th>Correction</th>
+                                            <th>Type</th>
+                                            <th>Part of Speech</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="task1-spellingTableBody">
+                                        <!-- Rows will be inserted here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </section>
+
 
         <!-- App Section: Task 2 Checker -->
         <section id="task2Section" class="app-section" style="display: none;">

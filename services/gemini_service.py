@@ -1,4 +1,5 @@
 from google import genai
+from google.genai import types
 import json
 import re
 from config import Config
@@ -8,6 +9,7 @@ class GeminiService:
         self.client = genai.Client(api_key=Config.GEMINI_API_KEY)
 
     def check_ielts_writing_task2(self, question, answer):
+
         """
         Use Gemini to check IELTS Writing Task 2 answer
         """
@@ -19,7 +21,7 @@ class GeminiService:
         Answer: {answer}
         
         Give scores and detailed feedback for each area:
-        1. Task Achievement (0-9): Does it answer the question?
+        1. Task Response (0-9): Does it answer the question?
         2. Coherence and Cohesion (0-9): Is it well organized?
         3. Lexical Resource (0-9): Good vocabulary use?
         4. Grammatical Range and Accuracy (0-9): Grammar correct?
@@ -27,7 +29,7 @@ class GeminiService:
         Format like this:
         **Overall Band Score: X.X**
         
-        **Task Achievement (X/9):** [Maximum 90 words of feedback in simple English]
+        **Task Response (X/9):** [Maximum 90 words of feedback in simple English]
         
         **Coherence and Cohesion (X/9):** [Maximum 90 words of feedback in simple English]
         
@@ -46,8 +48,134 @@ class GeminiService:
                 contents=prompt
             )
             return response.text
+
         except Exception as e:
             return f"Error: {str(e)}"
+
+    def check_ielts_writing_task1(self, question, answer, task_type='academic', image_file=None):
+        """
+        Use Gemini to check IELTS Writing Task 1 answer (Academic or General)
+        Supports Multimodal input (Images) for charts/diagrams.
+        """
+        # Define Task 1 Specific Standards based on Cambridge/British Council
+        standard_info = """
+        IELTS Academic Writing Task 1 Requirements:
+        - Time: Suggested 20 minutes
+        - Length: Minimum 150 words
+        - Content: Describe visual data (graph, chart, table, map, or diagram).
+        - Objective: Factual, objective, and accurate.
+        - Structure: Introduction (paraphrase), Overview (main trends), 2-3 body paragraphs (specific data).
+        - Scoring focus: Task Achievement, Coherence and Cohesion, Lexical Resource, Grammatical Range and Accuracy.
+        """
+
+        prompt = f"""
+        {standard_info}
+        
+        Evaluate this IELTS Academic Writing Task 1 Report based on the provided Question/Topic and Answer.
+        If an image of the chart/diagram is provided, analyze it to verify the accuracy of the report's data.
+        
+        Question/Topic: {question}
+        
+        Answer: {answer}
+        
+        Evaluate each area (0-9):
+        1. Task Achievement: Did they provide a clear overview and report main features accurately?
+        2. Coherence and Cohesion: Is the organization logical and ideas linked effectively?
+        3. Lexical Resource: Is there varied and appropriate vocabulary?
+        4. Grammatical Range and Accuracy: Are structures varied and errors minimized?
+        
+        Format your response like this:
+        **Overall Band Score: X.X**
+        
+        **Task Achievement (X/9):** [Feedback on data accuracy and overview]
+        
+        **Coherence and Cohesion (X/9):** [Feedback on organization]
+        
+        **Lexical Resource (X/9):** [Feedback on vocabulary]
+        
+        **Grammar (X/9):** [Feedback on sentence structures]
+        
+        **Main Tips:** [Actionable improvements in simple English]
+        """
+        
+        try:
+            parts = [types.Part.from_text(text=prompt)]
+            
+            # Add image to multimodal prompt if provided
+            if image_file:
+                # Reset pointer just in case
+                image_file.seek(0)
+                image_data = image_file.read()
+                parts.append(types.Part.from_bytes(
+                    data=image_data,
+                    mime_type=image_file.content_type
+                ))
+
+            response = self.client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=types.Content(role="user", parts=parts)
+            )
+
+            return response.text
+
+        except Exception as e:
+            import traceback
+            print(traceback.format_exc())
+            return f"Error: {str(e)}"
+
+
+    def check_ielts_writing_task1_general(self, question, answer):
+        """
+        Use Gemini to check IELTS General Writing Task 1 answer (Letter)
+        """
+        standard_info = """
+        IELTS General Training Writing Task 1 Requirements:
+        - Time: Suggested 20 minutes
+        - Length: Minimum 150 words
+        - Content: Write a letter based on an everyday scenario (complaining, requesting, apologizing, etc.).
+        - Tone: Must be consistent (Formal, Semi-formal, or Informal) based on the recipient.
+        - Structure: Must include suitable salutation, opening statement of purpose, three paragraphs covering the bullet points, and a polite closing.
+        - Scoring focus: Task Achievement (covering all 3 bullet points), Coherence and Cohesion, Lexical Resource, Grammatical Range and Accuracy.
+        """
+
+        prompt = f"""
+        {standard_info}
+        
+        Evaluate this IELTS General Training Writing Task 1 Letter based on the provided Scenario/Topic and the student's Answer.
+        
+        Scenario: {question}
+        
+        Answer: {answer}
+        
+        Evaluate each area (0-9):
+        1. Task Achievement: Did they cover all three bullet points? Is the tone appropriate and consistent? Is the purpose clear?
+        2. Coherence and Cohesion: Is the letter well-organized? Are transition words used naturally?
+        3. Lexical Resource: Is the vocabulary varied and suitable for the tone?
+        4. Grammatical Range and Accuracy: Are structures varied and errors minimized?
+        
+        Format your response like this in simple English:
+        **Overall Band Score: X.X**
+        
+        **Task Achievement (X/9):** [Feedback on tone, purpose, and bullet points]
+        
+        **Coherence and Cohesion (X/9):** [Feedback on organization and flow]
+        
+        **Lexical Resource (X/9):** [Feedback on vocabulary use]
+        
+        **Grammar (X/9):** [Feedback on sentence structures and accuracy]
+        
+        **Main Tips:** [Actionable improvements for this letter]
+        """
+        
+        try:
+            response = self.client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=prompt
+            )
+            return response.text
+        except Exception as e:
+            return f"Error: {str(e)}"
+
 
     def check_spelling_grammar(self, answer):
         """

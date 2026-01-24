@@ -27,11 +27,13 @@ window.showSection = function (sectionId, updateState = true) {
 
     const landingSection = document.getElementById('landingSection');
     const task2Section = document.getElementById('task2Section');
+    const task1Section = document.getElementById('task1Section');
     const calculatorsSection = document.getElementById('calculatorsSection');
 
     // Hide all sections first
     if (landingSection) landingSection.style.display = 'none';
     if (task2Section) task2Section.style.display = 'none';
+    if (task1Section) task1Section.style.display = 'none';
     if (calculatorsSection) calculatorsSection.style.display = 'none';
 
     // Show requested section
@@ -70,10 +72,54 @@ window.showSection = function (sectionId, updateState = true) {
                 window.location.hash = 'calculators';
             }
         }
-    } else if (sectionId === 'task1') {
-        alert('Writing Task 1 Evaluation is coming soon!');
-        if (landingSection) landingSection.style.display = 'block';
+    } else if (sectionId === 'task1_academic' || sectionId === 'task1_general') {
+        if (task1Section) {
+            const isAcademic = sectionId === 'task1_academic';
+            const uploadCol = document.getElementById('task1-upload-col');
+            const grid = document.getElementById('task1Grid');
+            const submitBtnText = document.getElementById('task1-btn-text');
+            const label1 = document.getElementById('task1-label-1');
+            const label3 = document.getElementById('task1-label-3');
+            const answerInput = document.getElementById('task1-answer');
+
+            document.getElementById('task1Header').textContent = isAcademic
+                ? 'IELTS Academic Writing Task 1'
+                : 'IELTS General Writing Task 1';
+            document.getElementById('task1Subheader').textContent = isAcademic
+                ? 'Analyze your report based on charts, graphs, or diagrams'
+                : 'Evaluate your formal, semi-formal, or informal letter';
+            document.getElementById('task1-type').value = isAcademic ? 'academic' : 'general';
+
+            if (isAcademic) {
+                if (uploadCol) uploadCol.style.display = 'flex';
+                if (grid) grid.style.gridTemplateColumns = '1fr 1fr 1.5fr';
+                if (submitBtnText) submitBtnText.textContent = 'Analyze Academic Report';
+                if (label1) label1.textContent = '1. Topic / Instructions';
+                if (label3) label3.textContent = '3. Your Report';
+                if (answerInput) answerInput.placeholder = 'Type your 150+ word report here...';
+            } else {
+                if (uploadCol) uploadCol.style.display = 'none';
+                if (grid) grid.style.gridTemplateColumns = '1fr 1.5fr';
+                if (submitBtnText) submitBtnText.textContent = 'Analyze General Letter';
+                if (label1) label1.textContent = '1. Letter Scenario / Topic';
+                if (label3) label3.textContent = '2. Your Letter';
+                if (answerInput) answerInput.placeholder = 'Type your 150+ word letter here...';
+            }
+
+            task1Section.style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        if (updateState) {
+            try {
+                history.pushState({ section: sectionId }, '', '#' + sectionId);
+            } catch (e) {
+                console.warn('History pushState failed:', e);
+                window.location.hash = sectionId;
+            }
+        }
     }
+
+
 }
 
 // Handle browser Back/Forward navigation
@@ -93,11 +139,18 @@ window.addEventListener('load', () => {
     const hash = window.location.hash.replace('#', '');
     if (hash === 'task2') {
         showSection('task2', false);
+    } else if (hash === 'calculators') {
+        showSection('calculators', false);
+    } else if (hash === 'task1_academic') {
+        showSection('task1_academic', false);
+    } else if (hash === 'task1_general') {
+        showSection('task1_general', false);
     } else {
         // Ensure landing is shown if no hash
         showSection('landing', false);
     }
 });
+
 
 
 
@@ -254,6 +307,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Handle spelling/grammar errors
                 displaySpellingErrors(data.spelling_errors || []);
 
+
                 resultArea.classList.add('show');
 
                 // Scroll to results
@@ -283,10 +337,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Display Spelling Errors Function
-    function displaySpellingErrors(errors) {
-        const spellingSection = document.getElementById('spellingSection');
-        const errorBadge = document.getElementById('errorBadge');
-        const tableBody = document.getElementById('spellingTableBody');
+    function displaySpellingErrors(errors, prefix = '') {
+        const spellingSection = document.getElementById(prefix + 'spellingSection');
+        const errorBadge = document.getElementById(prefix + 'errorBadge');
+        const tableBody = document.getElementById(prefix + 'spellingTableBody');
+
+        if (!spellingSection || !errorBadge || !tableBody) return;
 
         if (errors.length === 0) {
             spellingSection.style.display = 'none';
@@ -324,6 +380,217 @@ document.addEventListener('DOMContentLoaded', () => {
         div.textContent = text;
         return div.innerHTML;
     }
+
+    // --- Writing Task 1 Logic ---
+    let t1TimerInterval;
+    let t1TimeElapsed = 0;
+    let t1IsRunning = false;
+
+    const t1TimerDisplay = document.getElementById('task1-timerDisplay');
+    const t1StartBtn = document.getElementById('task1-startBtn');
+    const t1StopBtn = document.getElementById('task1-stopBtn');
+    const t1ResetBtn = document.getElementById('task1-resetBtn');
+    const t1AnswerInput = document.getElementById('task1-answer');
+    const t1QuestionInput = document.getElementById('task1-question');
+    const t1WordCountBadge = document.getElementById('task1-wordCount');
+    const t1Form = document.getElementById('task1-checkForm');
+    const t1SubmitBtn = document.getElementById('task1-submitBtn');
+    const t1Loading = document.getElementById('task1-loading');
+    const t1ResultArea = document.getElementById('task1-resultArea');
+    const t1FeedbackContent = document.getElementById('task1-feedbackContent');
+    const t1TypeInput = document.getElementById('task1-type');
+
+    // Image Upload Elements
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('task1-image');
+    const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+    const imagePreview = document.getElementById('imagePreview');
+    const previewImg = imagePreview.querySelector('img');
+    const removeImgBtn = document.getElementById('removeImg');
+
+    // Image Upload Logic
+    if (dropZone) {
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) handleImageFile(file);
+        });
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = 'var(--primary)';
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.style.borderColor = 'var(--border)';
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = 'var(--border)';
+            const file = e.dataTransfer.files[0];
+            if (file) handleImageFile(file);
+        });
+    }
+
+    function handleImageFile(file) {
+        if (!file.type.startsWith('image/')) {
+            alert('Please upload an image file (JPG/PNG).');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            previewImg.src = e.target.result;
+            uploadPlaceholder.style.display = 'none';
+            imagePreview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+
+    if (removeImgBtn) {
+        removeImgBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            fileInput.value = '';
+            previewImg.src = '';
+            uploadPlaceholder.style.display = 'flex';
+            imagePreview.style.display = 'none';
+        });
+    }
+
+    function updateT1Timer() {
+        if (t1TimerDisplay) t1TimerDisplay.textContent = formatTime(t1TimeElapsed);
+        if (t1TimeElapsed >= 20 * 60 && t1TimerDisplay) { // 20 mins for Task 1
+            t1TimerDisplay.classList.add('warning');
+        }
+    }
+
+    if (t1StartBtn) {
+        t1StartBtn.addEventListener('click', () => {
+            if (!t1IsRunning) {
+                t1IsRunning = true;
+                window.sessionState.timerRunning = true;
+                t1StartBtn.disabled = true;
+                t1StopBtn.disabled = false;
+                t1TimerInterval = setInterval(() => {
+                    t1TimeElapsed++;
+                    updateT1Timer();
+                }, 1000);
+            }
+        });
+    }
+
+    if (t1StopBtn) {
+        t1StopBtn.addEventListener('click', () => {
+            if (t1IsRunning) {
+                t1IsRunning = false;
+                window.sessionState.timerRunning = false;
+                clearInterval(t1TimerInterval);
+                t1StartBtn.disabled = false;
+                t1StopBtn.disabled = true;
+            }
+        });
+    }
+
+    if (t1ResetBtn) {
+        t1ResetBtn.addEventListener('click', () => {
+            t1IsRunning = false;
+            window.sessionState.timerRunning = false;
+            clearInterval(t1TimerInterval);
+            t1TimeElapsed = 0;
+            updateT1Timer();
+            if (t1TimerDisplay) t1TimerDisplay.classList.remove('warning');
+            if (t1StartBtn) t1StartBtn.disabled = false;
+            if (t1StopBtn) t1StopBtn.disabled = true;
+        });
+    }
+
+
+    if (t1AnswerInput) {
+        t1AnswerInput.addEventListener('input', () => {
+            const text = t1AnswerInput.value.trim();
+            const words = text ? text.split(/\s+/).length : 0;
+            t1WordCountBadge.textContent = `${words} WORDS`;
+            if (words < 150) {
+                t1WordCountBadge.style.color = '#ef4444';
+            } else {
+                t1WordCountBadge.style.color = '#10b981';
+            }
+        });
+    }
+
+    if (t1Form) {
+        t1Form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const question = t1QuestionInput.value.trim();
+            const answer = t1AnswerInput.value.trim();
+            const taskType = t1TypeInput.value;
+            const imageFile = fileInput.files[0];
+
+            if (!question || !answer) {
+                alert('Please provide both the question/topic and your answer.');
+                return;
+            }
+
+            // Create FormData to send image and text
+            const formData = new FormData();
+            formData.append('question', question);
+            formData.append('answer', answer);
+            formData.append('task_type', taskType);
+            if (imageFile) {
+                formData.append('chart_image', imageFile);
+            }
+
+            t1SubmitBtn.disabled = true;
+            t1Loading.style.display = 'flex';
+            t1ResultArea.classList.remove('show');
+            window.sessionState.analysisInProgress = true;
+
+            try {
+                const response = await fetch('/api/writing/task1/check', {
+                    method: 'POST',
+                    body: formData // Fetch handles FormData automatically
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    let formattedFeedback = data.feedback
+                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                        .replace(/\n/g, '<br>');
+
+                    t1FeedbackContent.innerHTML = formattedFeedback;
+                    displaySpellingErrors(data.spelling_errors || [], 'task1-');
+                    t1ResultArea.classList.add('show');
+                    setTimeout(() => {
+                        t1ResultArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 100);
+                } else {
+                    alert(data.error || 'Something went wrong.');
+                }
+            } catch (err) {
+                alert('Network error. Please check your connection.');
+            } finally {
+                t1SubmitBtn.disabled = false;
+                t1Loading.style.display = 'none';
+                window.sessionState.analysisInProgress = false;
+            }
+        });
+    }
+
+
+    const t1SpellingToggle = document.getElementById('task1-spellingToggle');
+    const t1SpellingContent = document.getElementById('task1-spellingContent');
+    const t1ChevronIcon = document.getElementById('task1-chevronIcon');
+
+    if (t1SpellingToggle) {
+        t1SpellingToggle.addEventListener('click', () => {
+            t1SpellingContent.classList.toggle('open');
+            t1ChevronIcon.classList.toggle('open');
+        });
+    }
+
 
     // --- Calculator Logic ---
 
