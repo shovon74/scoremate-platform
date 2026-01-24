@@ -35,11 +35,13 @@
                                     </li>
                                 </ul>
                             </li>
-                            <li><a href="#">Speaking Practice</a></li>
+                            <li><a href="javascript:void(0)">Speaking Practice</a></li>
                         </ul>
                     </li>
-                    <li><a href="#">Library</a></li>
-                    <li><a href="#">Tips</a></li>
+                    <li><a href="javascript:void(0)" onclick="showSection('calculators')">Calculators</a></li>
+                    <li><a href="javascript:void(0)">Library</a></li>
+                    <li><a href="javascript:void(0)">Tips</a></li>
+
                     <li><a href="#">Premium</a></li>
                 </ul>
             </div>
@@ -58,11 +60,21 @@
         <!-- Landing Section: Learning Tools -->
         <section id="landingSection" class="tools-section">
             <div class="section-title">
-                <h2>Learning Tools</h2>
-                <p>Boost your English learning success with our all-in-one toolkit.</p>
+                <h2>Smart Prep Toolkit</h2>
+                <p>Boost your English learning success with our all-in-one preparation arsenal.</p>
             </div>
+
             <div class="tools-grid">
+                <!-- Card 0: Calculator -->
+                <div class="tool-card">
+                    <div class="tool-icon">
+                        <img src="{{ url_for('static', filename='images/calculator_icon.png') }}" alt="Calculator Icon">
+                    </div>
+                    <a href="javascript:void(0)" onclick="showSection('calculators')" class="tool-link">IELTS Band Score
+                        <br>Calculator</a>
+                </div>
                 <!-- Card 1 -->
+
                 <div class="tool-card">
                     <div class="tool-icon">
                         <img src="{{ url_for('static', filename='images/evaluation_icon.png') }}" alt="Evaluation Icon">
@@ -209,6 +221,93 @@
                 </div>
             </main>
         </section>
+
+        <!-- Calculators Section -->
+        <section id="calculatorsSection" class="app-section" style="display: none;">
+            <header>
+                <h1>IELTS Score Calculators</h1>
+                <p>Calculate your overall band score or module-specific results accurately.</p>
+                <button onclick="showSection('landing')" class="btn btn-secondary btn-sm" style="margin-top: 10px;">
+                    <i data-lucide="arrow-left"></i> Back to Toolkit
+                </button>
+            </header>
+
+            <div class="calculator-container">
+                <div class="calc-tabs">
+                    <button class="calc-tab active" data-tab="overall">Overall</button>
+                    <button class="calc-tab" data-tab="listening">Listening</button>
+                    <button class="calc-tab" data-tab="reading">Reading</button>
+                </div>
+
+                <div class="calc-content" id="calc-overall">
+                    <div class="glass-panel">
+                        <h3>Overall Band Score</h3>
+                        <div class="calc-grid">
+                            <div class="calc-input-group">
+                                <label>Listening</label>
+                                <input type="number" id="overall-listening" min="0" max="9" step="0.5" value="0.0">
+                            </div>
+                            <div class="calc-input-group">
+                                <label>Reading</label>
+                                <input type="number" id="overall-reading" min="0" max="9" step="0.5" value="0.0">
+                            </div>
+                            <div class="calc-input-group">
+                                <label>Writing</label>
+                                <input type="number" id="overall-writing" min="0" max="9" step="0.5" value="0.0">
+                            </div>
+                            <div class="calc-input-group">
+                                <label>Speaking</label>
+                                <input type="number" id="overall-speaking" min="0" max="9" step="0.5" value="0.0">
+                            </div>
+                        </div>
+                        <div class="calc-result-box">
+                            <span class="label">Estimated Band Score:</span>
+                            <span class="value" id="overall-result">0.0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="calc-content" id="calc-listening" style="display: none;">
+                    <div class="glass-panel">
+                        <h3>Listening Raw to Band</h3>
+                        <div class="calc-grid">
+                            <div class="calc-input-group">
+                                <label>Correct Answers (out of 40)</label>
+                                <input type="number" id="listening-raw" min="0" max="40" value="0">
+                            </div>
+                        </div>
+                        <div class="calc-result-box">
+                            <span class="label">Estimated Band Score:</span>
+                            <span class="value" id="listening-band">0.0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="calc-content" id="calc-reading" style="display: none;">
+                    <div class="glass-panel">
+                        <h3>Reading Raw to Band</h3>
+                        <div class="calc-grid">
+                            <div class="calc-input-group">
+                                <label>IELTS Type</label>
+                                <select id="reading-type">
+                                    <option value="academic">Academic</option>
+                                    <option value="general">General Training</option>
+                                </select>
+                            </div>
+                            <div class="calc-input-group">
+                                <label>Correct Answers (out of 40)</label>
+                                <input type="number" id="reading-raw" min="0" max="40" value="0">
+                            </div>
+                        </div>
+                        <div class="calc-result-box">
+                            <span class="label">Estimated Band Score:</span>
+                            <span class="value" id="reading-band">0.0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
     </div>
 
     <script>

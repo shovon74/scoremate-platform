@@ -8,6 +8,12 @@ window.sessionState = {
 window.showSection = function (sectionId, updateState = true) {
     console.log('Showing section:', sectionId);
 
+    // If we are leaving the calculators section, reset all values
+    const currentHash = window.location.hash;
+    if (currentHash === '#calculators' && sectionId !== 'calculators') {
+        if (window.resetCalculators) window.resetCalculators();
+    }
+
     // Check if we should warn the user before leaving
     if (sectionId === 'landing' && (window.sessionState.timerRunning || window.sessionState.analysisInProgress)) {
         const message = window.sessionState.analysisInProgress
@@ -21,10 +27,12 @@ window.showSection = function (sectionId, updateState = true) {
 
     const landingSection = document.getElementById('landingSection');
     const task2Section = document.getElementById('task2Section');
+    const calculatorsSection = document.getElementById('calculatorsSection');
 
     // Hide all sections first
     if (landingSection) landingSection.style.display = 'none';
     if (task2Section) task2Section.style.display = 'none';
+    if (calculatorsSection) calculatorsSection.style.display = 'none';
 
     // Show requested section
     if (sectionId === 'landing' || sectionId === '') {
@@ -49,6 +57,19 @@ window.showSection = function (sectionId, updateState = true) {
                 window.location.hash = 'task2';
             }
         }
+    } else if (sectionId === 'calculators') {
+        if (calculatorsSection) {
+            calculatorsSection.style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        if (updateState) {
+            try {
+                history.pushState({ section: 'calculators' }, '', '#calculators');
+            } catch (e) {
+                console.warn('History pushState failed:', e);
+                window.location.hash = 'calculators';
+            }
+        }
     } else if (sectionId === 'task1') {
         alert('Writing Task 1 Evaluation is coming soon!');
         if (landingSection) landingSection.style.display = 'block';
@@ -58,6 +79,12 @@ window.showSection = function (sectionId, updateState = true) {
 // Handle browser Back/Forward navigation
 window.addEventListener('popstate', (event) => {
     const section = (event.state && event.state.section) ? event.state.section : 'landing';
+
+    // Always attempt to reset calculators when navigating via browser history
+    if (window.resetCalculators) {
+        window.resetCalculators();
+    }
+
     showSection(section, false);
 });
 
@@ -297,4 +324,156 @@ document.addEventListener('DOMContentLoaded', () => {
         div.textContent = text;
         return div.innerHTML;
     }
+
+    // --- Calculator Logic ---
+
+    // Constraints & Validation
+    function clamp(val, min, max) {
+        return Math.max(min, Math.min(max, val));
+    }
+
+    // Tab Switching
+    const calcTabs = document.querySelectorAll('.calc-tab');
+    const calcContents = document.querySelectorAll('.calc-content');
+
+    calcTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const target = tab.dataset.tab;
+            calcTabs.forEach(t => t.classList.remove('active'));
+            calcContents.forEach(c => c.style.display = 'none');
+
+            tab.classList.add('active');
+            document.getElementById(`calc-${target}`).style.display = 'block';
+        });
+    });
+
+    // Overall Band Score Calculation
+    const overallInputs = ['listening', 'reading', 'writing', 'speaking'];
+    overallInputs.forEach(id => {
+        const input = document.getElementById(`overall-${id}`);
+        input.addEventListener('change', (e) => {
+            // Enforce 0-9 range and 0.5 increments on change
+            let val = parseFloat(e.target.value) || 0;
+            val = clamp(Math.round(val * 2) / 2, 0, 9);
+            e.target.value = val.toFixed(1);
+            updateOverallScore();
+        });
+        input.addEventListener('input', updateOverallScore);
+    });
+
+    function updateOverallScore() {
+        const scores = overallInputs.map(id => {
+            let val = parseFloat(document.getElementById(`overall-${id}`).value) || 0;
+            return clamp(val, 0, 9);
+        });
+        const mean = scores.reduce((a, b) => a + b, 0) / 4;
+
+        // Official IELTS Rounding: 
+        // Average 6.25 -> 6.5, 6.75 -> 7.0
+        // This is equivalent to rounding to the nearest 0.5
+        const rounded = Math.round(mean * 2) / 2;
+        document.getElementById('overall-result').textContent = rounded.toFixed(1);
+    }
+
+    // Listening Score Calculation
+    const listeningRawInput = document.getElementById('listening-raw');
+    listeningRawInput.addEventListener('input', (e) => {
+        let raw = parseInt(e.target.value) || 0;
+        if (raw > 40) e.target.value = 40;
+        if (raw < 0) e.target.value = 0;
+        raw = clamp(raw, 0, 40);
+        document.getElementById('listening-band').textContent = mapRawToBand(raw, 'listening').toFixed(1);
+    });
+
+    // Reading Score Calculation
+    const readingType = document.getElementById('reading-type');
+    const readingRaw = document.getElementById('reading-raw');
+
+    [readingType, readingRaw].forEach(el => {
+        el.addEventListener('input', () => {
+            let raw = parseInt(readingRaw.value) || 0;
+            if (raw > 40) readingRaw.value = 40;
+            if (raw < 0) readingRaw.value = 0;
+            raw = clamp(raw, 0, 40);
+            const type = readingType.value;
+            document.getElementById('reading-band').textContent = mapRawToBand(raw, 'reading', type).toFixed(1);
+        });
+    });
+
+    function mapRawToBand(raw, module, type = 'academic') {
+        if (raw <= 0) return 0.0;
+
+        if (module === 'listening') {
+            if (raw >= 39) return 9.0;
+            if (raw >= 37) return 8.5;
+            if (raw >= 35) return 8.0;
+            if (raw >= 32) return 7.5;
+            if (raw >= 30) return 7.0;
+            if (raw >= 26) return 6.5;
+            if (raw >= 23) return 6.0;
+            if (raw >= 18) return 5.5;
+            if (raw >= 16) return 5.0;
+            if (raw >= 13) return 4.5;
+            if (raw >= 10) return 4.0;
+            if (raw >= 6) return 3.5;
+            if (raw >= 4) return 3.0;
+            return 2.5;
+        } else if (module === 'reading' && type === 'academic') {
+            if (raw >= 39) return 9.0;
+            if (raw >= 37) return 8.5;
+            if (raw >= 35) return 8.0;
+            if (raw >= 33) return 7.5;
+            if (raw >= 30) return 7.0;
+            if (raw >= 27) return 6.5;
+            if (raw >= 23) return 6.0;
+            if (raw >= 19) return 5.5;
+            if (raw >= 15) return 5.0;
+            if (raw >= 13) return 4.5;
+            if (raw >= 10) return 4.0;
+            if (raw >= 7) return 3.5;
+            if (raw >= 5) return 3.0;
+            return 2.5;
+        } else if (module === 'reading' && type === 'general') {
+            if (raw >= 40) return 9.0;
+            if (raw >= 39) return 8.5;
+            if (raw >= 37) return 8.0;
+            if (raw >= 36) return 7.5;
+            if (raw >= 34) return 7.0;
+            if (raw >= 32) return 6.5;
+            if (raw >= 30) return 6.0;
+            if (raw >= 27) return 5.5;
+            if (raw >= 23) return 5.0;
+            if (raw >= 19) return 4.5;
+            if (raw >= 15) return 4.0;
+            if (raw >= 12) return 3.5;
+            if (raw >= 9) return 3.0;
+            return 2.5;
+        }
+        return 0.0;
+    }
+
+    // Expose reset function globally
+    window.resetCalculators = function () {
+        console.log('Resetting all calculators...');
+
+        // Reset Overall Inputs
+        overallInputs.forEach(id => {
+            const input = document.getElementById(`overall-${id}`);
+            if (input) input.value = "0.0";
+        });
+        const overallResult = document.getElementById('overall-result');
+        if (overallResult) overallResult.textContent = "0.0";
+
+        // Reset Listening
+        const listeningRaw = document.getElementById('listening-raw');
+        if (listeningRaw) listeningRaw.value = "0";
+        const listeningBand = document.getElementById('listening-band');
+        if (listeningBand) listeningBand.textContent = "0.0";
+
+        // Reset Reading
+        const readingRawInput = document.getElementById('reading-raw');
+        if (readingRawInput) readingRawInput.value = "0";
+        const readingBand = document.getElementById('reading-band');
+        if (readingBand) readingBand.textContent = "0.0";
+    };
 });
