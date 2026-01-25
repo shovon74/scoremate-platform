@@ -8,3 +8,6 @@ venv/
 __pycache__/
 *.py[cod]
 *.egg-info/
+# Debug output
+out.txt
+full_models.txt

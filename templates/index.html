@@ -100,27 +100,31 @@
                     <a href="javascript:void(0)" onclick="showSection('task2')" class="tool-link">IELTS Writing Task 2
                         <br>Evaluation</a>
                 </div>
-                <!-- Card 4 -->
+                <!-- Speaking Part 1 -->
                 <div class="tool-card">
                     <div class="tool-icon">
-                        <img src="{{ url_for('static', filename='images/generator_icon.png') }}" alt="Generator Icon">
+                        <img src="{{ url_for('static', filename='images/speaking_icon.png') }}" alt="Speaking Icon">
                     </div>
-                    <a href="javascript:void(0)" class="tool-link">IELTS Academic Writing Task 1 <br>Generator</a>
+                    <a href="javascript:void(0)" onclick="showSection('speaking_part1')" class="tool-link">IELTS
+                        Speaking Part 1 <br>Evaluator</a>
                 </div>
-                <!-- Card 5 -->
+                <!-- Speaking Part 2 -->
                 <div class="tool-card">
                     <div class="tool-icon">
-                        <img src="{{ url_for('static', filename='images/generator_icon.png') }}" alt="Generator Icon">
+                        <img src="{{ url_for('static', filename='images/speaking_icon.png') }}" alt="Speaking Icon">
                     </div>
-                    <a href="javascript:void(0)" class="tool-link">IELTS General Writing Task 1 <br>Generator</a>
+                    <a href="javascript:void(0)" onclick="showSection('speaking_part2')" class="tool-link">IELTS
+                        Speaking Part 2 <br>Evaluator</a>
                 </div>
-                <!-- Card 6 -->
+                <!-- Speaking Part 3 -->
                 <div class="tool-card">
                     <div class="tool-icon">
-                        <img src="{{ url_for('static', filename='images/generator_icon.png') }}" alt="Generator Icon">
+                        <img src="{{ url_for('static', filename='images/speaking_icon.png') }}" alt="Speaking Icon">
                     </div>
-                    <a href="javascript:void(0)" class="tool-link">IELTS Writing Task 2 <br>Generator</a>
+                    <a href="javascript:void(0)" onclick="showSection('speaking_part3')" class="tool-link">IELTS
+                        Speaking Part 3 <br>Evaluator</a>
                 </div>
+
             </div>
         </section>
 
@@ -350,6 +354,156 @@
                                 </table>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </main>
+        </section>
+        <!-- App Section: Speaking Tool -->
+        <section id="speakingSection" class="app-section" style="display: none;">
+            <header>
+                <h1 id="speakingHeader" class="speaking-header-red">IELTS Speaking Part 1 Answer Checker</h1>
+                <p id="speakingSubheader">Instantly and precisely evaluate your IELTS speaking part 1 answer with
+                    detailed feedback</p>
+                <div class="speaking-nav-links" id="speakingNav">
+                    (Looking for <a href="javascript:void(0)" onclick="showSection('speaking_part1')">speaking part
+                        1</a> /
+                    <a href="javascript:void(0)" onclick="showSection('speaking_part2')">speaking part 2</a> /
+                    <a href="javascript:void(0)" onclick="showSection('speaking_part3')">speaking part 3</a>?)
+                </div>
+                <button onclick="showSection('landing')" class="btn btn-secondary btn-sm" style="margin-top: 20px;">
+                    <i data-lucide="arrow-left"></i> Back to Toolkit
+                </button>
+            </header>
+
+            <main>
+                <div class="glass-panel speaking-main-panel">
+                    <input type="hidden" id="speakingPart" value="1">
+
+                    <!-- Topic Input -->
+                    <div class="input-wrap boxed-speaking">
+                        <label for="speakingTopic">Topic</label>
+                        <textarea id="speakingTopic"
+                            placeholder="Enter a speaking part 1 question (topic)..."></textarea>
+                    </div>
+
+                    <!-- Answer / Recording Area -->
+                    <div class="input-wrap boxed-speaking">
+                        <label>Answer</label>
+                        <div class="recording-container">
+                            <p id="recordingPlaceholder" class="recording-placeholder">Click the mic icon to start
+                                recording...</p>
+
+                            <div id="transcriptPreviewArea" class="transcript-preview-area" style="display: none;">
+                                <p id="liveTranscript"></p>
+                            </div>
+
+                            <div class="mic-controls">
+                                <button id="micBtnLarge" class="mic-btn-large">
+                                    <i data-lucide="mic"></i>
+                                </button>
+
+                                <label for="audioUpload" class="btn btn-upload-audio">
+                                    Or upload an audio file <i data-lucide="upload-cloud"></i>
+                                    <input type="file" id="audioUpload" accept="audio/*" hidden>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="speaking-meta-row">
+                        <span class="speaking-time">Speaking Time: <span id="speakingTimer">0s</span></span>
+                    </div>
+
+                    <div class="speaking-submit-container">
+                        <button id="checkSpeechBtn" class="btn btn-check-speech">Check My Speech</button>
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div id="speaking-loading" class="loading" style="display: none;">
+                    <div class="shimmer"></div>
+                    <p>Analyzing your speech...</p>
+                </div>
+
+
+                <!-- Evaluation Results -->
+                <div id="speakingEvalArea" class="result-area" style="display: none;">
+                    <div class="glass-panel speaking-result-card">
+                        <div class="speaking-result-header">
+                            <div class="accuracy-gauge-container">
+                                <div class="accuracy-gauge" id="accuracyGauge">
+                                    <div class="gauge-inner">
+                                        <span id="accuracyValue">0%</span>
+                                    </div>
+                                </div>
+                                <span class="gauge-label">Accuracy</span>
+                            </div>
+                            <div class="band-indicator">
+                                <span class="band-label">Overall Band Score</span>
+                                <span class="band-value" id="speakingOverallBand">0.0</span>
+                            </div>
+                        </div>
+
+                        <div class="speaking-feedback-tabs">
+
+                            <!-- 1. Detailed Criteria Analysis -->
+                            <div class="feedback-grid">
+                                <div class="feedback-item">
+                                    <div class="feedback-header">
+                                        <h5>Fluency & Coherence</h5>
+                                        <span class="score-badge" id="fluencyScore">0.0</span>
+                                    </div>
+                                    <div id="fluencyContent"></div>
+                                </div>
+                                <div class="feedback-item">
+                                    <div class="feedback-header">
+                                        <h5>Lexical Resource</h5>
+                                        <span class="score-badge" id="lexicalScore">0.0</span>
+                                    </div>
+                                    <div id="lexicalContent"></div>
+                                </div>
+                                <div class="feedback-item">
+                                    <div class="feedback-header">
+                                        <h5>Grammatical Range</h5>
+                                        <span class="score-badge" id="grammarScore">0.0</span>
+                                    </div>
+                                    <div id="grammarContent"></div>
+                                </div>
+                                <div class="feedback-item">
+                                    <div class="feedback-header">
+                                        <h5>Pronunciation</h5>
+                                        <span class="score-badge" id="pronunciationScore">0.0</span>
+                                    </div>
+                                    <div id="pronunciationContent"></div>
+                                </div>
+                            </div>
+
+                            <!-- 2. Actual Transcript -->
+                            <div class="actual-transcript-section">
+                                <h4>Actual audio transcript (What native speakers are likely to hear):</h4>
+                                <div id="actualTranscript" class="word-confidence-display"></div>
+                            </div>
+
+                            <!-- 3. Repetitive Words Analysis -->
+                            <div class="repetitive-section">
+                                <h4>Repetitive Words Analysis:</h4>
+                                <p class="description-text">Words or phrases you overused contextually:</p>
+                                <div id="repetitiveWordsList" class="tags-container"></div>
+                            </div>
+
+                            <!-- 4. Polished Transcript -->
+                            <div class="polished-section">
+                                <h4>Polished transcript:</h4>
+                                <div class="tts-controls">
+                                    <button class="btn btn-outline btn-sm" onclick="speakText('male')"><i
+                                            data-lucide="volume-2"></i> Male</button>
+                                    <button class="btn btn-outline btn-sm" onclick="speakText('female')"><i
+                                            data-lucide="volume-2"></i> Female</button>
+                                </div>
+                                <p id="polishedTranscript" class="polished-text"></p>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </main>

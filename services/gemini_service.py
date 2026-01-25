@@ -226,5 +226,105 @@ class GeminiService:
             print(f"Error in spelling/grammar check: {str(e)}")
             return []
 
+    def generate_ielts_speaking_sample(self, part, topic, ideas=""):
+        """
+        Generate a Band 9 sample answer for IELTS Speaking Part 1, 2, or 3
+        """
+        prompt = f"""
+        Act as an IELTS Band 9 candidate. Generate a high-scoring sample answer for IELTS Speaking Part {part}.
+        
+        Topic/Question: {topic}
+        Optional Ideas to include: {ideas}
+        
+        Requirements:
+        - Part 1: Provide a concise, natural, and friendly answer (3-4 sentences).
+        - Part 2: Provide a full 2-minute "long turn" response (approx 200-250 words) with clear structure.
+        - Part 3: Provide a detailed, abstract, and well-justified response (approx 100-150 words).
+        
+        Use natural fillers (like "well", "actually", "to be honest") where appropriate to sound like a native speaker.
+        Ensure complex grammatical structures and high-level vocabulary are used naturally.
+        
+        Return ONLY the sample answer text.
+        """
+        
+        try:
+            response = self.client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=prompt
+            )
+            return response.text.strip()
+        except Exception as e:
+            return f"Error generating sample: {str(e)}"
+
+    def evaluate_ielts_speaking(self, part, topic, transcript, audio_file=None):
+        """
+        Evaluate an IELTS Speaking answer based on a transcript and optional audio.
+        """
+        prompt = f"""
+        Act as an IELTS Speaking Examiner. Evaluate this IELTS Speaking Part {part} response.
+        
+        Topic: {topic}
+        Transcript (for reference): {transcript}
+        
+        If audio is provided, listen carefully to assess pronunciation, intonation, and fluency.
+        
+        Provide scores (0-9) and detailed feedback for IELTS criteria.
+        
+        Format your response ONLY as a valid JSON object with these EXACT fields:
+        {{
+            "overall_band": 7.5,
+            "fluency_score": 7.0,
+            "lexical_score": 8.0,
+            "grammar_score": 7.5,
+            "pronunciation_score": 7.0,
+            "fluency_feedback": "Short feedback on fluency...",
+            "lexical_feedback": "Short feedback on vocabulary...",
+            "grammar_feedback": "Short feedback on grammar...",
+            "pronunciation_feedback": "Short feedback on pronunciation...",
+            "repetitive_words": ["actually", "basically", "like"],
+            "polished_transcript": "A band 9 version of the answer...",
+            "main_tips": ["Tip 1", "Tip 2"]
+        }}
+        
+        For "repetitive_words", identify 3-5 words or short phrases that the speaker overuses unnaturally (e.g., "like", "you know", "actually"). If none, return an empty list.
+        
+        Do not include any text before or after the JSON.
+
+        """
+        
+        parts = [types.Part.from_text(text=prompt)]
+        
+        if audio_file:
+            audio_file.seek(0)
+            audio_data = audio_file.read()
+            # Ensure we have a valid mime type, default to audio/webm if missing
+            mime_type = audio_file.content_type or 'audio/webm'
+            parts.append(types.Part.from_bytes(
+                data=audio_data,
+                mime_type=mime_type
+            ))
+
+        response = self.client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=types.Content(role="user", parts=parts)
+        )
+        
+        # Robust JSON parsing
+        res_text = response.text.strip()
+        print(f"DEBUG: AI Speaking raw response: {res_text}")
+        
+        # Strip markdown if present
+        if "```" in res_text:
+            import re
+            res_text = re.sub(r'^```(?:json)?\s*', '', res_text)
+            res_text = re.sub(r'\s*```$', '', res_text)
+            res_text = res_text.strip()
+            
+        return json.loads(res_text)
+
+
+
+
+
 # Singleton instance
 gemini_service = GeminiService()
