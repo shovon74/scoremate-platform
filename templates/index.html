@@ -21,28 +21,32 @@
                     <span>ScoreMate</span>
                 </a>
                 <ul class="nav-links">
+                    <li><a href="javascript:void(0)" onclick="showSection('calculators')">Calculators</a></li>
+                    <li><a href="javascript:void(0)">Tips</a></li>
                     <li class="dropdown">
                         <a href="#">Tests <i data-lucide="chevron-down"></i></a>
                         <ul class="dropdown-menu">
-                            <li><a href="#">Reading Practice</a></li>
-                            <li><a href="#">Listening Practice</a></li>
-                            <li class="nested-dropdown">
-                                <a href="#">Writing Practice <i data-lucide="chevron-right"></i></a>
-                                <ul class="nested-menu">
-                                    <li><a href="javascript:void(0)" onclick="showSection('task1')">Writing Task 1</a>
-                                    </li>
-                                    <li><a href="javascript:void(0)" onclick="showSection('task2')">Writing Task 2</a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li><a href="javascript:void(0)">Speaking Practice</a></li>
+                            <li><a href="javascript:void(0)" onclick="showSection('task1_academic')">IELTS Academic
+                                    Writing Task 1 Evaluation</a></li>
+                            <li><a href="javascript:void(0)" onclick="showSection('task1_general')">IELTS General
+                                    Writing Task 1 Evaluation</a></li>
+                            <li><a href="javascript:void(0)" onclick="showSection('task2')">IELTS Writing Task 2
+                                    Evaluation</a></li>
+                            <li><a href="javascript:void(0)" onclick="showSection('speaking_part1')">IELTS Speaking Part
+                                    1 Evaluator</a></li>
+                            <li><a href="javascript:void(0)" onclick="showSection('speaking_part2')">IELTS Speaking Part
+                                    2 Evaluator</a></li>
+                            <li><a href="javascript:void(0)" onclick="showSection('speaking_part3')">IELTS Speaking Part
+                                    3 Evaluator</a></li>
+                            <li class="divider"></li>
+                            <li><a href="javascript:void(0)" onclick="showSection('task2_generator')">IELTS Writing Task
+                                    2 Generator</a></li>
+                            <li><a href="javascript:void(0)" onclick="showSection('task1_academic_generator')">IELTS
+                                    Academic Task 1 Generator</a></li>
+                            <li><a href="javascript:void(0)" onclick="showSection('task1_general_generator')">IELTS
+                                    General Task 1 Generator</a></li>
                         </ul>
                     </li>
-                    <li><a href="javascript:void(0)" onclick="showSection('calculators')">Calculators</a></li>
-                    <li><a href="javascript:void(0)">Library</a></li>
-                    <li><a href="javascript:void(0)">Tips</a></li>
-
-                    <li><a href="#">Premium</a></li>
                 </ul>
             </div>
             <div class="nav-right">
@@ -50,8 +54,16 @@
                     <i id="sunIcon" data-lucide="sun"></i>
                     <i id="moonIcon" data-lucide="moon" style="display: none;"></i>
                 </button>
-                <a href="#" class="btn btn-secondary btn-sm">Login</a>
-                <a href="#" class="btn btn-primary btn-sm">Sign Up</a>
+                {% if current_user.is_authenticated %}
+                {% if current_user.role in ['super_admin', 'teacher'] %}
+                <a href="{{ url_for('admin.user_list') }}" class="btn btn-secondary btn-sm">Admin</a>
+                {% endif %}
+                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary btn-sm">Dashboard</a>
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-primary btn-sm">Logout</a>
+                {% else %}
+                <a href="{{ url_for('auth.login') }}" class="btn btn-secondary btn-sm">Login</a>
+                <a href="{{ url_for('auth.signup') }}" class="btn btn-primary btn-sm">Sign Up</a>
+                {% endif %}
             </div>
         </div>
     </nav>
@@ -60,71 +72,190 @@
         <!-- Landing Section: Learning Tools -->
         <section id="landingSection" class="tools-section">
             <div class="section-title">
-                <h2>Smart Prep Toolkit</h2>
-                <p>Boost your English learning success with our all-in-one preparation arsenal.</p>
+                <h2>IELTS Preparation Hub</h2>
+                <p>Choose your preparation stream or calculate your target scores.</p>
             </div>
 
             <div class="tools-grid">
-                <!-- Card 0: Calculator -->
-                <div class="tool-card">
+                <!-- Card 1: Calculator -->
+                <div class="tool-card highlighted">
                     <div class="tool-icon">
                         <img src="{{ url_for('static', filename='images/calculator_icon.png') }}" alt="Calculator Icon">
                     </div>
-                    <a href="javascript:void(0)" onclick="showSection('calculators')" class="tool-link">IELTS Band Score
+                    <a href="javascript:void(0)" onclick="showSection('calculators')" class="tool-link">Band Score
                         <br>Calculator</a>
                 </div>
-                <!-- Card 1: Academic Task 1 -->
-                <div class="tool-card highlighted">
-                    <div class="tool-icon">
-                        <img src="{{ url_for('static', filename='images/evaluation_icon.png') }}" alt="Evaluation Icon">
-                    </div>
-                    <a href="javascript:void(0)" onclick="showSection('task1_academic')" class="tool-link">IELTS
-                        Academic Writing Task 1 <br>Evaluation (Report)</a>
-                    <span class="badge badge-accent">Multimodal AI</span>
-                </div>
 
-                <!-- Card 2: General Task 1 -->
+                <!-- Card 2: Academic stream -->
                 <div class="tool-card">
                     <div class="tool-icon">
-                        <img src="{{ url_for('static', filename='images/evaluation_icon.png') }}" alt="Evaluation Icon">
+                        <img src="{{ url_for('static', filename='images/evaluation_icon.png') }}" alt="Academic Icon">
                     </div>
-                    <a href="javascript:void(0)" onclick="showSection('task1_general')" class="tool-link">IELTS
-                        General Writing Task 1 <br>Evaluation (Letter)</a>
-                </div>
-
-                <!-- Card 3 -->
-                <div class="tool-card">
-                    <div class="tool-icon">
-                        <img src="{{ url_for('static', filename='images/evaluation_icon.png') }}" alt="Evaluation Icon">
-                    </div>
-                    <a href="javascript:void(0)" onclick="showSection('task2')" class="tool-link">IELTS Writing Task 2
+                    <a href="javascript:void(0)" onclick="showSection('academic_hub')" class="tool-link">Academic Test
                         <br>Evaluation</a>
                 </div>
-                <!-- Speaking Part 1 -->
+
+                <!-- Card 3: General Stream -->
+                <div class="tool-card">
+                    <div class="tool-icon">
+                        <img src="{{ url_for('static', filename='images/evaluation_icon.png') }}" alt="General Icon">
+                    </div>
+                    <a href="javascript:void(0)" onclick="showSection('general_hub')" class="tool-link">General Test
+                        <br>Evaluation</a>
+                </div>
+
+                <!-- Card 4: Speaking Evaluator -->
                 <div class="tool-card">
                     <div class="tool-icon">
                         <img src="{{ url_for('static', filename='images/speaking_icon.png') }}" alt="Speaking Icon">
                     </div>
-                    <a href="javascript:void(0)" onclick="showSection('speaking_part1')" class="tool-link">IELTS
-                        Speaking Part 1 <br>Evaluator</a>
+                    <a href="javascript:void(0)" onclick="showSection('speaking_hub')" class="tool-link">Speaking Test
+                        <br>Evaluator</a>
                 </div>
+            </div>
+        </section>
+
+        <section id="academicHubSection" class="tools-section" style="display: none;">
+            <header class="section-title">
+                <h1>IELTS Academic Stream</h1>
+                <p>Comprehensive AI tools for Academic Writing and Speaking success</p>
+                <button onclick="history.back()" class="btn btn-secondary btn-sm" style="margin-top: 15px;">
+                    <i data-lucide="arrow-left"></i> Back
+                </button>
+            </header>
+
+            <div class="tools-grid">
+                <!-- Academic Task 1 -->
+                <div class="tool-card highlighted">
+                    <div class="tool-icon">
+                        <img src="{{ url_for('static', filename='images/evaluation_icon.png') }}" alt="Evaluation Icon">
+                    </div>
+                    <a href="javascript:void(0)" onclick="showSection('task1_academic')" class="tool-link">Task 1
+                        (Report)
+                        <br>Evaluation</a>
+                </div>
+
+                <!-- Task 2 -->
+                <div class="tool-card">
+                    <div class="tool-icon">
+                        <img src="{{ url_for('static', filename='images/evaluation_icon.png') }}" alt="Evaluation Icon">
+                    </div>
+                    <a href="javascript:void(0)" onclick="showSection('task2')" class="tool-link">Task 2 (Essay)
+                        <br>Evaluation</a>
+                </div>
+
+                <!-- Writing Task 1 Generator -->
+                <div class="tool-card">
+                    <div class="tool-icon">
+                        <img src="{{ url_for('static', filename='images/evaluation_icon.png') }}" alt="Generator Icon">
+                    </div>
+                    <a href="javascript:void(0)" onclick="showSection('task1_academic_generator')"
+                        class="tool-link">Task 1
+                        <br>Generator</a>
+                </div>
+
+                <!-- Writing Task 2 Generator -->
+                <div class="tool-card">
+                    <div class="tool-icon">
+                        <img src="{{ url_for('static', filename='images/evaluation_icon.png') }}" alt="Generator Icon">
+                    </div>
+                    <a href="javascript:void(0)" onclick="showSection('task2_generator')" class="tool-link">Task 2
+                        <br>Generator</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- App Section: General Hub -->
+        <section id="generalHubSection" class="tools-section" style="display: none;">
+            <header class="section-title">
+                <h1>IELTS General Stream</h1>
+                <p>Specialized AI tools for General Training Writing and Speaking</p>
+                <button onclick="history.back()" class="btn btn-secondary btn-sm" style="margin-top: 15px;">
+                    <i data-lucide="arrow-left"></i> Back
+                </button>
+            </header>
+
+            <div class="tools-grid">
+                <!-- General Task 1 -->
+                <div class="tool-card highlighted">
+                    <div class="tool-icon">
+                        <img src="{{ url_for('static', filename='images/evaluation_icon.png') }}" alt="Evaluation Icon">
+                    </div>
+                    <a href="javascript:void(0)" onclick="showSection('task1_general')" class="tool-link">Task 1
+                        (Letter)
+                        <br>Evaluation</a>
+                </div>
+
+                <!-- Task 2 -->
+                <div class="tool-card">
+                    <div class="tool-icon">
+                        <img src="{{ url_for('static', filename='images/evaluation_icon.png') }}" alt="Evaluation Icon">
+                    </div>
+                    <a href="javascript:void(0)" onclick="showSection('task2')" class="tool-link">Task 2 (Essay)
+                        <br>Evaluation</a>
+                </div>
+
+                <!-- Writing Task 1 Generator -->
+                <div class="tool-card">
+                    <div class="tool-icon">
+                        <img src="{{ url_for('static', filename='images/evaluation_icon.png') }}" alt="Generator Icon">
+                    </div>
+                    <a href="javascript:void(0)" onclick="showSection('task1_general_generator')" class="tool-link">Task
+                        1
+                        <br>Generator</a>
+                </div>
+
+                <!-- Writing Task 2 Generator -->
+                <div class="tool-card">
+                    <div class="tool-icon">
+                        <img src="{{ url_for('static', filename='images/evaluation_icon.png') }}" alt="Generator Icon">
+                    </div>
+                    <a href="javascript:void(0)" onclick="showSection('task2_generator')" class="tool-link">Task 2
+                        <br>Generator</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- App Section: Speaking Hub -->
+        <section id="speakingHubSection" class="tools-section" style="display: none;">
+            <header class="section-title">
+                <h1>IELTS Speaking Evaluator</h1>
+                <p>Pratice all three parts of the IELTS Speaking test with real-time AI feedback</p>
+                <button onclick="history.back()" class="btn btn-secondary btn-sm" style="margin-top: 15px;">
+                    <i data-lucide="arrow-left"></i> Back
+                </button>
+            </header>
+
+            <div class="tools-grid">
+                <!-- Speaking Part 1 -->
+                <div class="tool-card card-bard-theme" id="speaking-card-part1">
+                    <div class="tool-icon">
+                        <img src="{{ url_for('static', filename='images/speaking_icon.png') }}" alt="Speaking Icon">
+                    </div>
+                    <a href="javascript:void(0)" onclick="showSection('speaking_part1')" class="tool-link">Speaking Part
+                        1
+                        <br>Evaluator</a>
+                </div>
+
                 <!-- Speaking Part 2 -->
                 <div class="tool-card">
                     <div class="tool-icon">
                         <img src="{{ url_for('static', filename='images/speaking_icon.png') }}" alt="Speaking Icon">
                     </div>
-                    <a href="javascript:void(0)" onclick="showSection('speaking_part2')" class="tool-link">IELTS
-                        Speaking Part 2 <br>Evaluator</a>
+                    <a href="javascript:void(0)" onclick="showSection('speaking_part2')" class="tool-link">Speaking Part
+                        2
+                        <br>Evaluator</a>
                 </div>
+
                 <!-- Speaking Part 3 -->
-                <div class="tool-card">
+                <div class="tool-card card-bard-theme" id="speaking-card-part3">
                     <div class="tool-icon">
                         <img src="{{ url_for('static', filename='images/speaking_icon.png') }}" alt="Speaking Icon">
                     </div>
-                    <a href="javascript:void(0)" onclick="showSection('speaking_part3')" class="tool-link">IELTS
-                        Speaking Part 3 <br>Evaluator</a>
+                    <a href="javascript:void(0)" onclick="showSection('speaking_part3')" class="tool-link">Speaking Part
+                        3
+                        <br>Evaluator</a>
                 </div>
-
             </div>
         </section>
 
@@ -133,8 +264,8 @@
             <header>
                 <h1 id="task1Header">Writing Task 1 Evaluation</h1>
                 <p id="task1Subheader">Get instant AI feedback on your report or letter</p>
-                <button onclick="showSection('landing')" class="btn btn-secondary btn-sm" style="margin-top: 10px;">
-                    <i data-lucide="arrow-left"></i> Back to Toolkit
+                <button onclick="history.back()" class="btn btn-secondary btn-sm" style="margin-top: 10px;">
+                    <i data-lucide="arrow-left"></i> Back
                 </button>
             </header>
 
@@ -262,8 +393,8 @@
             <header>
                 <h1>ScoreMate</h1>
                 <p>Elevate your IELTS Writing Task 2 with AI-powered insights</p>
-                <button onclick="showSection('landing')" class="btn btn-secondary btn-sm" style="margin-top: 10px;">
-                    <i data-lucide="arrow-left"></i> Back to Tools
+                <button onclick="history.back()" class="btn btn-secondary btn-sm" style="margin-top: 10px;">
+                    <i data-lucide="arrow-left"></i> Back
                 </button>
             </header>
 
@@ -361,22 +492,17 @@
         <!-- App Section: Speaking Tool -->
         <section id="speakingSection" class="app-section" style="display: none;">
             <header>
-                <h1 id="speakingHeader" class="speaking-header-red">IELTS Speaking Part 1 Answer Checker</h1>
-                <p id="speakingSubheader">Instantly and precisely evaluate your IELTS speaking part 1 answer with
-                    detailed feedback</p>
-                <div class="speaking-nav-links" id="speakingNav">
-                    (Looking for <a href="javascript:void(0)" onclick="showSection('speaking_part1')">speaking part
-                        1</a> /
-                    <a href="javascript:void(0)" onclick="showSection('speaking_part2')">speaking part 2</a> /
-                    <a href="javascript:void(0)" onclick="showSection('speaking_part3')">speaking part 3</a>?)
-                </div>
-                <button onclick="showSection('landing')" class="btn btn-secondary btn-sm" style="margin-top: 20px;">
-                    <i data-lucide="arrow-left"></i> Back to Toolkit
+                <h1 id="speakingHeader" class="speaking-header-red">Speaking Part 1</h1>
+                <p id="speakingSubheader">Answer the questions naturally. Your speech will be recorded and analyzed.
+                </p>
+                <button onclick="history.back()" class="btn btn-secondary btn-sm" style="margin-top: 10px;">
+                    <i data-lucide="arrow-left"></i> Back
                 </button>
             </header>
 
-            <main>
-                <div class="glass-panel speaking-main-panel">
+            <main class="speaking-grid" id="speakingGrid">
+                <!-- Record Area -->
+                <div class="glass-panel speaking-main-panel" id="speaking-input-card">
                     <input type="hidden" id="speakingPart" value="1">
 
                     <!-- Topic Input -->
@@ -415,7 +541,9 @@
                     </div>
 
                     <div class="speaking-submit-container">
-                        <button id="checkSpeechBtn" class="btn btn-check-speech">Check My Speech</button>
+                        <button id="checkSpeechBtn" class="btn btn-check-speech">
+                            <i data-lucide="sparkles"></i> Check My Speech
+                        </button>
                     </div>
                 </div>
 
@@ -514,15 +642,14 @@
             <header>
                 <h1>IELTS Score Calculators</h1>
                 <p>Calculate your overall band score or module-specific results accurately.</p>
-                <button onclick="showSection('landing')" class="btn btn-secondary btn-sm" style="margin-top: 10px;">
-                    <i data-lucide="arrow-left"></i> Back to Toolkit
+                <button onclick="history.back()" class="btn btn-secondary btn-sm" style="margin-top: 10px;">
+                    <i data-lucide="arrow-left"></i> Back
                 </button>
             </header>
 
             <div class="calculator-container">
                 <div class="calc-tabs">
                     <button class="calc-tab active" data-tab="overall">Overall</button>
-                    <button class="calc-tab" data-tab="listening">Listening</button>
                     <button class="calc-tab" data-tab="reading">Reading</button>
                 </div>
 
@@ -554,21 +681,6 @@
                     </div>
                 </div>
 
-                <div class="calc-content" id="calc-listening" style="display: none;">
-                    <div class="glass-panel">
-                        <h3>Listening Raw to Band</h3>
-                        <div class="calc-grid">
-                            <div class="calc-input-group">
-                                <label>Correct Answers (out of 40)</label>
-                                <input type="number" id="listening-raw" min="0" max="40" value="0">
-                            </div>
-                        </div>
-                        <div class="calc-result-box">
-                            <span class="label">Estimated Band Score:</span>
-                            <span class="value" id="listening-band">0.0</span>
-                        </div>
-                    </div>
-                </div>
 
                 <div class="calc-content" id="calc-reading" style="display: none;">
                     <div class="glass-panel">
@@ -595,6 +707,257 @@
             </div>
         </section>
 
+        <!-- App Section: Task 2 Generator -->
+        <section id="task2GeneratorSection" class="app-section" style="display: none;">
+            <header>
+                <h1>Task 2 Essay Generator</h1>
+                <p>Generate high-scoring Band 9 essays instantly</p>
+                <button onclick="history.back()" class="btn btn-secondary btn-sm" style="margin-top: 10px;">
+                    <i data-lucide="arrow-left"></i> Back
+                </button>
+            </header>
+
+            <main>
+                <form id="generatorForm" class="glass-panel">
+                    <div class="grid-inputs">
+                        <div class="input-wrap">
+                            <label for="gen-topic">Topic *</label>
+                            <textarea id="gen-topic" name="topic" rows="3"
+                                placeholder="Enter the IELTS Writing Task 2 topic here..."></textarea>
+                        </div>
+                        <div class="input-wrap">
+                            <label for="gen-ideas">Ideas (Optional)</label>
+                            <textarea id="gen-ideas" name="ideas" rows="3"
+                                placeholder="Any specific ideas you want to include?"></textarea>
+                        </div>
+                        <div class="input-wrap">
+                            <label for="gen-paragraphs">Number of Body Paragraphs</label>
+                            <div class="toggle-bar">
+                                <input type="radio" id="p2" name="num_paragraphs" value="2">
+                                <label for="p2">2</label>
+
+                                <input type="radio" id="p3" name="num_paragraphs" value="3" checked>
+                                <label for="p3">3</label>
+
+                                <input type="radio" id="p4" name="num_paragraphs" value="4">
+                                <label for="p4">4</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="submit-box">
+                        <button type="submit" id="genSubmitBtn" class="btn btn-primary btn-large">
+                            <i data-lucide="wand-2"></i> Generate Essay
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Loading State -->
+                <div id="gen-loading" class="loading" style="display: none;">
+                    <div class="shimmer"></div>
+                    <p>Crafting your essay...</p>
+                </div>
+
+                <!-- Result Area -->
+                <div id="gen-resultArea" class="result-area">
+                    <div class="glass-panel">
+                        <h2
+                            style="margin-bottom: 24px; font-size: 1.8rem; display: flex; align-items: center; gap: 12px;">
+                            <i data-lucide="file-text" style="color: var(--accent);"></i> Generated Essay
+                        </h2>
+                        <div class="feedback-card">
+                            <div id="generatedEssayContent" class="feedback-content" style="white-space: pre-wrap;">
+                            </div>
+                            <button id="copyEssayBtn" class="btn btn-secondary btn-sm" style="margin-top: 20px;">
+                                <i data-lucide="copy"></i> Copy to Clipboard
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </section>
+
+        <!-- App Section: Task 1 Generator (Reusable for Academic & General) -->
+        <section id="task1GeneratorSection" class="app-section" style="display: none;">
+            <header>
+                <h1 id="task1GenHeader">Task 1 Generator</h1>
+                <p id="task1GenSubheader">Generate high-scoring Band 9 responses instantly</p>
+                <button onclick="history.back()" class="btn btn-secondary btn-sm" style="margin-top: 10px;">
+                    <i data-lucide="arrow-left"></i> Back
+                </button>
+            </header>
+
+            <main>
+                <form id="task1GenForm" class="glass-panel" enctype="multipart/form-data">
+                    <input type="hidden" id="task1GenType" name="type" value="academic">
+                    <div class="grid-inputs" style="grid-template-columns: 1fr;"> <!-- Single column layout -->
+                        <div class="input-wrap">
+                            <label for="gen1-topic">Topic *</label>
+                            <textarea id="gen1-topic" name="topic" rows="3" style="min-height: 100px;"
+                                placeholder="Enter the IELTS Writing Task 1 topic here..."></textarea>
+                        </div>
+
+                        <!-- Image Upload for Academic -->
+                        <div class="input-wrap" id="gen1-upload-wrapper">
+                            <label>Upload Image (Optional)</label>
+                            <div class="upload-box" id="gen1-dropZone" style="height: 150px;">
+                                <input type="file" id="gen1-image" name="chart_image" accept="image/*" hidden>
+                                <div class="upload-placeholder" id="gen1-uploadPlaceholder">
+                                    <button type="button" class="btn btn-primary"
+                                        onclick="document.getElementById('gen1-image').click()">
+                                        Choose File
+                                    </button>
+                                    <span id="gen1-fileName" style="margin-top:10px;">No file chosen</span>
+                                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;">
+                                        Upload a clear image of graphs/charts/tables/maps.
+                                    </p>
+                                </div>
+                                <div id="gen1-imagePreview" class="image-preview" style="display: none;">
+                                    <img src="" alt="Chart Preview" style="height: 100%; object-fit: contain;">
+                                    <button type="button" class="remove-img" id="gen1-removeImg">
+                                        <i data-lucide="x"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="submit-box">
+                        <button type="submit" id="gen1SubmitBtn" class="btn btn-primary btn-large">
+                            <i data-lucide="wand-2"></i> Generate Sample
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Loading State -->
+                <div id="gen1-loading" class="loading" style="display: none;">
+                    <div class="shimmer"></div>
+                    <p>Generating sample response...</p>
+                </div>
+
+                <!-- Result Area -->
+                <div id="gen1-resultArea" class="result-area">
+                    <div class="glass-panel">
+                        <h2
+                            style="margin-bottom: 24px; font-size: 1.8rem; display: flex; align-items: center; gap: 12px;">
+                            <i data-lucide="file-text" style="color: var(--accent);"></i> Generated Response
+                        </h2>
+                        <div class="feedback-card">
+                            <div id="generatedTask1Content" class="feedback-content" style="white-space: pre-wrap;">
+                            </div>
+                            <button id="copyTask1Btn" class="btn btn-secondary btn-sm" style="margin-top: 20px;">
+                                <i data-lucide="copy"></i> Copy to Clipboard
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </section>
+
+        <!-- App Section: Listening Practice -->
+        <section id="listeningSection" class="app-section" style="display: none;">
+            <!-- LIST VIEW: Select a Test -->
+            <div id="listeningListState">
+                <header>
+                    <h1>IELTS Listening Practice</h1>
+                    <p>Real exam-style listening tests with instant scoring (Band 1-9)</p>
+                    <button onclick="history.back()" class="btn btn-secondary btn-sm" style="margin-top: 10px;">
+                        <i data-lucide="arrow-left"></i> Back
+                    </button>
+                </header>
+
+                <main>
+                    <div class="glass-panel">
+                        <div id="listeningTestsList" class="grid-inputs"
+                            style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));">
+                            <!-- Test cards injected here via JS -->
+                            <div class="loading-spinner">Loading tests...</div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+
+            <!-- PLAYER VIEW: Take a Test -->
+            <div id="listeningPlayerState" style="display: none;">
+                <!-- Header / Timer Bar -->
+                <div class="glass-panel"
+                    style="margin-bottom: 2rem; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 10px; z-index: 100;">
+                    <div>
+                        <h3 id="playerTestTitle" style="margin: 0; font-size: 1.2rem;">Test Title</h3>
+                        <button onclick="exitListeningTest()" class="text-btn"
+                            style="font-size: 0.9rem; color: var(--text-muted);">
+                            <i data-lucide="x"></i> Exit Test
+                        </button>
+                    </div>
+                    <div style="text-align: right;">
+                        <div id="listeningTimer"
+                            style="font-family: monospace; font-size: 1.5rem; font-weight: bold; color: var(--accent);">
+                            40:00</div>
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">Time Remaining</span>
+                    </div>
+                </div>
+
+                <div class="grid-layout">
+                    <!-- LEFT: Audio & Questions -->
+                    <main>
+                        <!-- Audio Player -->
+                        <div class="glass-panel" style="margin-bottom: 2rem;">
+                            <audio id="listeningAudioPlayer" controls style="width: 100%; margin-top: 10px;"></audio>
+                            <div
+                                style="margin-top: 10px; font-size: 0.9rem; color: var(--text-muted); display: flex; justify-content: space-between;">
+                                <span>Part <span id="currentPartNum">1</span></span>
+                                <span id="audioStatus">Ready to play</span>
+                            </div>
+                        </div>
+
+                        <!-- Question Container -->
+                        <div id="questionsContainer" class="glass-panel">
+                            <!-- Injected via JS -->
+                        </div>
+
+                        <!-- Section Nav Buttons -->
+                        <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+                            <button id="prevSectionBtn" class="btn btn-secondary" onclick="changeListeningSection(-1)"
+                                disabled>
+                                <i data-lucide="chevron-left"></i> Previous Part
+                            </button>
+                            <button id="nextSectionBtn" class="btn btn-primary" onclick="changeListeningSection(1)">
+                                Next Part <i data-lucide="chevron-right"></i>
+                            </button>
+                        </div>
+                    </main>
+
+                    <!-- RIGHT: Answer Sheet / Nav -->
+                    <aside>
+                        <div class="glass-panel" style="position: sticky; top: 100px;">
+                            <h3>Answer Sheet</h3>
+                            <div id="answerSheetNav"
+                                style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 15px 0;">
+                                <!-- Question number buttons (1-40) injected JS -->
+                            </div>
+                            <button onclick="submitListeningTest()" class="btn btn-danger btn-large"
+                                style="width: 100%; margin-top: 20px;">
+                                Submit Answers
+                            </button>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+
+            <!-- RESULTS MODAL -->
+            <div id="listeningResultModal" class="modal-overlay" style="display: none;">
+                <div class="modal-content glass-panel" style="max-width: 600px; text-align: center;">
+                    <h2>Test Complete!</h2>
+                    <div id="listeningScoreDisplay" style="margin: 30px 0;">
+                        <!-- Score injected here -->
+                    </div>
+                    <div style="display: flex; gap: 10px; justify-content: center;">
+                        <button onclick="reviewListeningAnswers()" class="btn btn-secondary">Review Answers</button>
+                        <button onclick="exitListeningTest()" class="btn btn-primary">Back to List</button>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 
     <script>

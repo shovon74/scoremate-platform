@@ -65,6 +65,8 @@ body {
     line-height: 1.6;
     overflow-x: hidden;
     transition: background 0.3s ease, color 0.3s ease;
+    font-size: 1rem;
+    font-weight: 400;
 }
 
 .container {
@@ -263,12 +265,14 @@ body {
     font-weight: 700;
     color: var(--text-primary);
     margin-bottom: 12px;
+    line-height: 1.2;
 }
 
 .section-title p {
     color: var(--text-secondary);
     font-size: 1.1rem;
     margin-bottom: 50px;
+    line-height: 1.5;
 }
 
 .tools-grid {
@@ -427,16 +431,18 @@ header {
 
 header h1 {
     font-size: 3rem;
-    font-weight: 700;
+    font-weight: 800;
     color: var(--text-primary);
     margin-bottom: 8px;
     letter-spacing: -0.5px;
+    line-height: 1.2;
 }
 
 header p {
     color: var(--text-secondary);
     font-size: 1.15rem;
     font-weight: 400;
+    line-height: 1.5;
 }
 
 .glass-panel {
@@ -521,7 +527,7 @@ header p {
 }
 
 .btn-secondary:hover:not(:disabled) {
-    background: #cbd5e1;
+    background: var(--border);
     transform: translateY(-1px);
 }
 
@@ -534,6 +540,15 @@ header p {
 .btn-danger:hover:not(:disabled) {
     background: var(--error);
     color: white;
+}
+
+[data-theme="dark"] .btn-danger {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.2);
+}
+
+[data-theme="dark"] .btn-danger:hover:not(:disabled) {
+    background: var(--error);
 }
 
 .btn:disabled {
@@ -557,13 +572,13 @@ header p {
 .input-wrap label {
     font-size: 0.875rem;
     font-weight: 600;
-    color: var(--text-primary);
+    color: var(--text-secondary);
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
 textarea {
-    background: var(--bg-main);
+    background: var(--bg-card);
     border: 2px solid var(--border);
     border-radius: var(--radius-md);
     padding: 16px;
@@ -579,7 +594,6 @@ textarea {
 
 textarea:focus {
     border-color: var(--primary);
-    background: white;
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
@@ -1188,57 +1202,57 @@ textarea::placeholder {
 }
 
 /* Speaking Tool Specifics */
-.speaking-header-red {
-    color: #d90429 !important;
-    font-size: 3.5rem !important;
-    margin-bottom: 5px !important;
-}
+/* Bard Theme Classes Removed for Design Unification */
 
 .speaking-nav-links {
-    font-size: 1rem;
+    font-size: 0.9rem;
     color: var(--text-secondary);
-    margin: 10px 0 30px;
-}
-
-.speaking-nav-links a {
-    color: #cc0000;
-    text-decoration: underline;
-    font-weight: 500;
+    margin: 10px 0 20px;
 }
 
 .speaking-main-panel {
     max-width: 1000px;
     margin: 0 auto;
-    padding: 40px !important;
+    /* Match glass-panel padding */
+    padding: 32px !important;
 }
 
 .boxed-speaking {
     position: relative;
-    border: 1px solid var(--border);
+    border: 2px solid var(--border);
     border-radius: var(--radius-md);
-    padding: 25px;
-    margin-bottom: 30px;
+    padding: 16px;
+    margin-bottom: 24px;
+    transition: all 0.2s;
+}
+
+.boxed-speaking:focus-within {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 .boxed-speaking label {
     position: absolute;
     top: -10px;
-    left: 15px;
+    left: 12px;
     background: var(--bg-card);
-    padding: 0 10px;
-    font-size: 0.9rem;
+    padding: 0 8px;
+    font-size: 0.75rem;
     font-weight: 600;
     color: var(--text-secondary);
-    text-transform: capitalize;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .boxed-speaking textarea {
     border: none !important;
     background: transparent !important;
-    padding: 10px 0 !important;
-    font-size: 1.25rem;
-    min-height: 50px;
-    resize: none;
+    padding: 8px 0 !important;
+    font-size: 1rem;
+    min-height: 80px;
+    resize: vertical;
+    width: 100%;
+    margin-bottom: 0 !important;
 }
 
 .recording-container {
@@ -1350,17 +1364,22 @@ textarea::placeholder {
 }
 
 .btn-check-speech {
-    background: #d90429 !important;
+    background: linear-gradient(135deg, var(--primary), var(--secondary)) !important;
     color: white !important;
-    font-size: 1.5rem !important;
-    padding: 15px 40px !important;
-    border-radius: 8px !important;
+    font-size: 1.1rem !important;
+    padding: 16px 48px !important;
+    border-radius: 10px !important;
     font-weight: 700 !important;
-    text-transform: capitalize !important;
+    border: none !important;
+    box-shadow: var(--shadow-md) !important;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 .btn-check-speech:hover {
-    background: #ef233c !important;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg) !important;
+    filter: brightness(1.1);
 }
 
 
@@ -1509,9 +1528,49 @@ textarea::placeholder {
     border-radius: var(--radius-md);
 }
 
-.feedback-item h5 {
+
+/* Toggle Bar Styles */
+.toggle-bar {
+    display: flex;
+    gap: 8px;
+    background: var(--surface);
+    padding: 6px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    width: fit-content;
+}
+
+.toggle-bar input[type="radio"] {
+    display: none;
+}
+
+.toggle-bar label {
+    padding: 6px 16px;
+    cursor: pointer;
+    border-radius: 6px;
+    font-weight: 600;
     font-size: 0.9rem;
-    margin-bottom: 10px;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+    text-align: center;
+    background: transparent;
+    border: 1px solid transparent;
+}
+
+.toggle-bar label:hover {
     color: var(--primary);
-    text-transform: uppercase;
+    background: rgba(37, 99, 235, 0.05);
+}
+
+.toggle-bar input[type="radio"]:checked+label {
+    background: var(--bg-card);
+    color: var(--primary);
+    box-shadow: var(--shadow-sm);
+    border-color: var(--border);
+}
+
+[data-theme="dark"] .toggle-bar input[type="radio"]:checked+label {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
 }

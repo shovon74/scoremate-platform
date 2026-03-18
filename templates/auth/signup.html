@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up — ScoreMate IELTS</title>
+    <meta name="description"
+        content="Create your free ScoreMate account and start your IELTS preparation journey with AI-powered tools.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+    <!-- Anti-FOUC: apply saved theme before first paint -->
+    <script>
+        (function () {
+            var t = localStorage.getItem('sm-theme') || 'light';
+            document.documentElement.setAttribute('data-theme', t);
+        })();
+    </script>
+</head>
+
+<body class="auth-body">
+
+    <!-- Animated mesh background -->
+    <div class="auth-bg">
+        <div class="mesh-blob blob-1"></div>
+        <div class="mesh-blob blob-2"></div>
+        <div class="mesh-blob blob-3"></div>
+        <div class="mesh-blob blob-4"></div>
+    </div>
+
+    <!-- Floating theme toggle -->
+    <button class="auth-theme-toggle" id="authThemeToggle" title="Toggle theme" onclick="toggleAuthTheme()">
+        <svg id="authSunIcon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4" />
+            <path
+                d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+        </svg>
+        <svg id="authMoonIcon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+        </svg>
+    </button>
+
+    <!-- ── Page Wrapper ── -->
+    <div class="auth-page-wrapper">
+        <div class="auth-container auth-container--wide">
+
+            <!-- Centered logo → links home -->
+            <a href="{{ url_for('index') }}" class="auth-logo auth-logo--center">
+                <div class="auth-logo-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+                        <path d="M6 12v5c3 3 9 3 12 0v-5" />
+                    </svg>
+                </div>
+                <span>ScoreMate</span>
+            </a>
+
+            <!-- Page title -->
+            <h1 class="auth-page-title">CREATE AN ACCOUNT</h1>
+
+            <!-- ── Two-Column Blended Content ── -->
+            <div class="auth-card auth-card--wide">
+
+                <!-- LEFT: Account/Password Form -->
+                <div class="auth-form-col">
+                    <form method="POST" action="{{ url_for('auth.signup') }}" class="auth-form" id="signupForm">
+
+                        <!-- Flash messages -->
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                        {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">
+                            <span>{{ message }}</span>
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                        {% endwith %}
+
+                        <div class="form-group">
+                            <label for="email">Account</label>
+                            <div class="input-wrapper">
+                                <input type="email" id="email" name="email" placeholder="Email" required
+                                    autocomplete="email">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <div class="input-wrapper">
+                                <input type="password" id="password" name="password" placeholder="Please enter password"
+                                    required autocomplete="new-password">
+                                <button type="button" class="toggle-pw" onclick="togglePw('password', this)"
+                                    title="Show/Hide">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                                        <circle cx="12" cy="12" r="3" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirm_password">Confirm Password</label>
+                            <div class="input-wrapper">
+                                <input type="password" id="confirm_password" name="confirm_password"
+                                    placeholder="Please confirm password" required autocomplete="new-password">
+                                <button type="button" class="toggle-pw" onclick="togglePw('confirm_password', this)"
+                                    title="Show/Hide">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                                        <circle cx="12" cy="12" r="3" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="target_band">Target Band Score</label>
+                            <select id="target_band" name="target_band" class="input-select">
+                                <option value="" disabled>Select your goal</option>
+                                {% for band in ['5.0', '5.5', '6.0', '6.5', '7.0', '7.5', '8.0', '8.5', '9.0'] %}
+                                <option value="{{ band }}" {% if band=='7.0' %}selected{% endif %}>{{ band }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn-auth-primary" id="signupBtn">
+                            Register
+                        </button>
+                    </form>
+
+                    <p class="auth-switch-link" style="margin-top: 15px;">
+                        Have an account already?
+                        <a href="{{ url_for('auth.login') }}">Please login here</a>
+                    </p>
+                </div>
+
+                <!-- CENTRE: Vertical "Or" divider -->
+                <div class="auth-split-divider">
+                    <span class="or-bubble">Or</span>
+                </div>
+
+                <!-- RIGHT: Social auth stack (Google Only) -->
+                <div class="auth-social-col">
+                    <div class="social-stack">
+                        <button type="button" class="social-btn social-btn--google" onclick="showSocialToast('Google')">
+                            <div class="google-icon-wrapper">
+                                <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill="#4285F4"
+                                        d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908C16.657 14.013 17.64 11.8 17.64 9.2z" />
+                                    <path fill="#34A853"
+                                        d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" />
+                                    <path fill="#FBBC05"
+                                        d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" />
+                                    <path fill="#EA4335"
+                                        d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" />
+                                </svg>
+                            </div>
+                            Login with Google
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TOS Summary -->
+            <div class="auth-mission" style="margin-top: 40px;">
+                <p>By joining ScoreMate, you agree to our</p>
+                <p>
+                    <a href="#" style="font-weight: 800; color: inherit; text-decoration: none;">Terms of Use</a>
+                    and
+                    <a href="#" style="font-weight: 800; color: inherit; text-decoration: none;">Privacy Policy</a>
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ── Refined Footer Architecture ── -->
+    <footer class="auth-page-footer">
+        <div class="footer-inner--blended">
+
+            <div class="footer-col-nav">
+                <div class="footer-nav-links">
+                    <a href="#">Contact Us</a>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Site Map</a>
+                    <a href="#">Frequently Asked Questions</a>
+                    <a href="#">Terms & Conditions</a>
+                    <a href="#">Testimonials</a>
+                    <a href="#">Careers</a>
+                    <a href="#">Affiliate</a>
+                </div>
+            </div>
+
+            <div class="footer-about-col">
+                <div>
+                    <h3>About us</h3>
+                    <p>ScoreMate is a subsidiary of the Global Education Group. We provide free access to official IELTS
+                        mock tests, ensuring students have the most relevant practice materials. Our unique <span
+                            class="accent-text">AI+Human blended learning</span> model delivers cost-effective results.
+                    </p>
+                </div>
+
+                <div>
+                    <h3>Our mission</h3>
+                    <p>Our mission is to make IELTS preparation simple, smart, and accessible for everyone.</p>
+                </div>
+
+                <div>
+                    <h3>Follow us:</h3>
+                    <div class="footer-follow">
+                        <a href="#" class="footer-follow-btn" aria-label="Facebook">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+                            </svg>
+                        </a>
+                        <a href="#" class="footer-follow-btn" aria-label="YouTube">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path
+                                    d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.42a2.78 2.78 0 0 0-1.94 2C1 8.11 1 12 1 12s0 3.89.46 5.58a2.78 2.78 0 0 0 1.94 2c1.72.42 8.6.42 8.6.42s6.88 0 8.6-.42a2.78 2.78 0 0 0 1.94-2C23 15.89 23 12 23 12s0-3.89-.46-5.58z" />
+                                <polyline points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-btm-row">
+            <p>© 2026 ScoreMate. All rights reserved.</p>
+            <p class="footer-legal-note">
+                IELTS is a registered trademark of University of Cambridge, the British Council, and IDP Education
+                Australia. This site and its owners are not affiliated, approved or endorsed by University of Cambridge
+                ESOL, the British Council, and IDP Education Australia.
+            </p>
+        </div>
+    </footer>
+
+    <!-- Toast portal -->
+    <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+    <script>
+        // ── Password toggle ──
+        function togglePw(inputId, btn) {
+            const input = document.getElementById(inputId);
+            input.type = input.type === 'password' ? 'text' : 'password';
+            btn.classList.toggle('active');
+        }
+
+        // ── Theme sync ──
+        function syncAuthThemeIcons(theme) {
+            document.getElementById('authSunIcon').style.display = theme === 'dark' ? 'block' : 'none';
+            document.getElementById('authMoonIcon').style.display = theme === 'light' ? 'block' : 'none';
+        }
+        function toggleAuthTheme() {
+            const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('sm-theme', next);
+            syncAuthThemeIcons(next);
+        }
+        syncAuthThemeIcons(document.documentElement.getAttribute('data-theme') || 'light');
+
+        // ── Social auth toast ──
+        function showSocialToast(provider) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `
+                <div class="toast-icon-wrap"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></div>
+                <div class="toast-body"><p class="toast-title">${provider} Sign-In</p><p class="toast-msg">Integration in process.</p></div>
+                <button class="toast-close" onclick="dismissToast(this.parentElement)"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+                <div class="toast-progress"></div>`;
+            container.appendChild(toast);
+            requestAnimationFrame(() => requestAnimationFrame(() => toast.classList.add('visible')));
+            const bar = toast.querySelector('.toast-progress');
+            bar.style.animationDuration = '4s';
+            bar.classList.add('running');
+            const timer = setTimeout(() => dismissToast(toast), 4000);
+            toast._timer = timer;
+        }
+        function dismissToast(toast) {
+            if (!toast || !toast.parentElement) return;
+            clearTimeout(toast._timer);
+            toast.classList.remove('visible');
+            toast.classList.add('hiding');
+            setTimeout(() => toast.remove(), 350);
+        }
+    </script>
+</body>
+
+</html>

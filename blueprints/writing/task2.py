@@ -42,3 +42,29 @@ def check_writing():
             'success': False,
             'error': str(e)
         })
+
+@writing_task2_bp.route('/generate', methods=['POST'])
+def generate_essay():
+    try:
+        data = request.get_json()
+        topic = data.get('topic', '').strip()
+        ideas = data.get('ideas', '').strip()
+        num_paragraphs = int(data.get('num_paragraphs', 3))
+        
+        if not topic:
+            return jsonify({
+                'success': False,
+                'error': 'Topic is required'
+            })
+            
+        essay = gemini_service.generate_ielts_writing_task2_essay(topic, ideas, num_paragraphs)
+        
+        return jsonify({
+            'success': True,
+            'essay': essay
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        })

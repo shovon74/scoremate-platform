@@ -58,3 +58,53 @@ def check_writing(task_type='academic'):
         })
 
 
+
+@writing_task1_bp.route('/generate/academic', methods=['POST'])
+def generate_report():
+    try:
+        # Academic Task 1 (Report)
+        topic = request.form.get('topic', '').strip()
+        image_file = request.files.get('chart_image')
+        
+        if not topic:
+            return jsonify({
+                'success': False,
+                'error': 'Topic is required'
+            })
+            
+        report = gemini_service.generate_ielts_writing_task1_academic(topic, image_file)
+        
+        return jsonify({
+            'success': True,
+            'report': report
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        })
+
+@writing_task1_bp.route('/generate/general', methods=['POST'])
+def generate_letter():
+    try:
+        # General Task 1 (Letter)
+        data = request.get_json()
+        topic = data.get('topic', '').strip()
+        
+        if not topic:
+            return jsonify({
+                'success': False,
+                'error': 'Topic is required'
+            })
+            
+        letter = gemini_service.generate_ielts_writing_task1_general(topic)
+        
+        return jsonify({
+            'success': True,
+            'letter': letter
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        })

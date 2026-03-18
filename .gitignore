@@ -11,3 +11,10 @@ __pycache__/
 # Debug output
 out.txt
 full_models.txt
+
+# LLM Context
+LLM_CONTEXT.md
+
+# Database files
+*.db
+*.sqlite3

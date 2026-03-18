@@ -27,16 +27,29 @@ window.showSection = function (sectionId, updateState = true) {
 
     const landingSection = document.getElementById('landingSection');
     const task2Section = document.getElementById('task2Section');
+    const academicHubSection = document.getElementById('academicHubSection');
+    const generalHubSection = document.getElementById('generalHubSection');
+    const listeningSection = document.getElementById('listeningSection');
     const task1Section = document.getElementById('task1Section');
     const calculatorsSection = document.getElementById('calculatorsSection');
     const speakingSection = document.getElementById('speakingSection');
+    const speakingHubSection = document.getElementById('speakingHubSection');
+    const task2GeneratorSection = document.getElementById('task2GeneratorSection');
+    const task1GeneratorSection = document.getElementById('task1GeneratorSection');
+
 
     // Hide all sections first
     if (landingSection) landingSection.style.display = 'none';
+    if (academicHubSection) academicHubSection.style.display = 'none';
+    if (generalHubSection) generalHubSection.style.display = 'none';
     if (task2Section) task2Section.style.display = 'none';
     if (task1Section) task1Section.style.display = 'none';
     if (calculatorsSection) calculatorsSection.style.display = 'none';
     if (speakingSection) speakingSection.style.display = 'none';
+    if (speakingHubSection) speakingHubSection.style.display = 'none';
+    if (task2GeneratorSection) task2GeneratorSection.style.display = 'none';
+    if (task1GeneratorSection) task1GeneratorSection.style.display = 'none';
+    if (listeningSection) listeningSection.style.display = 'none';
 
 
     // Show requested section
@@ -47,6 +60,32 @@ window.showSection = function (sectionId, updateState = true) {
                 history.pushState({ section: 'landing' }, '', window.location.pathname);
             } catch (e) {
                 console.warn('History pushState failed:', e);
+            }
+        }
+    } else if (sectionId === 'academic_hub') {
+        if (academicHubSection) {
+            academicHubSection.style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        if (updateState) {
+            try {
+                history.pushState({ section: 'academic_hub' }, '', '#academic-hub');
+            } catch (e) {
+                console.warn('History pushState failed:', e);
+                window.location.hash = 'academic-hub';
+            }
+        }
+    } else if (sectionId === 'general_hub') {
+        if (generalHubSection) {
+            generalHubSection.style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        if (updateState) {
+            try {
+                history.pushState({ section: 'general_hub' }, '', '#general-hub');
+            } catch (e) {
+                console.warn('History pushState failed:', e);
+                window.location.hash = 'general-hub';
             }
         }
     } else if (sectionId === 'task2') {
@@ -120,16 +159,46 @@ window.showSection = function (sectionId, updateState = true) {
                 window.location.hash = sectionId;
             }
         }
+    } else if (sectionId === 'speaking_hub') {
+        if (speakingHubSection) {
+            speakingHubSection.style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        if (updateState) {
+            try {
+                history.pushState({ section: 'speaking_hub' }, '', '#speaking-hub');
+            } catch (e) {
+                console.warn('History pushState failed:', e);
+                window.location.hash = 'speaking-hub';
+            }
+        }
     } else if (sectionId.startsWith('speaking_part')) {
         const speakingSection = document.getElementById('speakingSection');
         if (speakingSection) {
             const part = sectionId.split('_part')[1];
-            document.getElementById('speakingHeader').textContent = `IELTS Speaking Part ${part} Answer Checker`;
-            document.getElementById('speakingPart').value = part;
-
-            // Adjust subheader and placeholders based on part
+            const header = document.getElementById('speakingHeader');
             const subheader = document.getElementById('speakingSubheader');
             const topicInput = document.getElementById('speakingTopic');
+            const submitBtn = document.getElementById('checkSpeechBtn');
+            const inputCard = document.getElementById('speaking-input-card');
+
+            // Set basic content
+            header.textContent = `IELTS Speaking Part ${part} Answer Checker`;
+            document.getElementById('speakingPart').value = part;
+
+            // Reset specialized themes and apply standard ones
+            if (header) {
+                header.classList.add('speaking-header-red');
+                header.classList.remove('text-bard-theme');
+                header.style.fontSize = '';
+            }
+            if (submitBtn) {
+                submitBtn.classList.add('btn-check-speech');
+                submitBtn.classList.remove('btn-bard-theme');
+            }
+            if (inputCard) {
+                inputCard.classList.remove('card-bard-theme');
+            }
 
             if (part == '1') {
                 subheader.textContent = "Instantly and precisely evaluate your IELTS speaking part 1 answer with detailed feedback";
@@ -142,11 +211,89 @@ window.showSection = function (sectionId, updateState = true) {
                 topicInput.placeholder = "Enter a speaking part 3 question (topic)...";
             }
 
-
             // Reset UI state
             if (window.resetSpeakingUI) window.resetSpeakingUI();
 
             speakingSection.style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        if (updateState) {
+            try {
+                history.pushState({ section: sectionId }, '', '#' + sectionId);
+            } catch (e) {
+                console.warn('History pushState failed:', e);
+                window.location.hash = sectionId;
+            }
+        }
+    } else if (sectionId === 'task1_academic_generator' || sectionId === 'task1_general_generator') {
+        const task1GeneratorSection = document.getElementById('task1GeneratorSection');
+        if (task1GeneratorSection) {
+            const isAcademic = sectionId === 'task1_academic_generator';
+            const header = document.getElementById('task1GenHeader');
+            const subheader = document.getElementById('task1GenSubheader');
+            const uploadWrapper = document.getElementById('gen1-upload-wrapper');
+            const typeInput = document.getElementById('task1GenType');
+            const topicInput = document.getElementById('gen1-topic');
+
+            header.textContent = isAcademic ? 'Academic Task 1 Generator' : 'General Task 1 Generator';
+            subheader.textContent = isAcademic
+                ? 'Generate high-scoring Band 9 Reports instantly'
+                : 'Generate high-scoring Band 9 Letters instantly';
+
+            if (uploadWrapper) {
+                uploadWrapper.style.display = isAcademic ? 'flex' : 'none';
+            }
+            if (typeInput) {
+                typeInput.value = isAcademic ? 'academic' : 'general';
+            }
+            if (topicInput) {
+                topicInput.placeholder = isAcademic
+                    ? 'Enter the IELTS Academic Writing Task 1 topic here...'
+                    : 'Enter the IELTS General Writing Task 1 situation/topic here...';
+            }
+
+            task1GeneratorSection.style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        if (updateState) {
+            try {
+                history.pushState({ section: sectionId }, '', '#' + sectionId);
+            } catch (e) {
+                console.warn('History pushState failed:', e);
+                window.location.hash = sectionId;
+            }
+        }
+    } else if (sectionId === 'listening') {
+        const listeningSection = document.getElementById('listeningSection');
+        const listState = document.getElementById('listeningListState');
+        const playerState = document.getElementById('listeningPlayerState');
+
+        if (listeningSection) {
+            listeningSection.style.display = 'block';
+            // Default to list view
+            if (listState) listState.style.display = 'block';
+            if (playerState) playerState.style.display = 'none';
+
+            // Load tests if empty
+            const listContainer = document.getElementById('listeningTestsList');
+            if (listContainer && listContainer.children.length <= 1) { // 1 because of loading spinner
+                loadListeningTests();
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        if (updateState) {
+            try {
+                history.pushState({ section: sectionId }, '', '#' + sectionId);
+            } catch (e) {
+                console.warn('History pushState failed:', e);
+                window.location.hash = sectionId;
+            }
+        }
+    } else if (sectionId === 'task2_generator') {
+        const task2GeneratorSection = document.getElementById('task2GeneratorSection');
+        if (task2GeneratorSection) {
+            task2GeneratorSection.style.display = 'block';
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
         if (updateState) {
@@ -187,6 +334,14 @@ window.addEventListener('load', () => {
         showSection('task1_general', false);
     } else if (hash.startsWith('speaking_part')) {
         showSection(hash, false);
+    } else if (hash === 'task2_generator') {
+        showSection('task2_generator', false);
+    } else if (hash === 'task1_academic_generator') {
+        showSection('task1_academic_generator', false);
+    } else if (hash === 'task1_general_generator') {
+        showSection('task1_general_generator', false);
+    } else if (hash === 'listening') {
+        showSection('listening', false);
     } else {
         // Ensure landing is shown if no hash
         showSection('landing', false);
@@ -204,7 +359,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const htmlElement = document.documentElement;
 
     // Check for saved theme preference or default to light mode
-    const currentTheme = localStorage.getItem('theme') || 'light';
+    const currentTheme = localStorage.getItem('sm-theme') || 'light';
     htmlElement.setAttribute('data-theme', currentTheme);
 
     themeToggle.addEventListener('click', () => {
@@ -212,7 +367,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const newTheme = currentTheme === 'light' ? 'dark' : 'light';
 
         htmlElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
+        localStorage.setItem('sm-theme', newTheme);
     });
 
     // Timer state
@@ -798,6 +953,82 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- Essay Generator Logic ---
+    const generatorForm = document.getElementById('generatorForm');
+    const genTopic = document.getElementById('gen-topic');
+    const genIdeas = document.getElementById('gen-ideas');
+
+    // const genParagraphs = document.getElementById('gen-paragraphs'); // Removed select
+    const genSubmitBtn = document.getElementById('genSubmitBtn');
+    const genLoading = document.getElementById('gen-loading');
+    const genResultArea = document.getElementById('gen-resultArea');
+    const generatedEssayContent = document.getElementById('generatedEssayContent');
+    const copyEssayBtn = document.getElementById('copyEssayBtn');
+
+    if (generatorForm) {
+        generatorForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const topic = genTopic.value.trim();
+            const ideas = genIdeas.value.trim();
+
+            // Get value from checked radio button
+            const selectedRadio = document.querySelector('input[name="num_paragraphs"]:checked');
+            const num_paragraphs = selectedRadio ? selectedRadio.value : 3;
+
+            if (!topic) {
+                alert('Please provide a topic.');
+                return;
+            }
+
+            genSubmitBtn.disabled = true;
+            genLoading.style.display = 'flex';
+            genResultArea.classList.remove('show');
+            window.sessionState.analysisInProgress = true;
+
+            try {
+                const response = await fetch('/api/writing/task2/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ topic, ideas, num_paragraphs })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    generatedEssayContent.textContent = data.essay;
+                    genResultArea.classList.add('show');
+                    // Scroll to results
+                    setTimeout(() => {
+                        genResultArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 100);
+                } else {
+                    alert(data.error || 'Something went wrong.');
+                }
+            } catch (err) {
+                alert('Network error. Please check your connection.');
+            } finally {
+                genSubmitBtn.disabled = false;
+                genLoading.style.display = 'none';
+                window.sessionState.analysisInProgress = false;
+            }
+        });
+    }
+
+    if (copyEssayBtn) {
+        copyEssayBtn.addEventListener('click', () => {
+            const text = generatedEssayContent.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = copyEssayBtn.innerHTML;
+                copyEssayBtn.innerHTML = '<i data-lucide="check"></i> Copied!';
+                if (window.lucide) lucide.createIcons();
+                setTimeout(() => {
+                    copyEssayBtn.innerHTML = originalText;
+                    if (window.lucide) lucide.createIcons();
+                }, 2000);
+            });
+        });
+    }
+
 
     if (micBtnLarge) {
         micBtnLarge.addEventListener('click', () => {
@@ -1085,3 +1316,154 @@ document.addEventListener('DOMContentLoaded', () => {
         if (readingBand) readingBand.textContent = "0.0";
     };
 });
+
+// --- Task 1 Generator Logic (Academic & General) ---
+const t1GenForm = document.getElementById('task1GenForm');
+const t1GenTopic = document.getElementById('gen1-topic');
+const t1GenType = document.getElementById('task1GenType');
+const t1GenImageInput = document.getElementById('gen1-image');
+const t1GenSubmitBtn = document.getElementById('gen1SubmitBtn');
+const t1GenLoading = document.getElementById('gen1-loading');
+const t1GenResultArea = document.getElementById('gen1-resultArea');
+const t1GeneratedContent = document.getElementById('generatedTask1Content');
+const t1CopyBtn = document.getElementById('copyTask1Btn');
+const t1GenFileNameSpan = document.getElementById('gen1-fileName');
+const t1GenImagePreview = document.getElementById('gen1-imagePreview');
+const t1GenPreviewImg = t1GenImagePreview ? t1GenImagePreview.querySelector('img') : null;
+const t1GenRemoveImg = document.getElementById('gen1-removeImg');
+const t1GenUploadPlaceholder = document.getElementById('gen1-uploadPlaceholder');
+
+// Image Handling for Generator
+if (t1GenImageInput) {
+    t1GenImageInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            t1GenFileNameSpan.textContent = file.name;
+            const reader = new FileReader();
+            reader.onload = (re) => {
+                t1GenPreviewImg.src = re.target.result;
+                t1GenUploadPlaceholder.style.display = 'none';
+                t1GenImagePreview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+}
+
+if (t1GenRemoveImg) {
+    t1GenRemoveImg.addEventListener('click', (e) => {
+        e.stopPropagation();
+        t1GenImageInput.value = '';
+        t1GenFileNameSpan.textContent = 'No file chosen';
+        t1GenPreviewImg.src = '';
+        t1GenUploadPlaceholder.style.display = 'flex';
+        t1GenImagePreview.style.display = 'none';
+    });
+}
+
+if (t1GenForm) {
+    t1GenForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const topic = t1GenTopic.value.trim();
+        const type = t1GenType.value;
+        const imageFile = t1GenImageInput.files[0];
+
+        if (!topic) {
+            alert('Please provide a topic/question.');
+            return;
+        }
+
+        t1GenSubmitBtn.disabled = true;
+        t1GenLoading.style.display = 'flex';
+        t1GenResultArea.classList.remove('show');
+        window.sessionState.analysisInProgress = true;
+
+        try {
+            const endpoint = type === 'academic'
+                ? '/api/writing/task1/generate/academic'
+                : '/api/writing/task1/generate/general';
+
+            let response;
+
+            if (type === 'academic') {
+                // Use FormData for file upload
+                const formData = new FormData();
+                formData.append('topic', topic);
+                if (imageFile) {
+                    formData.append('chart_image', imageFile);
+                }
+                response = await fetch(endpoint, {
+                    method: 'POST',
+                    body: formData
+                });
+            } else {
+                // Use JSON for General
+                response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ topic })
+                });
+            }
+
+            const data = await response.json();
+
+            if (data.success) {
+                const content = type === 'academic' ? data.report : data.letter;
+                t1GeneratedContent.textContent = content;
+                t1GenResultArea.classList.add('show');
+                setTimeout(() => {
+                    t1GenResultArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
+            } else {
+                alert(data.error || 'Something went wrong.');
+            }
+        } catch (err) {
+            alert('Network error. Please check your connection.');
+        } finally {
+            t1GenSubmitBtn.disabled = false;
+            t1GenLoading.style.display = 'none';
+            window.sessionState.analysisInProgress = false;
+        }
+    });
+}
+
+if (t1CopyBtn) {
+    t1CopyBtn.addEventListener('click', () => {
+        const text = t1GeneratedContent.textContent;
+        navigator.clipboard.writeText(text).then(() => {
+            const originalText = t1CopyBtn.innerHTML;
+            t1CopyBtn.innerHTML = '<i data-lucide="check"></i> Copied!';
+            if (window.lucide) lucide.createIcons();
+            setTimeout(() => {
+                t1CopyBtn.innerHTML = originalText;
+                if (window.lucide) lucide.createIcons();
+            }, 2000);
+        });
+    });
+}
+// Handle browser back/forward buttons
+window.onpopstate = function (event) {
+    if (event.state && event.state.section) {
+        showSection(event.state.section, false);
+    } else {
+        // Fallback to hash if state is missing
+        const sectionId = window.location.hash.replace('#', '') || 'landing';
+        // Map hash back to internal section IDs if necessary
+        const sectionMap = {
+            'academic-hub': 'academic_hub',
+            'general-hub': 'general_hub',
+            'speaking-hub': 'speaking_hub',
+            'speaking-part1': 'speaking_part1',
+            'speaking-part2': 'speaking_part2',
+            'speaking-part3': 'speaking_part3',
+            'task1-academic': 'task1_academic',
+            'task1-general': 'task1_general',
+            'task2': 'task2',
+            'calculators': 'calculators',
+            'task2-generator': 'task2_generator',
+            'task1-academic-generator': 'task1_academic_generator',
+            'task1-general-generator': 'task1_general_generator'
+        };
+        showSection(sectionMap[sectionId] || sectionId, false);
+    }
+};

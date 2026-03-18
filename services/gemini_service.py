@@ -52,6 +52,40 @@ class GeminiService:
         except Exception as e:
             return f"Error: {str(e)}"
 
+    def generate_ielts_writing_task2_essay(self, topic, ideas="", num_paragraphs=3):
+        """
+        Generate a Band 9 IELTS Writing Task 2 essay.
+        """
+        prompt = f"""
+        Act as an IELTS Band 9 Writing Expert. Write a high-scoring Band 9 essay for the following Task 2 topic.
+        
+        Topic: {topic}
+        
+        Optional Ideas to include: {ideas if ideas else "Use your own relevant ideas."}
+        
+        Structure Requirements:
+        - Introduction
+        - {num_paragraphs} Body Paragraphs (strictly follow this number)
+        - Conclusion
+        
+        The essay should demonstrate:
+        - Advanced vocabulary (Lexical Resource)
+        - Complex grammatical structures (Grammatical Range & Accuracy)
+        - Clear and logical organization (Coherence & Cohesion)
+        - Full address of the task (Task Response)
+        
+        Format the output clearly with paragraph breaks. Do not include any meta-text or explanations, just the essay.
+        """
+        
+        try:
+            response = self.client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=prompt
+            )
+            return response.text.strip()
+        except Exception as e:
+            return f"Error generating essay: {str(e)}"
+
     def check_ielts_writing_task1(self, question, answer, task_type='academic', image_file=None):
         """
         Use Gemini to check IELTS Writing Task 1 answer (Academic or General)
@@ -123,6 +157,88 @@ class GeminiService:
             print(traceback.format_exc())
             return f"Error: {str(e)}"
 
+
+
+    def generate_ielts_writing_task1_academic(self, topic, image_file=None):
+        """
+        Generate a Band 9 IELTS Academic Writing Task 1 Report.
+        Supports optional image input for data interpretation.
+        """
+        prompt = f"""
+        Act as an IELTS Band 9 Writing Expert. Write a high-scoring Band 9 Academic Task 1 Report.
+        
+        Topic/Instructions: {topic}
+        
+        If an image is provided, analyze the data accurately and describe the main features, trends, and comparisons.
+        
+        Structure:
+        - Introduction (Paraphrase the question)
+        - Overview (Summarize main trends/features clearly)
+        - Body Paragraph 1 (Detail specific data)
+        - Body Paragraph 2 (Detail specific data)
+        
+        Ensure:
+        - Factual and objective tone
+        - Accurate data reporting (if image provided) or plausible hypothetical data (if no image)
+        - Wide range of vocabulary and complex sentence structures
+        
+        Return ONLY the report text.
+        """
+        
+        try:
+            parts = [types.Part.from_text(text=prompt)]
+            
+            if image_file:
+                image_file.seek(0)
+                image_data = image_file.read()
+                parts.append(types.Part.from_bytes(
+                    data=image_data,
+                    mime_type=image_file.content_type
+                ))
+            
+            response = self.client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=types.Content(role="user", parts=parts)
+            )
+            return response.text.strip()
+            
+        except Exception as e:
+            return f"Error generating report: {str(e)}"
+
+    def generate_ielts_writing_task1_general(self, topic):
+        """
+        Generate a Band 9 IELTS General Writing Task 1 Letter.
+        """
+        prompt = f"""
+        Act as an IELTS Band 9 Writing Expert. Write a high-scoring Band 9 General Training Task 1 Letter.
+        
+        Topic/Scenario: {topic}
+        
+        Structure:
+        - Salutation (Dear Sir/Madam, Dear John, etc. based on tone)
+        - Opening Statement (Purpose of writing)
+        - Bullet Point 1 Coverage
+        - Bullet Point 2 Coverage
+        - Bullet Point 3 Coverage
+        - Closing Statement
+        - Sign-off
+        
+        Ensure:
+        - Appropriate tone (Formal, Semi-formal, or Informal)
+        - Clear purpose
+        - Natural vocabulary and grammar
+        
+        Return ONLY the letter text.
+        """
+        
+        try:
+            response = self.client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=prompt
+            )
+            return response.text.strip()
+        except Exception as e:
+            return f"Error generating letter: {str(e)}"
 
     def check_ielts_writing_task1_general(self, question, answer):
         """
