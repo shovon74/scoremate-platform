@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScoreMate IELTS Reading Question Types - Visual Design Reference</title>
+    <style>
+        /* ============================================
+           RESET & BASE STYLES
+           ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, "system-ui", "Segoe UI", Roboto, "Oxygen-Sans", Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+            font-size: 18px;
+            line-height: 1.5;
+            color: rgb(0, 0, 0);
+            background-color: #f5f5f5;
+        }
+
+        /* ============================================
+           DESIGN TOKENS REFERENCE
+           ============================================ */
+        .design-tokens-panel {
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px;
+            font-family: "Courier New", monospace;
+            font-size: 14px;
+        }
+
+        .design-tokens-panel h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #1f2937;
+        }
+
+        .token-group {
+            margin-bottom: 20px;
+        }
+
+        .token-group h4 {
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .token-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 10px;
+            background: white;
+            margin-bottom: 4px;
+            border-radius: 3px;
+            border-left: 3px solid #2563eb;
+        }
+
+        .token-key {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .token-value {
+            color: #6b7280;
+        }
+
+        /* ============================================
+           TAB NAVIGATION
+           ============================================ */
+        .tabs-container {
+            background: white;
+            border-bottom: 2px solid #e5e7eb;
+            margin: 20px;
+            border-radius: 8px 8px 0 0;
+            overflow-x: auto;
+        }
+
+        .tabs-list {
+            display: flex;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            gap: 0;
+        }
+
+        .tab-button {
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #6b7280;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .tab-button:hover {
+            color: #2563eb;
+            background: #f9fafb;
+        }
+
+        .tab-button.active {
+            color: #2563eb;
+            border-bottom-color: #2563eb;
+        }
+
+        /* ============================================
+           SPLIT-PANEL LAYOUT
+           ============================================ */
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background: white;
+        }
+
+        .header-bar {
+            background: #2563eb;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 700;
+            font-size: 18px;
+            flex-shrink: 0;
+            border-bottom: 1px solid #1e40af;
+        }
+
+        .header-left {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .header-timer {
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 12px;
+            border-radius: 4px;
+        }
+
+        .header-button {
+            background: rgba(255, 255, 255, 0.9);
+            color: #2563eb;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s ease;
+        }
+
+        .header-button:hover {
+            background: white;
+        }
+
+        .panels-wrapper {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            gap: 0;
+        }
+
+        .panel-left {
+            width: 50%;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 30px;
+            background: white;
+            border-right: 2px solid #e5e7eb;
+        }
+
+        .panel-divider {
+            width: 6px;
+            background: linear-gradient(90deg, #e5e7eb 0%, #d1d5db 50%, #e5e7eb 100%);
+            cursor: col-resize;
+            transition: background 0.3s ease;
+        }
+
+        .panel-divider:hover {
+            background: linear-gradient(90deg, #2563eb 0%, #1e40af 50%, #2563eb 100%);
+        }
+
+        .panel-right {
+            width: 50%;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 30px;
+            background: #fafafa;
+        }
+
+        /* ============================================
+           PASSAGE STYLES
+           ============================================ */
+        .passage-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #1f2937;
+        }
+
+        .passage-text {
+            font-size: 18px;
+            line-height: 36px;
+            color: rgb(0, 0, 0);
+            text-align: justify;
+            word-spacing: 0.05em;
+        }
+
+        .passage-text p {
+            margin-bottom: 20px;
+        }
+
+        /* ============================================
+           QUESTION STYLES (BASE)
+           ============================================ */
+        .question-section {
+            margin-bottom: 54px;
+        }
+
+        .question-section-header {
+            background: #f3f4f6;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2563eb;
+        }
+
+        .question-section-title {
+            font-weight: 700;
+            font-size: 18px;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .question-section-instruction {
+            font-size: 16px;
+            color: #4b5563;
+            line-height: 24px;
+        }
+
+        .question-container {
+            padding: 20px;
+            background: white;
+            border-left: 3px solid #e5e7eb;
+            margin-bottom: 24px;
+            border-radius: 4px;
+        }
+
+        .question-number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 1px solid rgb(0, 0, 0);
+            border-radius: 2px;
+            text-align: center;
+            line-height: 28px;
+            font-weight: 700;
+            font-size: 18px;
+            margin-right: 12px;
+            vertical-align: top;
+        }
+
+        .question-number.active {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+
+        .question-text {
+            font-size: 18px;
+            line-height: 27px;
+            color: rgb(0, 0, 0);
+            margin-bottom: 16px;
+        }
+
+        .question-text-inline {
+            display: inline;
+        }
+
+        /* ============================================
+           FORM ELEMENTS
+           ============================================ */
+        .radio-group,
+        .checkbox-group {
+            margin-left: 42px;
+            margin-top: 12px;
+        }
+
+        .radio-option,
+        .checkbox-option {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            gap: 12px;
+        }
+
+        input[type="radio"],
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-top: 3px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .option-label {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .option-letter {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 1px solid rgb(0, 0, 0);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 28px;
+            font-weight: 700;
+            font-size: 18px;
+            margin-right: 12px;
+        }
+
+        .option-text {
+            font-size: 17px;
+            font-weight: 700;
+            color: rgb(0, 0, 0);
+        }
+
+        .option-subtext {
+            font-size: 16px;
+            font-weight: 400;
+            color: #4b5563;
+            line-height: 24px;
+        }
+
+        /* ============================================
+           TEXT INPUTS & DROPDOWNS
+           ============================================ */
+        input[type="text"],
+        select {
+            border: 1px solid rgb(211, 211, 211);
+            padding: 6px 8px;
+            font-size: 18px;
+            width: 144px;
+            border-radius: 2px;
+            font-family: inherit;
+            color: rgb(0, 0, 0);
+            background: white;
+            transition: border-color 0.2s ease;
+        }
+
+        input[type="text"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+        }
+
+        select {
+            cursor: pointer;
+            padding: 4px 8px;
+        }
+
+        /* ============================================
+           SPECIAL LAYOUTS
+           ============================================ */
+        .reference-box {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            line-height: 24px;
+        }
+
+        .reference-box-title {
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+
+        .reference-item {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .reference-item:before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 8px;
+            width: 6px;
+            height: 6px;
+            background: #2563eb;
+            border-radius: 50%;
+        }
+
+        /* Table Completion */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            background: white;
+        }
+
+        table th,
+        table td {
+            border: 1px solid #d1d5db;
+            padding: 12px;
+            text-align: left;
+            font-size: 16px;
+        }
+
+        table th {
+            background: #f3f4f6;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        table td {
+            color: rgb(0, 0, 0);
+        }
+
+        /* Flow Chart */
+        .flowchart-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            margin: 20px 0;
+        }
+
+        .flowchart-box {
+            background: #f9fafb;
+            border: 1px solid #d1d5db;
+            padding: 15px;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 16px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .flowchart-arrow {
+            text-align: center;
+            color: #6b7280;
+            font-size: 20px;
+            padding: 8px 0;
+        }
+
+        /* Diagram */
+        .diagram-container {
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .diagram-svg {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        /* ============================================
+           BOTTOM NAVIGATION
+           ============================================ */
+        .bottom-nav {
+            background: white;
+            border-top: 2px solid #e5e7eb;
+            padding: 15px 20px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-shrink: 0;
+            overflow-x: auto;
+        }
+
+        .nav-part {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .nav-part-label {
+            font-weight: 700;
+            font-size: 14px;
+            color: #4b5563;
+        }
+
+        .question-bubble {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            color: #4b5563;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .question-bubble:hover {
+            background: #d1d5db;
+        }
+
+        .question-bubble.active {
+            background: #2563eb;
+            color: white;
+        }
+
+        .question-bubble.answered {
+            background: #10b981;
+            color: white;
+        }
+
+        /* ============================================
+           SUBMIT BUTTON
+           ============================================ */
+        .submit-button {
+            background: #16a34a;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .submit-button:hover {
+            background: #15803d;
+        }
+
+        .submit-button:active {
+            transform: scale(0.98);
+        }
+
+    </style>
+</head>
+<body>
+
+<!-- DESIGN TOKENS REFERENCE PANEL -->
+<div class="design-tokens-panel">
+    <h3>CSS Design Tokens Reference</h3>
+    <div class="token-group">
+        <h4>Typography</h4>
+        <div class="token-item"><span class="token-key">Font Family</span><span class="token-value">-apple-system, system-ui, Segoe UI, Roboto...</span></div>
+        <div class="token-item"><span class="token-key">Base Font Size</span><span class="token-value">18px</span></div>
+        <div class="token-item"><span class="token-key">Line Height (Passage)</span><span class="token-value">36px</span></div>
+        <div class="token-item"><span class="token-key">Line Height (Questions)</span><span class="token-value">27px</span></div>
+    </div>
+    <div class="token-group">
+        <h4>Colors</h4>
+        <div class="token-item"><span class="token-key">Primary Blue</span><span class="token-value">#2563eb</span></div>
+        <div class="token-item"><span class="token-key">Text Black</span><span class="token-value">rgb(0, 0, 0)</span></div>
+        <div class="token-item"><span class="token-key">Border Gray</span><span class="token-value">rgb(211, 211, 211)</span></div>
+        <div class="token-item"><span class="token-key">Success Green</span><span class="token-value">#16a34a</span></div>
+    </div>
+    <div class="token-group">
+        <h4>Dimensions</h4>
+        <div class="token-item"><span class="token-key">Question Number Box</span><span class="token-value">30x30px</span></div>
+        <div class="token-item"><span class="token-key">Option Circle</span><span class="token-value">30x30px, radius 50%</span></div>
+        <div class="token-item"><span class="token-key">Input Width</span><span class="token-value">144px</span></div>
+    </div>
+</div>
+
+<!-- TAB NAVIGATION -->
+<div class="tabs-container">
+    <ul class="tabs-list">
+        <li><button class="tab-button active" data-tab="type1">Q1: TFNG</button></li>
+        <li><button class="tab-button" data-tab="type2">Q2: YNNG</button></li>
+        <li><button class="tab-button" data-tab="type3">Q3: MCQ Single</button></li>
+        <li><button class="tab-button" data-tab="type4">Q4: Choose 2</button></li>
+        <li><button class="tab-button" data-tab="type5">Q5: Choose 3</button></li>
+        <li><button class="tab-button" data-tab="type6">Q6: Match Info</button></li>
+        <li><button class="tab-button" data-tab="type7">Q7: Match Features</button></li>
+        <li><button class="tab-button" data-tab="type8">Q8: Match Headings</button></li>
+        <li><button class="tab-button" data-tab="type9">Q9: Sentence End</button></li>
+        <li><button class="tab-button" data-tab="type10">Q10: Summary</button></li>
+        <li><button class="tab-button" data-tab="type11">Q11: Notes</button></li>
+        <li><button class="tab-button" data-tab="type12">Q12: Sentence</button></li>
+        <li><button class="tab-button" data-tab="type13">Q13: Table</button></li>
+        <li><button class="tab-button" data-tab="type14">Q14: Flow Chart</button></li>
+        <li><button class="tab-button" data-tab="type15">Q15: Short Answer</button></li>
+        <li><button class="tab-button" data-tab="type16">Q16: Diagram</button></li>
+    </ul>
+</div>
+
+<!-- MAIN CONTAINER -->
+<div class="container">
+    <div class="header-bar">
+        <div class="header-left">
+            <span>Part 1</span>
+            <div class="header-timer">Time: 20:45</div>
+        </div>
+        <button class="header-button">Practice Skimming</button>
+    </div>
+
+    <div class="panels-wrapper">
+        <div class="panel-left" id="panel-left"></div>
+        <div class="panel-divider"></div>
+        <div class="panel-right" id="panel-right"></div>
+    </div>
+
+    <div class="bottom-nav">
+        <div class="nav-part">
+            <span class="nav-part-label">PART 1</span>
+            <div class="question-bubble active">1</div>
+            <div class="question-bubble">2</div>
+            <div class="question-bubble">3</div>
+            <div class="question-bubble">4</div>
+            <div class="question-bubble">5</div>
+        </div>
+        <div class="nav-part">
+            <span class="nav-part-label">PART 2</span>
+            <div class="question-bubble">6</div>
+            <div class="question-bubble">7</div>
+            <div class="question-bubble">8</div>
+        </div>
+        <div class="nav-part">
+            <span class="nav-part-label">PART 3</span>
+            <div class="question-bubble">9</div>
+            <div class="question-bubble">10</div>
+        </div>
+    </div>
+</div>
+
+<script>
+const questionTypes = {
+    type1: {
+        passage: `<div class="passage-title">AI and Society</div><div class="passage-text"><p>Artificial Intelligence represents one of the greatest technological achievements of our time. From humble beginnings in the 1950s to today's advanced machine learning systems, AI has fundamentally transformed how we work, communicate, and solve complex problems. Early pioneers like Alan Turing and Marvin Minsky established the theoretical foundations that would guide decades of research and development.</p><p>The journey has not been without challenges. The initial enthusiasm of the AI community was tempered by the limitations of early computing power and the complexity of human cognition. These setbacks led to periods known as "AI winters," when funding dried up and progress seemed to stall. However, each cycle of dormancy was followed by renewed breakthroughs as technology advanced.</p><p>Modern AI systems leverage vast datasets and sophisticated algorithms to achieve remarkable feats. Computer vision now matches or exceeds human capability in many domains. Natural language processing has reached unprecedented levels of sophistication. Yet, as these systems become more powerful, important questions about ethics, privacy, and societal impact have come to the forefront of academic and policy discussions.</p></div>`,
+        questions: `<div class="question-section"><div class="question-section-header"><div class="question-section-title">Questions 1-5</div><div class="question-section-instruction">Do the following statements agree with the information given in the passage? Write TRUE, FALSE, or NOT GIVEN.</div></div><div class="question-container"><span class="question-number">1</span><span class="question-text-inline">Alan Turing was the first person to explore AI.</span><div class="radio-group"><div class="radio-option"><input type="radio" id="q1_a" name="q1" value="true"><label for="q1_a" class="option-label"><span class="option-letter">A</span><span class="option-text">TRUE</span></label></div><div class="radio-option"><input type="radio" id="q1_b" name="q1" value="false"><label for="q1_b" class="option-label"><span class="option-letter">B</span><span class="option-text">FALSE</span></label></div><div class="radio-option"><input type="radio" id="q1_c" name="q1" value="notgiven"><label for="q1_c" class="option-label"><span class="option-letter">C</span><span class="option-text">NOT GIVEN</span></label></div></div></div><div class="question-container"><span class="question-number">2</span><span class="question-text-inline">Early AI research faced limitations due to computing power.</span><div class="radio-group"><div class="radio-option"><input type="radio" id="q2_a" name="q2" value="true"><label for="q2_a" class="option-label"><span class="option-letter">A</span><span class="option-text">TRUE</span></label></div><div class="radio-option"><input type="radio" id="q2_b" name="q2" value="false"><label for="q2_b" class="option-label"><span class="option-letter">B</span><span class="option-text">FALSE</span></label></div><div class="radio-option"><input type="radio" id="q2_c" name="q2" value="notgiven"><label for="q2_c" class="option-label"><span class="option-letter">C</span><span class="option-text">NOT GIVEN</span></label></div></div></div><div class="question-container"><span class="question-number">3</span><span class="question-text-inline">AI winters occurred when funding decreased significantly.</span><div class="radio-group"><div class="radio-option"><input type="radio" id="q3_a" name="q3" value="true"><label for="q3_a" class="option-label"><span class="option-letter">A</span><span class="option-text">TRUE</span></label></div><div class="radio-option"><input type="radio" id="q3_b" name="q3" value="false"><label for="q3_b" class="option-label"><span class="option-letter">B</span><span class="option-text">FALSE</span></label></div><div class="radio-option"><input type="radio" id="q3_c" name="q3" value="notgiven"><label for="q3_c" class="option-label"><span class="option-letter">C</span><span class="option-text">NOT GIVEN</span></label></div></div></div><div class="question-container"><span class="question-number">4</span><span class="question-text-inline">Modern AI systems require less data than earlier systems.</span><div class="radio-group"><div class="radio-option"><input type="radio" id="q4_a" name="q4" value="true"><label for="q4_a" class="option-label"><span class="option-letter">A</span><span class="option-text">TRUE</span></label></div><div class="radio-option"><input type="radio" id="q4_b" name="q4" value="false"><label for="q4_b" class="option-label"><span class="option-letter">B</span><span class="option-text">FALSE</span></label></div><div class="radio-option"><input type="radio" id="q4_c" name="q4" value="notgiven"><label for="q4_c" class="option-label"><span class="option-letter">C</span><span class="option-text">NOT GIVEN</span></label></div></div></div><div class="question-container"><span class="question-number">5</span><span class="question-text-inline">Privacy concerns are relevant to current AI development.</span><div class="radio-group"><div class="radio-option"><input type="radio" id="q5_a" name="q5" value="true"><label for="q5_a" class="option-label"><span class="option-letter">A</span><span class="option-text">TRUE</span></label></div><div class="radio-option"><input type="radio" id="q5_b" name="q5" value="false"><label for="q5_b" class="option-label"><span class="option-letter">B</span><span class="option-text">FALSE</span></label></div><div class="radio-option"><input type="radio" id="q5_c" name="q5" value="notgiven"><label for="q5_c" class="option-label"><span class="option-letter">C</span><span class="option-text">NOT GIVEN</span></label></div></div></div></div>`
+    },
+
+    type2: {
+        passage: `<div class="passage-title">Climate Science Perspectives</div><div class="passage-text"><p>Climate scientists across the globe maintain a compelling consensus on the reality of climate change driven by human activity. This agreement spans diverse scientific traditions and competing research agendas, lending credibility to their conclusions. The evidence encompasses temperature records, ice core data, and contemporary observations of glacial retreat and sea level rise, all pointing toward accelerating climatic disruption.</p><p>Policymakers face difficult choices when implementing climate mitigation strategies. Some emphasize that renewable energy transitions require substantial upfront investments. Others argue that the costs of inaction—through extreme weather, agricultural disruption, and displacement—will far exceed transition expenses. This represents a fundamental disagreement about present sacrifice versus future risk.</p><p>International cooperation remains challenging despite shared environmental concerns. Developed nations historically produced the majority of emissions, while developing countries face the strongest impacts. Solutions must account for this inequity while encouraging participation from all sectors of the global economy.</p></div>`,
+        questions: `<div class="question-section"><div class="question-section-header"><div class="question-section-title">Questions 6-10</div><div class="question-section-instruction">Do the following statements agree with the views of the writer? Write YES, NO, or NOT GIVEN.</div></div><div class="question-container"><span class="question-number">6</span><span class="question-text-inline">Scientists from different backgrounds agree on human-caused climate change.</span><div class="radio-group"><div class="radio-option"><input type="radio" id="q6_a" name="q6" value="yes"><label for="q6_a" class="option-label"><span class="option-letter">A</span><span class="option-text">YES</span></label></div><div class="radio-option"><input type="radio" id="q6_b" name="q6" value="no"><label for="q6_b" class="option-label"><span class="option-letter">B</span><span class="option-text">NO</span></label></div><div class="radio-option"><input type="radio" id="q6_c" name="q6" value="notgiven"><label for="q6_c" class="option-label"><span class="option-letter">C</span><span class="option-text">NOT GIVEN</span></label></div></div></div><div class="question-container"><span class="question-number">7</span><span class="question-text-inline">Glacial retreat provides evidence for current climate disruption.</span><div class="radio-group"><div class="radio-option"><input type="radio" id="q7_a" name="q7" value="yes"><label for="q7_a" class="option-label"><span class="option-letter">A</span><span class="option-text">YES</span></label></div><div class="radio-option"><input type="radio" id="q7_b" name="q7" value="no"><label for="q7_b" class="option-label"><span class="option-letter">B</span><span class="option-text">NO</span></label></div><div class="radio-option"><input type="radio" id="q7_c" name="q7" value="notgiven"><label for="q7_c" class="option-label"><span class="option-letter">C</span><span class="option-text">NOT GIVEN</span></label></div></div></div><div class="question-container"><span class="question-number">8</span><span class="question-text-inline">Energy transition costs will exceed the expenses of climate inaction.</span><div class="radio-group"><div class="radio-option"><input type="radio" id="q8_a" name="q8" value="yes"><label for="q8_a" class="option-label"><span class="option-letter">A</span><span class="option-text">YES</span></label></div><div class="radio-option"><input type="radio" id="q8_b" name="q8" value="no"><label for="q8_b" class="option-label"><span class="option-letter">B</span><span class="option-text">NO</span></label></div><div class="radio-option"><input type="radio" id="q8_c" name="q8" value="notgiven"><label for="q8_c" class="option-label"><span class="option-letter">C</span><span class="option-text">NOT GIVEN</span></label></div></div></div><div class="question-container"><span class="question-number">9</span><span class="question-text-inline">Developed nations should bear greater responsibility for climate action.</span><div class="radio-group"><div class="radio-option"><input type="radio" id="q9_a" name="q9" value="yes"><label for="q9_a" class="option-label"><span class="option-letter">A</span><span class="option-text">YES</span></label></div><div class="radio-option"><input type="radio" id="q9_b" name="q9" value="no"><label for="q9_b" class="option-label"><span class="option-letter">B</span><span class="option-text">NO</span></label></div><div class="radio-option"><input type="radio" id="q9_c" name="q9" value="notgiven"><label for="q9_c" class="option-label"><span class="option-letter">C</span><span class="option-text">NOT GIVEN</span></label></div></div></div><div class="question-container"><span class="question-number">10</span><span class="question-text-inline">International climate agreements have been fully successful.</span><div class="radio-group"><div class="radio-option"><input type="radio" id="q10_a" name="q10" value="yes"><label for="q10_a" class="option-label"><span class="option-letter">A</span><span class="option-text">YES</span></label></div><div class="radio-option"><input type="radio" id="q10_b" name="q10" value="no"><label for="q10_b" class="option-label"><span class="option-letter">B</span><span class="option-text">NO</span></label></div><div class="radio-option"><input type="radio" id="q10_c" name="q10" value="notgiven"><label for="q10_c" class="option-label"><span class="option-letter">C</span><span class="option-text">NOT GIVEN</span></label></div></div></div></div>`
+    },
+
+    type3: {
+        passage: `<div class="passage-title">Urban Transportation Evolution</div><div class="passage-text"><p>Modern cities face unprecedented transportation challenges as urban populations expand and environmental concerns mount. Historically, the automobile dominated city planning throughout the 20th century, reshaping metropolitan areas around car-centric infrastructure. However, this approach has created chronic congestion, air quality deterioration, and sprawling development patterns that isolate communities and consume agricultural land.</p><p>Progressive urban centers are now implementing multi-modal transportation systems that integrate walking, cycling, public transit, and selective vehicle access. Copenhagen and Amsterdam have pioneered comprehensive cycling infrastructure, while cities like Zurich and Tokyo maintain efficient public transit networks. These approaches reduce congestion, lower emissions, and create more livable urban environments.</p><p>Emerging micro-mobility technologies including e-scooters and bike-sharing services offer last-mile connection options. These systems show promise but require careful regulation to prevent sidewalk clutter and ensure equitable access for all income levels. Integration with conventional transit and thoughtful urban design remains essential for sustainable cities.</p></div>`,
+        questions: `<div class="question-section"><div class="question-section-header"><div class="question-section-title">Questions 11-15</div><div class="question-section-instruction">Choose the correct letter, A, B, C or D.</div></div><div class="question-container"><span class="question-number">11</span><span class="question-text">What was the primary focus of city planning in the 20th century?</span><div class="radio-group"><div class="radio-option"><input type="radio" id="q11_a" name="q11"><label for="q11_a" class="option-label"><span class="option-letter">A</span><span class="option-text">Environmental Protection</span><span class="option-subtext">Cities prioritized natural habitat preservation.</span></label></div><div class="radio-option"><input type="radio" id="q11_b" name="q11"><label for="q11_b" class="option-label"><span class="option-letter">B</span><span class="option-text">Automobile-Centered Development</span><span class="option-subtext">Infrastructure was designed primarily for cars.</span></label></div><div class="radio-option"><input type="radio" id="q11_c" name="q11"><label for="q11_c" class="option-label"><span class="option-letter">C</span><span class="option-text">Public Transit Expansion</span><span class="option-subtext">Cities invested heavily in railway systems.</span></label></div><div class="radio-option"><input type="radio" id="q11_d" name="q11"><label for="q11_d" class="option-label"><span class="option-letter">D</span><span class="option-text">Pedestrian Infrastructure</span><span class="option-subtext">Walking paths received significant funding.</span></label></div></div></div><div class="question-container"><span class="question-number">12</span><span class="question-text">According to the passage, what has resulted from car-centric city planning?</span><div class="radio-group"><div class="radio-option"><input type="radio" id="q12_a" name="q12"><label for="q12_a" class="option-label"><span class="option-letter">A</span><span class="option-text">Improved air quality</span></label></div><div class="radio-option"><input type="radio" id="q12_b" name="q12"><label for="q12_b" class="option-label"><span class="option-letter">B</span><span class="option-text">Urban sprawl and congestion</span></label></div><div class="radio-option"><input type="radio" id="q12_c" name="q12"><label for="q12_c" class="option-label"><span class="option-letter">C</span><span class="option-text">Stronger community connections</span></label></div><div class="radio-option"><input type="radio" id="q12_d" name="q12"><label for="q12_d" class="option-label"><span class="option-letter">D</span><span class="option-text">Lower transportation costs</span></label></div></div></div><div class="question-container"><span class="question-number">13</span><span class="question-text">Which cities are mentioned as successful models for cycling infrastructure?</span><div class="radio-group"><div class="radio-option"><input type="radio" id="q13_a" name="q13"><label for="q13_a" class="option-label"><span class="option-letter">A</span><span class="option-text">Berlin and Vienna</span></label></div><div class="radio-option"><input type="radio" id="q13_b" name="q13"><label for="q13_b" class="option-label"><span class="option-letter">B</span><span class="option-text">Copenhagen and Amsterdam</span></label></div><div class="radio-option"><input type="radio" id="q13_c" name="q13"><label for="q13_c" class="option-label"><span class="option-letter">C</span><span class="option-text">London and Paris</span></label></div><div class="radio-option"><input type="radio" id="q13_d" name="q13"><label for="q13_d" class="option-label"><span class="option-letter">D</span><span class="option-text">Sydney and Melbourne</span></label></div></div></div><div class="question-container"><span class="question-number">14</span><span class="question-text">What concern is raised about micro-mobility technologies?</span><div class="radio-group"><div class="radio-option"><input type="radio" id="q14_a" name="q14"><label for="q14_a" class="option-label"><span class="option-letter">A</span><span class="option-text">They are too expensive.</span></label></div><div class="radio-option"><input type="radio" id="q14_b" name="q14"><label for="q14_b" class="option-label"><span class="option-letter">B</span><span class="option-text">They require careful regulation and equity consideration.</span></label></div><div class="radio-option"><input type="radio" id="q14_c" name="q14"><label for="q14_c" class="option-label"><span class="option-letter">C</span><span class="option-text">They cannot integrate with transit.</span></label></div><div class="radio-option"><input type="radio" id="q14_d" name="q14"><label for="q14_d" class="option-label"><span class="option-letter">D</span><span class="option-text">They are only suitable for wealthy areas.</span></label></div></div></div><div class="question-container"><span class="question-number">15</span><span class="question-text">What is essential for sustainable cities according to the passage?</span><div class="radio-group"><div class="radio-option"><input type="radio" id="q15_a" name="q15"><label for="q15_a" class="option-label"><span class="option-letter">A</span><span class="option-text">Complete elimination of automobiles</span></label></div><div class="radio-option"><input type="radio" id="q15_b" name="q15"><label for="q15_b" class="option-label"><span class="option-letter">B</span><span class="option-text">Integration with conventional transit and thoughtful design</span></label></div><div class="radio-option"><input type="radio" id="q15_c" name="q15"><label for="q15_c" class="option-label"><span class="option-letter">C</span><span class="option-text">Government subsidies for private cars</span></label></div><div class="radio-option"><input type="radio" id="q15_d" name="q15"><label for="q15_d" class="option-label"><span class="option-letter">D</span><span class="option-text">Unrestricted urban expansion</span></label></div></div></div></div>`
+    },
+
+    type4: {
+        passage: `<div class="passage-title">Biodiversity Conservation</div><div class="passage-text"><p>The loss of biodiversity represents one of the most pressing environmental crises facing humanity. Habitat destruction, climate change, pollution, and overexploitation of resources have driven species extinction rates to levels not seen since the dinosaurs disappeared 66 million years ago. Tropical rainforests, which contain roughly half of Earth's species despite occupying only 6% of land area, face accelerating deforestation pressures.</p><p>Conservation strategies must balance human needs with species protection. Protected area networks, habitat restoration, and sustainable resource management offer promising approaches. However, success requires engagement with local communities, particularly indigenous peoples who have stewarded landscapes for millennia. Their traditional ecological knowledge offers invaluable insights for effective conservation.</p><p>Technological innovations from genetic rescue to wildlife tracking provide new tools for species preservation. Yet technology alone cannot solve biodiversity loss without addressing underlying drivers of destruction and establishing sustainable economic models that value ecosystem services.</p></div>`,
+        questions: `<div class="question-section"><div class="question-section-header"><div class="question-section-title">Questions 16-20</div><div class="question-section-instruction">Choose TWO letters, A-E. Write the correct letters.</div></div><div class="question-container"><span class="question-number">16</span><span class="question-text">Which TWO of the following are mentioned as causes of biodiversity loss?</span><div class="checkbox-group"><div class="checkbox-option"><input type="checkbox" id="q16_a" name="q16"><label for="q16_a" class="option-label"><span class="option-letter">A</span><span class="option-text">Decreased human population</span></label></div><div class="checkbox-option"><input type="checkbox" id="q16_b" name="q16"><label for="q16_b" class="option-label"><span class="option-letter">B</span><span class="option-text">Habitat destruction</span></label></div><div class="checkbox-option"><input type="checkbox" id="q16_c" name="q16"><label for="q16_c" class="option-label"><span class="option-letter">C</span><span class="option-text">Climate change</span></label></div><div class="checkbox-option"><input type="checkbox" id="q16_d" name="q16"><label for="q16_d" class="option-label"><span class="option-letter">D</span><span class="option-text">Improved technology</span></label></div><div class="checkbox-option"><input type="checkbox" id="q16_e" name="q16"><label for="q16_e" class="option-label"><span class="option-letter">E</span><span class="option-text">Overexploitation of resources</span></label></div></div></div><div class="question-container"><span class="question-number">17</span><span class="question-text">Which TWO aspects are mentioned as important for conservation success?</span><div class="checkbox-group"><div class="checkbox-option"><input type="checkbox" id="q17_a" name="q17"><label for="q17_a" class="option-label"><span class="option-letter">A</span><span class="option-text">Complete habitat isolation</span></label></div><div class="checkbox-option"><input type="checkbox" id="q17_b" name="q17"><label for="q17_b" class="option-label"><span class="option-letter">B</span><span class="option-text">Community engagement</span></label></div><div class="checkbox-option"><input type="checkbox" id="q17_c" name="q17"><label for="q17_c" class="option-label"><span class="option-letter">C</span><span class="option-text">Indigenous ecological knowledge</span></label></div><div class="checkbox-option"><input type="checkbox" id="q17_d" name="q17"><label for="q17_d" class="option-label"><span class="option-letter">D</span><span class="option-text">Elimination of traditional practices</span></label></div><div class="checkbox-option"><input type="checkbox" id="q17_e" name="q17"><label for="q17_e" class="option-label"><span class="option-letter">E</span><span class="option-text">Rapid industrialization</span></label></div></div></div></div>`
+    },
+
+    type5: {
+        passage: `<div class="passage-title">Ancient Trade Routes</div><div class="passage-text"><p>The Silk Road represented far more than a simple trade network; it was a complex system of cultural, technological, and economic exchange spanning continents and centuries. Originating in China during the Han Dynasty, these routes connected the Mediterranean world with East Asia, facilitating the movement of goods, ideas, religions, and innovations that would reshape civilizations.</p><p>Merchant communities developed sophisticated organizational structures to manage long-distance trade despite geographical barriers and political instabilities. Caravanserais provided shelter and security, while intermediary cities became cosmopolitan hubs where merchants, scholars, and pilgrims exchanged information. These networks transcended individual merchants, becoming institutionalized systems that persisted across dynasties and empires.</p><p>The Silk Road transmitted not only material goods but also religions—Buddhism, Islam, and Christianity expanded along these routes. Technological innovations including papermaking, printing, and ceramics traveled westward, while artistic styles and mathematical knowledge moved eastward. The network declined with oceanic trade routes but its legacy profoundly shaped global civilization.</p></div>`,
+        questions: `<div class="question-section"><div class="question-section-header"><div class="question-section-title">Questions 21-25</div><div class="question-section-instruction">Choose THREE letters, A-G. Write the correct letters.</div></div><div class="question-container"><span class="question-number">21</span><span class="question-text">Which THREE of the following were exchanged along the Silk Road?</span><div class="checkbox-group"><div class="checkbox-option"><input type="checkbox" id="q21_a" name="q21"><label for="q21_a" class="option-label"><span class="option-letter">A</span><span class="option-text">Military weapons</span></label></div><div class="checkbox-option"><input type="checkbox" id="q21_b" name="q21"><label for="q21_b" class="option-label"><span class="option-letter">B</span><span class="option-text">Religious teachings</span></label></div><div class="checkbox-option"><input type="checkbox" id="q21_c" name="q21"><label for="q21_c" class="option-label"><span class="option-letter">C</span><span class="option-text">Technological innovations</span></label></div><div class="checkbox-option"><input type="checkbox" id="q21_d" name="q21"><label for="q21_d" class="option-label"><span class="option-letter">D</span><span class="option-text">Colonial administration methods</span></label></div><div class="checkbox-option"><input type="checkbox" id="q21_e" name="q21"><label for="q21_e" class="option-label"><span class="option-letter">E</span><span class="option-text">Economic goods</span></label></div><div class="checkbox-option"><input type="checkbox" id="q21_f" name="q21"><label for="q21_f" class="option-label"><span class="option-letter">F</span><span class="option-text">Artistic styles</span></label></div><div class="checkbox-option"><input type="checkbox" id="q21_g" name="q21"><label for="q21_g" class="option-label"><span class="option-letter">G</span><span class="option-text">Political constitutions</span></label></div></div></div><div class="question-container"><span class="question-number">22</span><span class="question-text">Which THREE of the following supported the functioning of the Silk Road system?</span><div class="checkbox-group"><div class="checkbox-option"><input type="checkbox" id="q22_a" name="q22"><label for="q22_a" class="option-label"><span class="option-letter">A</span><span class="option-text">Caravanserais</span></label></div><div class="checkbox-option"><input type="checkbox" id="q22_b" name="q22"><label for="q22_b" class="option-label"><span class="option-letter">B</span><span class="option-text">Naval fleets</span></label></div><div class="checkbox-option"><input type="checkbox" id="q22_c" name="q22"><label for="q22_c" class="option-label"><span class="option-letter">C</span><span class="option-text">Intermediary cities</span></label></div><div class="checkbox-option"><input type="checkbox" id="q22_d" name="q22"><label for="q22_d" class="option-label"><span class="option-letter">D</span><span class="option-text">Merchant organizations</span></label></div><div class="checkbox-option"><input type="checkbox" id="q22_e" name="q22"><label for="q22_e" class="option-label"><span class="option-letter">E</span><span class="option-text">Modern transportation</span></label></div><div class="checkbox-option"><input type="checkbox" id="q22_f" name="q22"><label for="q22_f" class="option-label"><span class="option-letter">F</span><span class="option-text">Government monopolies</span></label></div><div class="checkbox-option"><input type="checkbox" id="q22_g" name="q22"><label for="q22_g" class="option-label"><span class="option-letter">G</span><span class="option-text">Banking institutions</span></label></div></div></div></div>`
+    },
+
+    type6: {
+        passage: `<div class="passage-title">Renewable Energy Sources</div><div class="passage-text"><p>Paragraph A: Solar energy represents one of the most abundant and clean energy sources available. Photovoltaic technology directly converts sunlight into electricity, while thermal systems capture heat for water and space heating. Installation costs have declined dramatically, making solar increasingly competitive with fossil fuels.</p><p>Paragraph B: Wind power offers significant advantages in regions with consistent wind patterns. Modern turbines achieve remarkable efficiency, with horizontal-axis designs becoming standard for utility-scale generation. Offshore wind farms present particular promise, accessing stronger and more reliable wind resources.</p><p>Paragraph C: Hydroelectric power dominates renewable generation globally, providing reliable baseload power. However, large dams create environmental and social impacts through ecosystem disruption and population displacement. Run-of-river systems offer alternatives with reduced environmental footprints.</p><p>Paragraph D: Geothermal energy taps into Earth's internal heat, providing stable, consistent power generation. Unlike solar and wind, geothermal availability depends on geographical location, limiting deployment to suitable regions. Iceland demonstrates the potential, generating over 30% of electricity from geothermal sources.</p><p>Paragraph E: Tidal and wave energy represent emerging technologies with tremendous potential. Oceanic energy density is far greater than wind, and predictability exceeds solar resources. Development remains early-stage, with prototypes demonstrating technical feasibility but requiring cost reduction.</p></div>`,
+        questions: `<div class="question-section"><div class="question-section-header"><div class="question-section-title">Questions 26-30</div><div class="question-section-instruction">Which paragraph contains the following information? Write the correct letter, A-E. You may use any letter more than once.</div></div><div class="question-container"><span class="question-number">26</span><span class="question-text">Energy source with falling installation costs</span><div style="margin-left: 42px; margin-top: 12px;"><select><option value="">Select paragraph...</option><option value="a">A</option><option value="b">B</option><option value="c">C</option><option value="d">D</option><option value="e">E</option></select></div></div><div class="question-container"><span class="question-number">27</span><span class="question-text">Energy source that causes population displacement</span><div style="margin-left: 42px; margin-top: 12px;"><select><option value="">Select paragraph...</option><option value="a">A</option><option value="b">B</option><option value="c">C</option><option value="d">D</option><option value="e">E</option></select></div></div><div class="question-container"><span class="question-number">28</span><span class="question-text">Energy source with location-dependent availability</span><div style="margin-left: 42px; margin-top: 12px;"><select><option value="">Select paragraph...</option><option value="a">A</option><option value="b">B</option><option value="c">C</option><option value="d">D</option><option value="e">E</option></select></div></div><div class="question-container"><span class="question-number">29</span><span class="question-text">Energy source that works well in windy regions</span><div style="margin-left: 42px; margin-top: 12px;"><select><option value="">Select paragraph...</option><option value="a">A</option><option value="b">B</option><option value="c">C</option><option value="d">D</option><option value="e">E</option></select></div></div><div class="question-container"><span class="question-number">30</span><span class="question-text">Energy source still in early development stages</span><div style="margin-left: 42px; margin-top: 12px;"><select><option value="">Select paragraph...</option><option value="a">A</option><option value="b">B</option><option value="c">C</option><option value="d">D</option><option value="e">E</option></select></div></div></div>`
+    },
+
+    type7: {
+        passage: `<div class="passage-title">Famous Scientists and Discoveries</div><div class="passage-text"><p>Throughout history, brilliant minds have transformed our understanding of the natural world. Marie Curie revolutionized physics by discovering polonium and radium, establishing the concept of radioactivity. Albert Einstein fundamentally altered physics through his theories of relativity, reshaping how we comprehend space, time, and gravity. Charles Darwin's evolutionary theory, supported by extensive observations, became the foundation of modern biology.</p><p>Nikola Tesla pioneered electrical transmission technology, enabling modern power distribution systems. Rosalind Franklin's crystallography work proved essential to understanding DNA structure. Stephen Hawking made profound contributions to cosmology, particularly regarding black holes and the universe's origin. These scientists shared curiosity about fundamental principles governing nature.</p></div>`,
+        questions: `<div class="question-section"><div class="question-section-header"><div class="question-section-title">Questions 31-35</div><div class="question-section-instruction">Which scientist below matches the following descriptions? Write the correct letter, A-G.</div></div><div class="reference-box"><div class="reference-box-title">List of Scientists</div><div class="reference-item">A. Marie Curie</div><div class="reference-item">B. Albert Einstein</div><div class="reference-item">C. Charles Darwin</div><div class="reference-item">D. Nikola Tesla</div><div class="reference-item">E. Rosalind Franklin</div><div class="reference-item">F. Stephen Hawking</div><div class="reference-item">G. Isaac Newton</div></div><div class="question-container"><span class="question-number">31</span><span class="question-text">Discovered radioactivity and new elements</span><div style="margin-left: 42px; margin-top: 12px;"><select><option value="">Select scientist...</option><option value="a">A. Marie Curie</option><option value="b">B. Albert Einstein</option><option value="c">C. Charles Darwin</option><option value="d">D. Nikola Tesla</option><option value="e">E. Rosalind Franklin</option><option value="f">F. Stephen Hawking</option><option value="g">G. Isaac Newton</option></select></div></div><div class="question-container"><span class="question-number">32</span><span class="question-text">Developed the theory of relativity</span><div style="margin-left: 42px; margin-top: 12px;"><select><option value="">Select scientist...</option><option value="a">A. Marie Curie</option><option value="b">B. Albert Einstein</option><option value="c">C. Charles Darwin</option><option value="d">D. Nikola Tesla</option><option value="e">E. Rosalind Franklin</option><option value="f">F. Stephen Hawking</option><option value="g">G. Isaac Newton</option></select></div></div><div class="question-container"><span class="question-number">33</span><span class="question-text">Made crystallography contributions to molecular biology</span><div style="margin-left: 42px; margin-top: 12px;"><select><option value="">Select scientist...</option><option value="a">A. Marie Curie</option><option value="b">B. Albert Einstein</option><option value="c">C. Charles Darwin</option><option value="d">D. Nikola Tesla</option><option value="e">E. Rosalind Franklin</option><option value="f">F. Stephen Hawking</option><option value="g">G. Isaac Newton</option></select></div></div><div class="question-container"><span class="question-number">34</span><span class="question-text">Advanced electrical transmission technology</span><div style="margin-left: 42px; margin-top: 12px;"><select><option value="">Select scientist...</option><option value="a">A. Marie Curie</option><option value="b">B. Albert Einstein</option><option value="c">C. Charles Darwin</option><option value="d">D. Nikola Tesla</option><option value="e">E. Rosalind Franklin</option><option value="f">F. Stephen Hawking</option><option value="g">G. Isaac Newton</option></select></div></div><div class="question-container"><span class="question-number">35</span><span class="question-text">Studied black holes and universe origin</span><div style="margin-left: 42px; margin-top: 12px;"><select><option value="">Select scientist...</option><option value="a">A. Marie Curie</option><option value="b">B. Albert Einstein</option><option value="c">C. Charles Darwin</option><option value="d">D. Nikola Tesla</option><option value="e">E. Rosalind Franklin</option><option value="f">F. Stephen Hawking</option><option value="g">G. Isaac Newton</option></select></div></div></div>`
+    },
+
+    type8: {
+        passage: `<div class="passage-title">Sections on Art Movements</div><div class="passage-text"><p>Section A: The Renaissance marked a deliberate revival of classical learning and artistic techniques. Artists studied anatomy and perspective, creating realistic human figures and landscapes. This movement originated in Italy and gradually spread throughout Europe, fundamentally transforming artistic practice and intellectual thought.</p><p>Section B: Impressionism revolutionized painting by emphasizing light, color, and momentary perception rather than detail and historical narrative. Painters like Monet and Renoir worked outdoors, capturing changing light conditions. This approach shocked traditionalists but ultimately liberated artistic expression from academic constraints.</p><p>Section C: Cubism deconstructed visual reality into geometric forms, presenting multiple perspectives simultaneously. Picasso and Braque developed this radical approach, fragmenting recognizable objects into abstract components. The movement challenged fundamental assumptions about representation and perception.</p><p>Section D: Surrealism embraced the subconscious, dream imagery, and psychological exploration. Artists like Dalí created disturbing, fantastical works that defied logical interpretation. This movement drew from psychoanalytic theory and sought to liberate artistic creation from rational constraints.</p></div>`,
+        questions: `<div class="question-section"><div class="question-section-header"><div class="question-section-title">Questions 36-40</div><div class="question-section-instruction">Match the following headings to the correct section, A-D. You may use any letter more than once.</div></div><div class="reference-box"><div class="reference-box-title">List of Headings</div><div class="reference-item">i. Breaking from Academic Tradition</div><div class="reference-item">ii. Simultaneous Multiple Perspectives</div><div class="reference-item">iii. Subconscious and Dream Imagery</div><div class="reference-item">iv. Classical Learning Revival</div><div class="reference-item">v. Psychological Exploration</div><div class="reference-item">vi. Light and Color Emphasis</div></div><div class="question-container"><span class="question-number">36</span><span class="question-text">Section A: The Renaissance</span><div style="margin-left: 42px; margin-top: 12px;"><select><option value="">Select heading...</option><option value="i">i. Breaking from Academic Tradition</option><option value="ii">ii. Simultaneous Multiple Perspectives</option><option value="iii">iii. Subconscious and Dream Imagery</option><option value="iv">iv. Classical Learning Revival</option><option value="v">v. Psychological Exploration</option><option value="vi">vi. Light and Color Emphasis</option></select></div></div><div class="question-container"><span class="question-number">37</span><span class="question-text">Section B: Impressionism</span><div style="margin-left: 42px; margin-top: 12px;"><select><option value="">Select heading...</option><option value="i">i. Breaking from Academic Tradition</option><option value="ii">ii. Simultaneous Multiple Perspectives</option><option value="iii">iii. Subconscious and Dream Imagery</option><option value="iv">iv. Classical Learning Revival</option><option value="v">v. Psychological Exploration</option><option value="vi">vi. Light and Color Emphasis</option></select></div></div><div class="question-container"><span class="question-number">38</span><span class="question-text">Section C: Cubism</span><div style="margin-left: 42px; margin-top: 12px;"><select><option value="">Select heading...</option><option value="i">i. Breaking from Academic Tradition</option><option value="ii">ii. Simultaneous Multiple Perspectives</option><option value="iii">iii. Subconscious and Dream Imagery</option><option value="iv">iv. Classical Learning Revival</option><option value="v">v. Psychological Exploration</option><option value="vi">vi. Light and Color Emphasis</option></select></div></div><div class="question-container"><span class="question-number">39</span><span class="question-text">Section D: Surrealism</span><div style="margin-left: 42px; margin-top: 12px;"><select><option value="">Select heading...</option><option value="i">i. Breaking from Academic Tradition</option><option value="ii">ii. Simultaneous Multiple Perspectives</option><option value="iii">iii. Subconscious and Dream Imagery</option><option value="iv">iv. Classical Learning Revival</option><option value="v">v. Psychological Exploration</option><option value="vi">vi. Light and Color Emphasis</option></select></div></div></div>`
+    },
+
+    type9: {
+        passage: `<div class="passage-title">Plant Adaptation Mechanisms</div><div class="passage-text"><p>Plants have developed remarkable adaptations to survive in diverse environments. Desert plants reduce water loss through various mechanisms including reduced leaf surface area, waxy coatings, and underground root systems extending deep into soil. These modifications allow survival in arid regions where water scarcity would eliminate non-adapted species.</p><p>Aquatic plants exhibit different challenges and solutions. Some develop specialized air-filled chambers for buoyancy, while others possess thin, flexible leaves that reduce drag in water currents. Floating leaves orient horizontally to maximize light capture on water surfaces.</p><p>Alpine plants face extreme cold, intense ultraviolet radiation, and strong winds. Adaptations include low-growing forms providing wind protection, hairy leaves reflecting excess radiation, and concentrated pigments developing in response to UV exposure. These modifications enable survival at elevations where other plants cannot grow.</p></div>`,
+        questions: `<div class="question-section"><div class="question-section-header"><div class="question-section-title">Questions 41-45</div><div class="question-section-instruction">Complete each sentence with one option from the box. You may use any option more than once.</div></div><div class="reference-box"><div class="reference-box-title">Possible Endings</div><div class="reference-item">A. thick coatings and horizontal leaves</div><div class="reference-item">B. deep roots and waxy surface coatings</div><div class="reference-item">C. hair-like structures and pigmentation</div><div class="reference-item">D. buoyancy chambers and flexible leaves</div><div class="reference-item">E. underground stems and reduced foliage</div><div class="reference-item">F. modified blooms and nitrogen fixation</div></div><div class="question-container"><span class="question-number">41</span><span class="question-text">Desert plants survive through mechanisms like</span><div style="margin-left: 42px; margin-top: 12px;"><select><option value="">Select ending...</option><option value="a">A. thick coatings and horizontal leaves</option><option value="b">B. deep roots and waxy surface coatings</option><option value="c">C. hair-like structures and pigmentation</option><option value="d">D. buoyancy chambers and flexible leaves</option><option value="e">E. underground stems and reduced foliage</option><option value="f">F. modified blooms and nitrogen fixation</option></select></div></div><div class="question-container"><span class="question-number">42</span><span class="question-text">Aquatic plants manage water movement using</span><div style="margin-left: 42px; margin-top: 12px;"><select><option value="">Select ending...</option><option value="a">A. thick coatings and horizontal leaves</option><option value="b">B. deep roots and waxy surface coatings</option><option value="c">C. hair-like structures and pigmentation</option><option value="d">D. buoyancy chambers and flexible leaves</option><option value="e">E. underground stems and reduced foliage</option><option value="f">F. modified blooms and nitrogen fixation</option></select></div></div><div class="question-container"><span class="question-number">43</span><span class="question-text">Alpine plants protect themselves from extreme conditions including</span><div style="margin-left: 42px; margin-top: 12px;"><select><option value="">Select ending...</option><option value="a">A. thick coatings and horizontal leaves</option><option value="b">B. deep roots and waxy surface coatings</option><option value="c">C. hair-like structures and pigmentation</option><option value="d">D. buoyancy chambers and flexible leaves</option><option value="e">E. underground stems and reduced foliage</option><option value="f">F. modified blooms and nitrogen fixation</option></select></div></div><div class="question-container"><span class="question-number">44</span><span class="question-text">Floating leaves are typically oriented to allow for</span><div style="margin-left: 42px; margin-top: 12px;"><select><option value="">Select ending...</option><option value="a">A. thick coatings and horizontal leaves</option><option value="b">B. deep roots and waxy surface coatings</option><option value="c">C. hair-like structures and pigmentation</option><option value="d">D. buoyancy chambers and flexible leaves</option><option value="e">E. underground stems and reduced foliage</option><option value="f">F. modified blooms and nitrogen fixation</option></select></div></div><div class="question-container"><span class="question-number">45</span><span class="question-text">Low-growing plant forms provide protection against</span><div style="margin-left: 42px; margin-top: 12px;"><select><option value="">Select ending...</option><option value="a">A. thick coatings and horizontal leaves</option><option value="b">B. deep roots and waxy surface coatings</option><option value="c">C. hair-like structures and pigmentation</option><option value="d">D. buoyancy chambers and flexible leaves</option><option value="e">E. underground stems and reduced foliage</option><option value="f">F. modified blooms and nitrogen fixation</option></select></div></div></div>`
+    },
+
+    type10: {
+        passage: `<div class="passage-title">Archaeological Dating Methods</div><div class="passage-text"><p>Modern archaeology employs sophisticated techniques to determine artifact age. Radiocarbon dating measures carbon-14 decay in organic materials, providing chronological frameworks for specimens up to 50,000 years old. Calibration against known specimens ensures accuracy, though contamination can compromise results. Stratigraphic analysis examines layering sequences, establishing relative chronologies based on deposit positioning.</p><p>Dendrochronology employs tree-ring analysis to establish precise dates. Tree rings vary in thickness annually based on growing conditions, creating unique patterns that can be matched across centuries. This method provides exceptional accuracy and reveals past climate patterns alongside archaeological dating.</p></div>`,
+        questions: `<div class="question-section"><div class="question-section-header"><div class="question-section-title">Questions 46-50</div><div class="question-section-instruction">Complete the summary below. Choose NO MORE THAN TWO WORDS from the passage for each answer.</div></div><div class="instruction-box"><strong>Choose NO MORE THAN TWO WORDS</strong> for each blank.</div><div class="reference-box"><div class="reference-box-title">Dating Methods Summary</div><p>Radiocarbon dating measures <input type="text" style="width: 160px;"> decay to determine specimen age, functioning for materials up to 50,000 years old. <input type="text" style="width: 160px;"> examines layering sequences to establish relative chronologies. <input type="text" style="width: 160px;"> employs tree-ring analysis for precise dating, also revealing climate history through ring patterns.</p></div></div>`
+    },
+
+    type11: {
+        passage: `<div class="passage-title">Economic Development Stages</div><div class="passage-text"><p>Economists identify distinct development stages characterized by changing economic structures. The pre-industrial stage emphasizes agricultural production with most populations engaged in farming. Industrialization introduces factory systems, mechanized production, and urbanization, fundamentally transforming economic organization. Post-industrial economies shift emphasis toward services, information technology, and knowledge-based sectors, creating fundamentally different employment patterns.</p><p>Transition between stages typically involves institutional reforms, technological adoption, and gradual workforce repositioning. Countries following different development trajectories experience varying social impacts including migration patterns, wage changes, and educational requirement shifts. Understanding these transitions helps policymakers navigate structural economic changes while managing social disruption.</p></div>`,
+        questions: `<div class="question-section"><div class="question-section-header"><div class="question-section-title">Questions 51-55</div><div class="question-section-instruction">Complete the notes below. Choose NO MORE THAN TWO WORDS from the passage for each answer.</div></div><div class="instruction-box"><strong>Choose NO MORE THAN TWO WORDS</strong></div><p style="margin: 20px;"><strong>Economic Development Stages:</strong></p><ul style="margin-left: 40px; margin-bottom: 20px;"><li style="margin-bottom: 15px;">Pre-industrial: emphasis on <input type="text" style="width: 160px;"></li><li style="margin-bottom: 15px;">Industrialization: introduces <input type="text" style="width: 160px;"> and mechanized production</li><li style="margin-bottom: 15px;">Post-industrial: shift to <input type="text" style="width: 160px;"></li><li style="margin-bottom: 15px;">Transition impacts: <input type="text" style="width: 160px;"> and wage changes</li><li style="margin-bottom: 15px;">Key process: workforce <input type="text" style="width: 160px;"></li></ul>`
+    },
+
+    type12: {
+        passage: `<div class="passage-title">Marine Ecosystem Dynamics</div><div class="passage-text"><p>Ocean ecosystems demonstrate remarkable complexity with organisms interacting across multiple trophic levels. Phytoplankton form the foundation, converting sunlight through photosynthesis into usable energy. Zooplankton consume these microscopic plants, providing food for fish populations. Apex predators including sharks and whales maintain population balance through selective predation. When any component experiences disruption, cascading effects ripple throughout the entire ecosystem structure.</p><p>Coral reefs exemplify biodiversity concentration, supporting over 25% of marine species despite occupying minimal ocean area. Symbiotic relationships between corals and zooxanthellae enable reef construction and maintenance. Ocean acidification from increased atmospheric carbon dioxide threatens these delicate relationships, causing coral bleaching and ecosystem collapse.</p></div>`,
+        questions: `<div class="question-section"><div class="question-session-header"><div class="question-section-title">Questions 56-60</div><div class="question-section-instruction">Complete the sentences below. Write NO MORE THAN TWO WORDS from the passage for each answer.</div></div><div class="instruction-box"><strong>NO MORE THAN TWO WORDS</strong> for each answer</div><div class="question-container"><span class="question-number">56</span><span class="question-text">Phytoplankton are important because they convert <input type="text" style="width: 160px;"> into usable energy.</span></div><div class="question-container"><span class="question-number">57</span><span class="question-text">Zooplankton occupy the trophic level between <input type="text" style="width: 160px;"> and fish populations.</span></div><div class="question-container"><span class="question-number">58</span><span class="question-text">Apex predators maintain ecosystem balance through <input type="text" style="width: 160px;"> .</span></div><div class="question-container"><span class="question-number">59</span><span class="question-text">Coral reefs support more than <input type="text" style="width: 160px;"> of marine species.</span></div><div class="question-container"><span class="question-number">60</span><span class="question-text">Coral bleaching results from <input type="text" style="width: 160px;"> .</span></div></div>`
+    },
+
+    type13: {
+        passage: `<div class="passage-title">Global Water Resources</div><div class="passage-text"><p>Water distribution across Earth reveals stark inequalities in resource availability. Saltwater composes approximately 97% of planetary water, leaving minimal fresh water for human consumption. Of available freshwater, glaciers and ice caps contain roughly 69%, with groundwater comprising 30%, and lakes and rivers representing only 1%. This distribution creates extreme scarcity in some regions while others experience abundant supplies.</p><p>Water demand for agriculture, industry, and human consumption continues escalating. Groundwater depletion rates exceed natural replenishment in many aquifers, particularly those supporting major agricultural regions. Climate change exacerbates these pressures, altering precipitation patterns and increasing evaporation rates in vulnerable areas.</p></div>`,
+        questions: `<div class="question-section"><div class="question-section-header"><div class="question-section-title">Questions 61-65</div><div class="question-section-instruction">Complete the table below using NO MORE THAN TWO WORDS from the passage for each answer.</div></div><div class="instruction-box"><strong>NO MORE THAN TWO WORDS</strong></div><table><thead><tr><th>Water Resource Type</th><th>Percentage of Fresh Water</th></tr></thead><tbody><tr><td>Glaciers and Ice Caps</td><td><input type="text" style="width: 120px;"></td></tr><tr><td>Groundwater</td><td><input type="text" style="width: 120px;"></td></tr><tr><td>Lakes and Rivers</td><td><input type="text" style="width: 120px;"></td></tr><tr><td>Saltwater (of total water)</td><td><input type="text" style="width: 120px;"></td></tr><tr><td>Primary water demand sector</td><td><input type="text" style="width: 120px;"></td></tr></tbody></table>`
+    },
+
+    type14: {
+        passage: `<div class="passage-title">Information Processing System</div><div class="passage-text"><p>Information flows through modern organizations following predictable patterns. Initial collection gathers raw data from diverse sources. Processing converts raw data into meaningful information through analysis and categorization. Distribution channels ensure appropriate stakeholders receive relevant information. Finally, feedback mechanisms enable system refinement and continuous improvement based on outcomes and new information.</p></div>`,
+        questions: `<div class="question-section"><div class="question-section-header"><div class="question-section-title">Questions 66-70</div><div class="question-section-instruction">Complete the flowchart below using NO MORE THAN TWO WORDS from the passage for each answer.</div></div><div class="instruction-box"><strong>NO MORE THAN TWO WORDS</strong></div><div class="flowchart-container"><div class="flowchart-box"><strong>Data Collection</strong></div><div class="flowchart-arrow">↓</div><div class="flowchart-box"><input type="text" style="width: 160px; text-align: center;"></div><div class="flowchart-arrow">↓</div><div class="flowchart-box">Distribution of <input type="text" style="width: 120px;"></div><div class="flowchart-arrow">↓</div><div class="flowchart-box"><input type="text" style="width: 160px; text-align: center;"></div><div class="flowchart-arrow">↓</div><div class="flowchart-box">System Refinement</div></div></div>`
+    },
+
+    type15: {
+        passage: `<div class="passage-title">Urban Poverty and Solutions</div><div class="passage-text"><p>Urban poverty remains a persistent challenge in developing economies. Rapid urbanization outpaces housing construction, forcing populations into informal settlements lacking basic services. Limited employment opportunities, inadequate education, and health care deficiencies perpetuate poverty cycles. Microfinance initiatives have demonstrated effectiveness in creating economic opportunities, enabling entrepreneurs to establish small businesses generating household income improvements.</p><p>Community-based programs emphasizing skills development and cooperative enterprises offer sustainable alternatives to charity-based approaches. Government investment in infrastructure, education, and health care creates foundational conditions for poverty reduction. Successful interventions require coordination between governmental agencies, non-governmental organizations, and community stakeholders.</p></div>`,
+        questions: `<div class="question-section"><div class="question-section-header"><div class="question-section-title">Questions 71-75</div><div class="question-section-instruction">Answer the following questions. Write NO MORE THAN THREE WORDS from the passage for each answer.</div></div><div class="instruction-box"><strong>Answer using NO MORE THAN THREE WORDS</strong></div><div class="question-container"><span class="question-number">71</span><span class="question-text">What problem results from rapid urbanization outpacing construction?</span><div style="margin-left: 42px; margin-top: 12px;"><input type="text" style="width: 200px;"></div></div><div class="question-container"><span class="question-number">72</span><span class="question-text">Which initiative has demonstrated effectiveness in creating economic opportunities?</span><div style="margin-left: 42px; margin-top: 12px;"><input type="text" style="width: 200px;"></div></div><div class="question-container"><span class="question-number">73</span><span class="question-text">What do skills development programs emphasize instead of charity?</span><div style="margin-left: 42px; margin-top: 12px;"><input type="text" style="width: 200px;"></div></div><div class="question-container"><span class="question-number">74</span><span class="question-text">What must governments invest in to create poverty reduction conditions?</span><div style="margin-left: 42px; margin-top: 12px;"><input type="text" style="width: 200px;"></div></div><div class="question-container"><span class="question-number">75</span><span class="question-text">Who must coordinate for successful poverty reduction interventions?</span><div style="margin-left: 42px; margin-top: 12px;"><input type="text" style="width: 200px;"></div></div></div>`
+    },
+
+    type16: {
+        passage: `<div class="passage-title">Building Floor Plan</div><div class="passage-text"><p>The facility layout demonstrates efficient space utilization across three floors. Ground floor contains public reception areas, administrative offices, and retail space generating community revenue. Upper floors provide residential accommodation with standardized room configurations. Vertical circulation occurs through a central staircase and elevator system, ensuring convenient access to all levels. Emergency egress pathways comply with safety regulations while specialized service areas maintain building operations.</p></div>`,
+        questions: `<div class="question-section"><div class="question-section-header"><div class="question-section-title">Questions 76-80</div><div class="question-section-instruction">Label the diagram below. Write NO MORE THAN TWO WORDS from the passage for each answer.</div></div><div class="instruction-box"><strong>NO MORE THAN TWO WORDS</strong></div><div class="diagram-container"><svg class="diagram-svg" viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="20" width="280" height="100" fill="#f3f4f6" stroke="#d1d5db" stroke-width="2"/><text x="150" y="65" text-anchor="middle" font-size="14" font-weight="bold">Ground Floor</text><text x="150" y="85" text-anchor="middle" font-size="12">Reception, Offices, <input type="text" style="width: 100px; font-size: 12px;"></text><rect x="10" y="140" width="280" height="100" fill="#f9fafb" stroke="#d1d5db" stroke-width="2"/><text x="150" y="185" text-anchor="middle" font-size="14" font-weight="bold">Middle Floor</text><text x="150" y="205" text-anchor="middle" font-size="12"><input type="text" style="width: 100px; font-size: 12px;"></text><rect x="10" y="260" width="280" height="100" fill="#f3f4f6" stroke="#d1d5db" stroke-width="2"/><text x="150" y="305" text-anchor="middle" font-size="14" font-weight="bold">Upper Floor</text><text x="150" y="325" text-anchor="middle" font-size="12"><input type="text" style="width: 100px; font-size: 12px;"></text><line x1="130" y1="20" x2="130" y2="360" stroke="#999" stroke-width="1" stroke-dasharray="3,3"/><text x="140" y="200" font-size="11">Circulation</text></svg></div></div>`
+    }
+};
+
+// Tab switching functionality
+document.querySelectorAll('.tab-button').forEach(button => {
+    button.addEventListener('click', function() {
+        const tabName = this.getAttribute('data-tab');
+        const content = questionTypes[tabName];
+        
+        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+        this.classList.add('active');
+        
+        document.getElementById('panel-left').innerHTML = content.passage;
+        document.getElementById('panel-right').innerHTML = content.questions;
+    });
+});
+
+// Initialize with first tab
+window.addEventListener('load', function() {
+    document.querySelector('[data-tab="type1"]').click();
+});
+
+// Divider resize functionality
+let isResizing = false;
+const divider = document.getElementById('divider');
+const wrapper = document.querySelector('.panels-wrapper');
+const leftPanel = document.querySelector('.panel-left');
+const rightPanel = document.querySelector('.panel-right');
+
+divider.addEventListener('mousedown', () => { isResizing = true; });
+document.addEventListener('mouseup', () => { isResizing = false; });
+document.addEventListener('mousemove', (e) => {
+    if (!isResizing) return;
+    const rect = wrapper.getBoundingClientRect();
+    const newLeftWidth = ((e.clientX - rect.left) / rect.width) * 100;
+    if (newLeftWidth > 30 && newLeftWidth < 70) {
+        leftPanel.style.width = newLeftWidth + '%';
+        rightPanel.style.width = (100 - newLeftWidth) + '%';
+    }
+});
+</script>
+</body>
+</html>
