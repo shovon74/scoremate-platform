@@ -7,9 +7,11 @@
     <title>ScoreMate | Professional IELTS Writing Support</title>
     <!-- CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/reading.css') }}">
     <!-- Scripts -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/reading_renderer.js') }}" defer></script>
 </head>
 
 <body>
@@ -45,6 +47,8 @@
                                     Academic Task 1 Generator</a></li>
                             <li><a href="javascript:void(0)" onclick="showSection('task1_general_generator')">IELTS
                                     General Task 1 Generator</a></li>
+                            <li class="divider"></li>
+                            <li><a href="javascript:void(0)" onclick="showSection('reading_test', true, 'preview-test')" id="triggerReadingTestBtn" style="color:var(--primary); font-weight:bold;">Reading Test Preview</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -960,12 +964,84 @@
         </section>
     </div>
 
+    <!-- ═══════════════════════════════════════════════════════
+         READING TEST — Full-screen section (outside .container)
+         Shown/hidden by showSection('reading_test', slug)
+    ═══════════════════════════════════════════════════════ -->
+    <section id="readingTestSection">
+
+      <!-- Header Bar -->
+      <header class="reading-header">
+        <div class="reading-header-left">
+          <button class="reading-back-btn" onclick="exitReadingTest()">
+            &#8592; Exit Test
+          </button>
+          <h1 class="reading-title" id="readingTestTitle">IELTS Reading Test</h1>
+        </div>
+
+        <!-- Part Tabs -->
+        <div class="reading-part-tabs" id="readingPartTabs">
+          <!-- Populated by reading_renderer.js -->
+        </div>
+
+        <div class="reading-header-right">
+          <!-- Skimming Toggle -->
+          <label class="skimming-toggle">
+            <input type="checkbox" id="skimmingToggle"
+                   onchange="toggleSkimmingMode(this.checked)">
+            Practice Skimming
+          </label>
+          <!-- Timer -->
+          <div class="reading-timer" id="readingTimer">60:00</div>
+        </div>
+      </header>
+
+      <!-- Split Panel -->
+      <div class="reading-test-container" id="readingTestContainer">
+
+        <!-- Left: Passage -->
+        <div class="reading-passage-panel" id="readingPassagePanel">
+          <p class="passage-loading">Select a test to begin&hellip;</p>
+        </div>
+
+        <!-- Draggable handle -->
+        <div class="reading-resize-handle" id="readingResizeHandle"></div>
+
+        <!-- Right: Questions -->
+        <div class="reading-question-panel" id="readingQuestionPanel">
+          <p class="questions-loading">Questions will appear here&hellip;</p>
+        </div>
+
+      </div><!-- /.reading-test-container -->
+
+      <!-- Bottom Navigation -->
+      <nav class="reading-bottom-nav">
+        <!-- Part tabs (mirrors header) -->
+        <div class="bottom-part-tabs" id="readingBottomPartTabs">
+          <!-- Populated by reading_renderer.js -->
+        </div>
+
+        <!-- Question-number pills -->
+        <div class="bottom-pills" id="readingQuestionPills">
+          <!-- Populated per-part by reading_renderer.js -->
+        </div>
+
+        <!-- Submit -->
+        <button class="reading-submit-btn" onclick="submitReadingTest()">
+          Submit Test
+        </button>
+      </nav>
+
+    </section><!-- /#readingTestSection -->
+
     <script>
         // Initialize Lucide icons
         window.addEventListener('load', () => {
             if (window.lucide) {
                 lucide.createIcons();
             }
+            // Boot resize handle (must run after DOM is ready)
+            if (window.initReadingResize) window.initReadingResize();
         });
     </script>
 </body>
