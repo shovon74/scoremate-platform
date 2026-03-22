@@ -32,6 +32,7 @@ def create_app():
     # Create tables (for development)
     with app.app_context():
         from models.user import User, EvaluationResult  # ensure models are registered
+        from models.reading import ReadingTest, ReadingAttempt
         db.create_all()
 
     # Register Blueprints
@@ -39,8 +40,12 @@ def create_app():
     app.register_blueprint(writing_task1_bp, url_prefix='/api/writing/task1')
     app.register_blueprint(speaking_bp, url_prefix='/api/speaking')
     from blueprints.admin.admin import admin_bp
+    from blueprints.reading.reading_api import reading_api_bp
+    from blueprints.reading.reading_admin import reading_admin_bp
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(admin_bp, url_prefix='/admin')
+    app.register_blueprint(reading_api_bp, url_prefix='/api/reading')
+    app.register_blueprint(reading_admin_bp, url_prefix='/admin/reading')
 
     @app.route('/')
     def index():
