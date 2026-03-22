@@ -36,6 +36,7 @@ window.showSection = function (sectionId, updateState = true) {
     const speakingHubSection = document.getElementById('speakingHubSection');
     const task2GeneratorSection = document.getElementById('task2GeneratorSection');
     const task1GeneratorSection = document.getElementById('task1GeneratorSection');
+    const readingTestSection = document.getElementById('readingTestSection');
 
 
     // Hide all sections first
@@ -50,6 +51,8 @@ window.showSection = function (sectionId, updateState = true) {
     if (task2GeneratorSection) task2GeneratorSection.style.display = 'none';
     if (task1GeneratorSection) task1GeneratorSection.style.display = 'none';
     if (listeningSection) listeningSection.style.display = 'none';
+    // Reading test uses class toggle instead of display (it's fixed-position)
+    if (readingTestSection) readingTestSection.classList.remove('reading-active');
 
 
     // Show requested section
@@ -304,10 +307,32 @@ window.showSection = function (sectionId, updateState = true) {
                 window.location.hash = sectionId;
             }
         }
+    } else if (sectionId === 'reading_test') {
+        // ── Reading Test section ──────────────────────────────
+        const slug = arguments[2] || null;
+        if (readingTestSection) {
+            readingTestSection.classList.add('reading-active');
+        }
+        if (updateState) {
+            try {
+                history.pushState({ section: 'reading_test', slug }, '', slug ? `#reading-test/${slug}` : '#reading-test');
+            } catch (e) {
+                console.warn('History pushState failed:', e);
+            }
+        }
+        // Boot the reading test renderer
+        if (window.initReadingTest) window.initReadingTest(slug);
     }
 
-
 }
+
+// Exit reading test — go back to landing
+window.exitReadingTest = function () {
+    if (confirm('Exit the test? Your progress will be lost.')) {
+        if (window.clearInterval && window.ReadingTest) clearInterval(window.ReadingTest.timerInterval);
+        showSection('landing');
+    }
+};
 
 // Handle browser Back/Forward navigation
 window.addEventListener('popstate', (event) => {

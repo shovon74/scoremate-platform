@@ -1,0 +1,449 @@
+/* ============================================================
+   ScoreMate Reading Module — reading.css
+   Design tokens from ScoreMate_CSS_Design_Guide.md
+   ============================================================ */
+
+/* ── CSS Variables ─────────────────────────────────────────── */
+:root {
+  --reading-primary:        #2563eb;
+  --reading-primary-dark:   #1d4ed8;
+  --reading-text:           #000000;
+  --reading-text-secondary: #6b7280;
+  --reading-border:         rgb(211, 211, 211);
+  --reading-border-section: #e5e7eb;
+  --reading-bg-page:        #f5f5f5;
+  --reading-bg-white:       #ffffff;
+  --reading-success:        #16a34a;
+  --reading-error:          #dc2626;
+  --reading-warning:        #f59e0b;
+  --reading-font:           -apple-system, "system-ui", "Segoe UI", Roboto,
+                            Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue",
+                            sans-serif;
+}
+
+/* ── Page-level shell ──────────────────────────────────────── */
+/* The reading section takes the full viewport, hiding the navbar & container */
+#readingTestSection {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: none;           /* toggled by showSection() */
+  flex-direction: column;
+  background: var(--reading-bg-page);
+  font-family: var(--reading-font);
+  color: var(--reading-text);
+}
+
+#readingTestSection.reading-active {
+  display: flex;
+}
+
+/* ── Header Bar ─────────────────────────────────────────────── */
+.reading-header {
+  background: var(--reading-primary);
+  color: #fff;
+  height: 56px;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  gap: 16px;
+  box-shadow: 0 2px 4px rgba(0,0,0,.15);
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.reading-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.reading-back-btn {
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.3);
+  color: #fff;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background .2s;
+}
+.reading-back-btn:hover { background: rgba(255,255,255,.25); }
+
+.reading-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.reading-part-tabs {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+  justify-content: center;
+}
+
+.reading-part-tab {
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.3);
+  color: #fff;
+  border-radius: 6px;
+  padding: 5px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .2s, border-color .2s;
+}
+.reading-part-tab:hover { background: rgba(255,255,255,.25); }
+.reading-part-tab.active {
+  background: #fff;
+  color: var(--reading-primary);
+  border-color: #fff;
+}
+
+.reading-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+/* ── Timer ──────────────────────────────────────────────────── */
+.reading-timer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0,0,0,.25);
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  min-width: 88px;
+  justify-content: center;
+}
+
+.reading-timer.warning { background: var(--reading-error); animation: pulse 1s infinite; }
+.reading-timer.critical { background: #7f1d1d; animation: pulse .5s infinite; }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: .7; }
+}
+
+/* ── Skimming Toggle ─────────────────────────────────────────── */
+.skimming-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: rgba(255,255,255,.9);
+  cursor: pointer;
+  user-select: none;
+}
+
+.skimming-toggle input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #fff;
+}
+
+/* ── Split-Panel Container ──────────────────────────────────── */
+.reading-test-container {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 8px 1fr;
+  min-height: 0;          /* allow shrink inside flex */
+  overflow: hidden;
+}
+
+/* ── Passage Panel (Left) ───────────────────────────────────── */
+.reading-passage-panel {
+  overflow-y: auto;
+  padding: 24px 28px;
+  background: var(--reading-bg-white);
+  border-right: 1px solid var(--reading-border-section);
+}
+
+.reading-passage-panel::-webkit-scrollbar { width: 8px; }
+.reading-passage-panel::-webkit-scrollbar-track { background: var(--reading-bg-page); }
+.reading-passage-panel::-webkit-scrollbar-thumb { background: #999; border-radius: 4px; }
+
+/* ── Question Panel (Right) ─────────────────────────────────── */
+.reading-question-panel {
+  overflow-y: auto;
+  padding: 24px 28px;
+  background: var(--reading-bg-white);
+}
+
+.reading-question-panel::-webkit-scrollbar { width: 8px; }
+.reading-question-panel::-webkit-scrollbar-track { background: var(--reading-bg-page); }
+.reading-question-panel::-webkit-scrollbar-thumb { background: #999; border-radius: 4px; }
+
+/* ── Resize Handle ──────────────────────────────────────────── */
+.reading-resize-handle {
+  width: 8px;
+  background: var(--reading-border);
+  cursor: col-resize;
+  user-select: none;
+  transition: background .2s;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reading-resize-handle::after {
+  content: '';
+  width: 2px;
+  height: 40px;
+  background: rgba(0,0,0,.2);
+  border-radius: 1px;
+}
+
+.reading-resize-handle:hover { background: #bbb; }
+.reading-resize-handle.dragging { background: var(--reading-primary); }
+
+/* ── Passage Typography ─────────────────────────────────────── */
+.passage-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--reading-text);
+  margin: 0 0 20px;
+  line-height: 1.4;
+}
+
+.passage-section-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--reading-primary);
+  margin: 20px 0 8px;
+}
+
+.passage-text p {
+  font-size: 18px;
+  line-height: 36px;
+  color: var(--reading-text);
+  margin: 0 0 16px;
+}
+
+.passage-text p:last-child { margin-bottom: 0; }
+
+/* Placeholder when loading passage */
+.passage-loading {
+  color: var(--reading-text-secondary);
+  font-size: 16px;
+  font-style: italic;
+  padding: 40px 0;
+  text-align: center;
+}
+
+/* ── Question Section Container ─────────────────────────────── */
+.question-section {
+  padding: 20px;
+  margin-bottom: 54px;
+  border: 1px solid var(--reading-border-section);
+  border-radius: 4px;
+  background: var(--reading-bg-white);
+}
+.question-section:last-child { margin-bottom: 0; }
+
+/* Section header "Questions X–Y" */
+.question-section-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--reading-border-section);
+}
+.question-section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--reading-text);
+  margin: 0;
+}
+
+/* Instructions */
+.question-section-instruction {
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--reading-text-secondary);
+  margin-bottom: 16px;
+  line-height: 1.4;
+  font-style: italic;
+}
+
+/* Constraint "ONE WORD ONLY" */
+.constraint-text {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--reading-text);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin: 4px 0 12px 38px;
+}
+
+/* ── Question Items ──────────────────────────────────────────── */
+.question-item {
+  margin-bottom: 27px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.question-item:last-child { margin-bottom: 0; }
+
+.question-text-inline {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.question-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid #000;
+  border-radius: 2px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--reading-text);
+  background: var(--reading-bg-white);
+  flex-shrink: 0;
+}
+
+.question-stem {
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 27px;
+  color: var(--reading-text);
+}
+
+/* ── Placeholder content in questions panel ─────────────────── */
+.questions-loading {
+  color: var(--reading-text-secondary);
+  font-size: 16px;
+  font-style: italic;
+  padding: 40px 0;
+  text-align: center;
+}
+
+/* ── Bottom Navigation Bar ───────────────────────────────────── */
+.reading-bottom-nav {
+  background: var(--reading-primary);
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 20px;
+  gap: 16px;
+  box-shadow: 0 -2px 4px rgba(0,0,0,.1);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+/* Left: part tabs */
+.bottom-part-tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bottom-part-tab {
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.3);
+  color: rgba(255,255,255,.9);
+  border-radius: 4px;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .2s;
+}
+.bottom-part-tab:hover { background: rgba(255,255,255,.25); }
+.bottom-part-tab.active {
+  background: #fff;
+  color: var(--reading-primary);
+  border-color: #fff;
+}
+
+/* Centre: question pills */
+.bottom-pills {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  flex: 1;
+  justify-content: center;
+}
+
+.q-pill {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.15);
+  border: 1.5px solid rgba(255,255,255,.5);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background .15s, transform .1s;
+  text-decoration: none;
+}
+.q-pill:hover { background: rgba(255,255,255,.3); transform: scale(1.1); }
+.q-pill.answered { background: rgba(255,255,255,.6); color: var(--reading-primary); }
+.q-pill.current  { background: var(--reading-error); border-color: var(--reading-error); }
+
+/* Right: Submit button */
+.reading-submit-btn {
+  background: var(--reading-success);
+  border: none;
+  color: #fff;
+  border-radius: 6px;
+  padding: 8px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .2s, transform .1s;
+  white-space: nowrap;
+}
+.reading-submit-btn:hover { background: #15803d; transform: translateY(-1px); }
+.reading-submit-btn:active { transform: translateY(0); }
+
+/* ── Skimming mode overlay ───────────────────────────────────── */
+[data-skimming="true"] .reading-question-panel {
+  opacity: .4;
+  pointer-events: none;
+}
+
+/* ── Responsive tweaks ───────────────────────────────────────── */
+@media (max-width: 768px) {
+  .reading-test-container {
+    grid-template-columns: 1fr;
+    grid-template-rows: 50vh 8px 50vh;
+  }
+
+  .reading-resize-handle {
+    width: 100%;
+    height: 8px;
+    cursor: row-resize;
+  }
+
+  .reading-part-tabs { display: none; }
+  .reading-title { font-size: 13px; }
+}
