@@ -178,7 +178,7 @@ window.renderQuestionGroup = function (group) {
     case 'tfng':
     case 'ynng':
     case 'mcq_single':
-      return _renderRadioStub(group);
+      return _renderRadio(group);
     case 'mcq_choose_2':
     case 'mcq_choose_3':
       return _renderCheckboxStub(group);
@@ -187,19 +187,84 @@ window.renderQuestionGroup = function (group) {
     case 'matching_headings':
     case 'matching_sentence_endings':
       return _renderDropdownStub(group);
-    case 'summary_completion':
-    case 'note_completion':
-    case 'sentence_completion':
-    case 'short_answer':
-    case 'table_completion':
-    case 'flow_chart_completion':
-      return _renderTextInputStub(group);
+    case 'summary_completion':    return _renderSummaryCompletion(group);
+    case 'note_completion':       return _renderNoteCompletion(group);
+    case 'sentence_completion':   return _renderSentenceCompletion(group);
+    case 'table_completion':      return _renderTableCompletion(group);
+    case 'flow_chart_completion': return _renderFlowChartCompletion(group);
+    case 'short_answer':          return _renderShortAnswer(group);
     case 'diagram_labeling':
       return _renderDiagramStub(group);
     default:
       return `<p style="color:var(--reading-text-secondary);font-style:italic">Renderer for type "${_esc(group.type)}" coming soon.</p>`;
   }
 };
+
+/* ────────────────────────────────────────────────────────────
+   Pattern 1: Radio Button (TFNG / YNNG / MCQ Single)
+──────────────────────────────────────────────────────────── */
+
+/**
+ * Fixed option sets for TFNG and YNNG.
+ * MCQ Single builds its options from q.options[].
+ */
+const _RADIO_FIXED_OPTS = {
+  tfng: [
+    { letter: 'A', text: 'TRUE',      value: 'TRUE'      },
+    { letter: 'B', text: 'FALSE',     value: 'FALSE'     },
+    { letter: 'C', text: 'NOT GIVEN', value: 'NOT GIVEN' },
+  ],
+  ynng: [
+    { letter: 'A', text: 'YES',       value: 'YES'       },
+    { letter: 'B', text: 'NO',        value: 'NO'        },
+    { letter: 'C', text: 'NOT GIVEN', value: 'NOT GIVEN' },
+  ],
+};
+
+function _renderRadio (group) {
+  const fixedOpts = _RADIO_FIXED_OPTS[group.type] || null;
+
+  let html = '';
+  (group.questions || []).forEach(q => {
+    const opts = fixedOpts
+      ? fixedOpts
+      : (q.options || []).map(o => ({
+          letter:  o.letter,
+          text:    o.text,
+          subtext: o.subtext || '',
+          value:   o.letter,
+        }));
+
+    const optionsHtml = opts.map(o => {
+      const inputId = `q_${q.number}_${o.letter.toLowerCase()}`;
+      const textGroup = o.subtext
+        ? `<div class="option-text-group">
+             <span class="option-text">${_esc(o.text)}</span>
+             <span class="option-subtext">${_esc(o.subtext)}</span>
+           </div>`
+        : `<span class="option-text">${_esc(o.text)}</span>`;
+      return `
+        <div class="radio-option">
+          <input type="radio" id="${inputId}" name="q_${q.number}" value="${_esc(o.value)}"
+                 data-qnum="${q.number}" onchange="ReadingAnswers.set(${q.number}, this.value)">
+          <label for="${inputId}" class="option-label">
+            <span class="option-letter">${_esc(o.letter)}</span>
+            ${textGroup}
+          </label>
+        </div>`;
+    }).join('');
+
+    html += `
+      <div class="question-item" id="q-${q.number}">
+        <div class="question-text-inline">
+          <span class="question-number">${q.number}</span>
+          <span class="question-stem">${_esc(q.text || '')}</span>
+        </div>
+        <div class="radio-group">${optionsHtml}</div>
+      </div>`;
+  });
+  return html;
+}
 
 /* ─ Stub Renderers (placeholder until Step 5) ─────────────── */
 function _renderRadioStub (group) {
@@ -301,6 +366,81 @@ function _renderDiagramStub (group) {
         <input type="text" class="text-answer" placeholder="Label…"
                data-qnum="${q.number}"
                oninput="ReadingAnswers.set(${q.number}, this.value)">
+      </div>`;
+  });
+  return html;
+}
+
+/* ────────────────────────────────────────────────────────────
+   Pattern 4: Text Input / Completion Renderers
+──────────────────────────────────────────────────────────── */
+
+/**
+ * Replace [[N]] markers in an HTML string with inline <input> elements.
+ * context_html is admin-authored content — trusted, not user input.
+ */
+function _replaceBlankMarkers (html) {
+  return html.replace(/\[\[(\d+)\]\]/g, (_, n) =>
+    `<input type="text" class="completion-input" data-qnum="${n}" ` +
+    `placeholder="${n}" oninput="ReadingAnswers.set(${n}, this.value)">`
+  );
+}
+
+/** summary_completion — paragraph(s) of text with inline blanks */
+function _renderSummaryCompletion (group) {
+  const ctx = _replaceBlankMarkers(group.context_html || '');
+  return `<div class="completion-context-box">${ctx}</div>`;
+}
+
+/** note_completion — notes / bullet list with inline blanks */
+function _renderNoteCompletion (group) {
+  const ctx = _replaceBlankMarkers(group.context_html || '');
+  return `<div class="completion-context-box">${ctx}</div>`;
+}
+
+/** sentence_completion — each question is a standalone sentence; [[N]] is inline */
+function _renderSentenceCompletion (group) {
+  let html = '';
+  (group.questions || []).forEach(q => {
+    const sentence = _replaceBlankMarkers(q.text || '');
+    html += `
+      <div class="question-item" id="q-${q.number}">
+        <div class="question-text-inline">
+          <span class="question-number">${q.number}</span>
+          <span class="question-stem">${sentence}</span>
+        </div>
+      </div>`;
+  });
+  return html;
+}
+
+/** table_completion — context_html is an HTML <table> with [[N]] blanks in cells */
+function _renderTableCompletion (group) {
+  const ctx = _replaceBlankMarkers(group.context_html || '');
+  return `<div class="table-completion-wrapper">${ctx}</div>`;
+}
+
+/** flow_chart_completion — context_html contains .flowchart-box / .flowchart-arrow divs */
+function _renderFlowChartCompletion (group) {
+  const ctx = _replaceBlankMarkers(group.context_html || '');
+  return `<div class="flowchart-container">${ctx}</div>`;
+}
+
+/** short_answer — question text shown, answer input rendered below */
+function _renderShortAnswer (group) {
+  let html = '';
+  (group.questions || []).forEach(q => {
+    html += `
+      <div class="question-item" id="q-${q.number}">
+        <div class="question-text-inline">
+          <span class="question-number">${q.number}</span>
+          <span class="question-stem">${_esc(q.text || '')}</span>
+        </div>
+        <div class="short-answer-input-row">
+          <input type="text" class="completion-input"
+                 data-qnum="${q.number}" placeholder="answer"
+                 oninput="ReadingAnswers.set(${q.number}, this.value)">
+        </div>
       </div>`;
   });
   return html;

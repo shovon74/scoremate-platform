@@ -431,6 +431,205 @@
   pointer-events: none;
 }
 
+/* ── Pattern 1: Radio Button (TFNG / YNNG / MCQ Single) ─────── */
+
+/* Options list sits below the question stem, indented past the number box */
+.radio-group {
+  margin-left: 38px;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* One row: [radio input] [letter circle] [text] */
+.radio-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background .15s;
+  margin-bottom: 2px;
+}
+.radio-option:last-child { margin-bottom: 0; }
+.radio-option:hover      { background: rgba(37, 99, 235, .05); }
+
+.radio-option input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  margin-top: 5px;
+  cursor: pointer;
+  flex-shrink: 0;
+  accent-color: var(--reading-primary);
+}
+
+/* label wraps circle + text(s) in a row */
+.option-label {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  flex: 1;
+}
+
+/* 30 px circular letter badge */
+.option-letter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1.5px solid var(--reading-text);
+  border-radius: 50%;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--reading-text);
+  flex-shrink: 0;
+  transition: background .15s, border-color .15s, color .15s;
+}
+
+.option-text {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--reading-text);
+  line-height: 30px; /* vertically centres with the 30px circle */
+  flex: 1;
+}
+
+/* Optional secondary line (MCQ only) */
+.option-text-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+.option-text-group .option-text { line-height: 30px; }
+.option-subtext {
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--reading-text-secondary);
+  line-height: 1.4;
+}
+
+/* Checked state: fill the circle and tint the text */
+.radio-option input[type="radio"]:checked + .option-label .option-letter {
+  background: var(--reading-primary);
+  border-color: var(--reading-primary);
+  color: #fff;
+}
+.radio-option input[type="radio"]:checked + .option-label .option-text {
+  color: var(--reading-primary);
+}
+
+/* ── Pattern 4: Text Input / Completion ─────────────────────── */
+
+/* Inline blank input — sits inside sentences/paragraphs */
+.completion-input {
+  display: inline-block;
+  width: 160px;
+  border: none;
+  border-bottom: 2px solid var(--reading-primary);
+  background: transparent;
+  font-size: 16px;
+  line-height: 1.4;
+  padding: 2px 4px;
+  margin: 0 3px;
+  color: var(--reading-text);
+  outline: none;
+  vertical-align: baseline;
+  font-family: var(--reading-font);
+  border-radius: 0;
+}
+.completion-input:focus {
+  border-bottom-color: var(--reading-primary-dark);
+  background: rgba(37, 99, 235, .06);
+  border-radius: 2px 2px 0 0;
+}
+.completion-input::placeholder {
+  color: var(--reading-text-secondary);
+  font-style: italic;
+  font-size: 13px;
+}
+
+/* Wrapper box for summary & note context (reference-box style) */
+.completion-context-box {
+  background: #f9fafb;
+  border: 1px solid var(--reading-border-section);
+  border-radius: 4px;
+  padding: 16px 18px;
+  font-size: 18px;
+  line-height: 34px;
+  color: var(--reading-text);
+}
+.completion-context-box p          { margin: 0 0 12px; }
+.completion-context-box p:last-child { margin-bottom: 0; }
+.completion-context-box ul,
+.completion-context-box ol         { padding-left: 24px; }
+.completion-context-box li         { margin-bottom: 12px; }
+
+/* Table completion */
+.table-completion-wrapper          { overflow-x: auto; margin-top: 4px; }
+.table-completion-wrapper table    { width: 100%; border-collapse: collapse; font-size: 16px; }
+.table-completion-wrapper th,
+.table-completion-wrapper td       {
+  border: 1px solid var(--reading-border);
+  padding: 10px 14px;
+  text-align: left;
+  vertical-align: middle;
+}
+.table-completion-wrapper th       { background: #f3f4f6; font-weight: 700; }
+.table-completion-wrapper .completion-input { width: 140px; }
+
+/* Flow chart */
+.flowchart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 12px 0;
+}
+.flowchart-box {
+  background: #f9fafb;
+  border: 1px solid var(--reading-border);
+  border-radius: 4px;
+  padding: 12px 20px;
+  text-align: center;
+  font-size: 16px;
+  min-width: 200px;
+  max-width: 360px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.flowchart-box .completion-input  { text-align: center; width: 180px; }
+.flowchart-arrow {
+  text-align: center;
+  color: var(--reading-text-secondary);
+  font-size: 22px;
+  line-height: 1;
+  padding: 5px 0;
+  user-select: none;
+}
+
+/* Short answer — input sits below the question, indented to align with stem */
+.short-answer-input-row            { padding-left: 38px; margin-top: 8px; }
+.short-answer-input-row .completion-input {
+  width: 220px;
+  border: 1px solid var(--reading-border);
+  border-bottom: 2px solid var(--reading-primary);
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 16px;
+}
+.short-answer-input-row .completion-input:focus {
+  border-color: var(--reading-primary);
+  background: rgba(37, 99, 235, .04);
+}
+
 /* ── Responsive tweaks ───────────────────────────────────────── */
 @media (max-width: 768px) {
   .reading-test-container {
