@@ -328,10 +328,15 @@ window.showSection = function (sectionId, updateState = true) {
 
 // Exit reading test — go back to landing
 window.exitReadingTest = function () {
-    if (confirm('Exit the test? Your progress will be lost.')) {
-        if (window.clearInterval && window.ReadingTest) clearInterval(window.ReadingTest.timerInterval);
-        showSection('landing');
-    }
+    _showModal(
+        'Exit the test? Your current progress will be lost.',
+        () => {
+            if (window.ReadingTest) clearInterval(window.ReadingTest.timerInterval);
+            showSection('landing');
+        },
+        null,   // cancel = do nothing, stay on test
+        { okLabel: 'Exit Test', okClass: 'modal-btn-danger' }
+    );
 };
 
 // Handle browser Back/Forward navigation
