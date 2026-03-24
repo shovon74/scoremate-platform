@@ -240,7 +240,103 @@
 
 .passage-text p:last-child { margin-bottom: 0; }
 
-/* Placeholder when loading passage */
+/* ── Option Pool Box (Matching types) ───────────────────────── */
+.option-pool-box {
+  margin-top: 12px;
+  margin-left: 38px;
+  margin-bottom: 16px;
+  padding: 12px;
+  background-color: var(--reading-bg-page);
+  border: 1px solid var(--reading-border-section);
+  border-radius: 2px;
+}
+
+.option-pool-box .pool-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--reading-text-secondary);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.option-pool-box .pool-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.option-pool-box .pool-item {
+  display: inline-block;
+  padding: 4px 12px;
+  background-color: var(--reading-bg-white);
+  border: 1px solid var(--reading-border);
+  border-radius: 2px;
+  font-size: 16px;
+  color: var(--reading-text);
+  line-height: 1.4;
+}
+
+/* ── NB Reuse Note ───────────────────────────────────────────── */
+.matching-nb-note {
+  margin-left: 38px;
+  margin-bottom: 12px;
+  font-size: 15px;
+  color: var(--reading-text-secondary);
+  font-style: italic;
+}
+
+/* ── Matching Dropdown Row (below question stem) ────────────── */
+/* Used by matching_information, matching_features, matching_headings */
+.matching-dropdown-row {
+  margin-left: 38px;   /* align with question stem */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── Matching Sentence Endings (inline dropdown at end of stem) */
+.matching-sentence-row {
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.matching-sentence-row .question-stem {
+  flex: 1;
+  min-width: 0;
+}
+
+.matching-sentence-row .select-answer {
+  flex-shrink: 0;
+  align-self: center;
+}
+
+/* ── Select answer (all matching types) ─────────────────────── */
+select.select-answer {
+  width: 144px;
+  padding: 4px 2px;
+  border: 1px solid var(--reading-border);
+  border-radius: 2px;
+  font-size: 16px;
+  font-family: var(--reading-font);
+  background-color: var(--reading-bg-white);
+  color: var(--reading-text);
+  cursor: pointer;
+  transition: border-color .2s;
+}
+
+select.select-answer:hover  { border-color: var(--reading-primary); }
+select.select-answer:focus  {
+  outline: 2px solid var(--reading-primary);
+  outline-offset: 0;
+  border-color: var(--reading-primary);
+}
+
+/* Answered state — highlight border green */
+select.select-answer.answered { border-color: var(--reading-success); }
+
+/* ── Passage loading/error placeholder ──────────────────────── */
 .passage-loading {
   color: var(--reading-text-secondary);
   font-size: 16px;
@@ -431,7 +527,69 @@
   pointer-events: none;
 }
 
+/* ── Pattern 2: Checkbox / Multi-Select ─────────────────────── */
+
+/* "Choose TWO letters, A–E." instruction line */
+.checkbox-instruction {
+  font-size: 15px;
+  color: var(--reading-text-secondary);
+  margin-left: 38px;
+  margin-bottom: 6px;
+  margin-top: 4px;
+}
+
+/* Container for all option rows */
+.checkbox-group {
+  margin-left: 38px;
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* One row: [checkbox] [label → [letter circle] [text]] */
+.checkbox-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background .15s;
+  margin-bottom: 2px;
+}
+.checkbox-option:last-child { margin-bottom: 0; }
+.checkbox-option:hover:not(.checkbox-disabled) { background: rgba(37, 99, 235, .05); }
+
+.checkbox-option input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+  accent-color: var(--reading-primary);
+}
+
+/* Disabled state — when max selections reached */
+.checkbox-disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.checkbox-disabled input[type="checkbox"] { cursor: not-allowed; }
+.checkbox-disabled .option-label { cursor: not-allowed; pointer-events: none; }
+
+/* Checked: fill the letter circle blue (mirrors radio checked style) */
+.checkbox-option input[type="checkbox"]:checked + .option-label .option-letter {
+  background: var(--reading-primary);
+  border-color: var(--reading-primary);
+  color: #fff;
+}
+.checkbox-option input[type="checkbox"]:checked + .option-label .option-text {
+  color: var(--reading-primary);
+  font-weight: 500;
+}
+
 /* ── Pattern 1: Radio Button (TFNG / YNNG / MCQ Single) ─────── */
+
 
 /* Options list sits below the question stem, indented past the number box */
 .radio-group {
@@ -523,7 +681,70 @@
   color: var(--reading-primary);
 }
 
+/* ── Pattern 5: Diagram / Image Labeling ─────────────────────── */
+
+/* Outer wrapper — constrains image width and adds bottom margin */
+.diagram-image-wrapper {
+  margin-bottom: 20px;
+  border: 1px solid var(--reading-border-section);
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--reading-bg-page);
+}
+
+/* The diagram image itself — full width, height auto */
+.diagram-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 480px;
+  object-fit: contain;
+  background: #fff;
+}
+
+/* Fallback placeholder when image_url is absent */
+.diagram-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 48px 24px;
+  color: var(--reading-text-secondary);
+  font-size: 15px;
+}
+.diagram-placeholder svg { color: var(--reading-border); }
+
+/* Optional caption line below image */
+.diagram-caption {
+  font-size: 13px;
+  color: var(--reading-text-secondary);
+  padding: 6px 12px;
+  border-top: 1px solid var(--reading-border-section);
+  margin: 0;
+  font-style: italic;
+}
+
+/* Label inputs section — list of numbered rows */
+.diagram-labels {
+  margin-top: 4px;
+}
+
+/* Each label row — number box + optional hint text + input inline */
+.diagram-label-row .question-text-inline {
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Diagram text input — slightly wider than the standard 144px */
+.diagram-input {
+  width: 200px;
+  vertical-align: middle;
+}
+
 /* ── Pattern 4: Text Input / Completion ─────────────────────── */
+
 
 /* Inline blank input — sits inside sentences/paragraphs */
 .completion-input {
@@ -646,3 +867,85 @@
   .reading-part-tabs { display: none; }
   .reading-title { font-size: 13px; }
 }
+
+/* ── Custom Modal (confirm/alert replacement) ────────────────── */
+.reading-modal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 1010;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: modalFadeIn .15s ease;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.reading-modal-box {
+  background: var(--reading-bg-white);
+  border-radius: 8px;
+  padding: 28px 32px 24px;
+  max-width: 420px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: modalSlideIn .15s ease;
+}
+
+@keyframes modalSlideIn {
+  from { transform: translateY(-12px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.reading-modal-body {
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--reading-text);
+  margin-bottom: 20px;
+}
+
+.reading-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.modal-btn {
+  padding: 9px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background .15s, transform .1s;
+  font-family: var(--reading-font);
+}
+.modal-btn:hover  { transform: translateY(-1px); }
+.modal-btn:active { transform: translateY(0); }
+
+.modal-btn-cancel {
+  background: #f3f4f6;
+  color: var(--reading-text);
+}
+.modal-btn-cancel:hover { background: #e5e7eb; }
+
+.modal-btn-primary {
+  background: var(--reading-primary);
+  color: #fff;
+}
+.modal-btn-primary:hover { background: var(--reading-primary-dark); }
+
+.modal-btn-success {
+  background: var(--reading-success);
+  color: #fff;
+}
+.modal-btn-success:hover { background: #15803d; }
+
+.modal-btn-danger {
+  background: var(--reading-error);
+  color: #fff;
+}
+.modal-btn-danger:hover { background: #b91c1c; }
