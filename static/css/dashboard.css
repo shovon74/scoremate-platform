@@ -764,3 +764,50 @@
         font-size: 1.3rem;
     }
 }
+
+/* ── Reading History Table ───────────────────────────────── */
+.reading-history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .875rem;
+}
+.reading-history-table th,
+.reading-history-table td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border, #e5e7eb);
+}
+.reading-history-table th {
+    font-weight: 600;
+    color: var(--text-muted, #6b7280);
+    font-size: .75rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+.reading-history-table tr:last-child td { border-bottom: none; }
+.rh-test-name { font-weight: 600; }
+.rh-score-chip {
+    background: rgba(99,102,241,.1);
+    color: #6366f1;
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-weight: 600;
+    font-size: .8rem;
+}
+.rh-date { color: var(--text-muted, #6b7280); font-size: .8rem; }
+.rh-retake-btn {
+    color: var(--primary, #6366f1);
+    font-weight: 600;
+    font-size: .8rem;
+    text-decoration: none;
+    white-space: nowrap;
+}
+.rh-retake-btn:hover { text-decoration: underline; }
+.reading-empty-state {
+    background: var(--card-bg, #f9fafb);
+    border: 1px dashed var(--border, #e5e7eb);
+    border-radius: 12px;
+    padding: 32px;
+    text-align: center;
+    color: var(--text-muted, #6b7280);
+}

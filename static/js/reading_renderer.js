@@ -267,6 +267,7 @@ function _renderRadio (group) {
           <span class="question-number">${q.number}</span>
           <span class="question-stem">${_esc(q.text || '')}</span>
         </div>
+        ${q.image_url ? `<img src="${_esc(q.image_url)}" class="rq-question-image" alt="">` : ''}
         <div class="radio-group">${optionsHtml}</div>
       </div>`;
   });
@@ -677,6 +678,7 @@ function _renderShortAnswer (group) {
           <span class="question-number">${q.number}</span>
           <span class="question-stem">${_esc(q.text || '')}</span>
         </div>
+        ${q.image_url ? `<img src="${_esc(q.image_url)}" class="rq-question-image" alt="">` : ''}
         <div class="short-answer-input-row">
           <input type="text" class="completion-input"
                  data-qnum="${q.number}" placeholder="answer"

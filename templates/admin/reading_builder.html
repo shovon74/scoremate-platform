@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reading Quiz Builder — ScoreMate</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/reading_builder.css') }}">
+  <script>(function(){ var t=localStorage.getItem('sm-theme')||'light'; document.documentElement.setAttribute('data-theme',t); })();</script>
+</head>
+<body class="admin-body">
+
+<!-- ═══════════════════════════════════════════
+     ADMIN SIDEBAR
+═══════════════════════════════════════════ -->
+<aside class="admin-sidebar">
+  <a href="{{ url_for('admin.user_list') }}" class="admin-logo">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+      <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+    </svg>
+    <span>ScoreMate Admin</span>
+  </a>
+  <nav class="sidebar-menu">
+    <a href="{{ url_for('admin.user_list') }}" class="sidebar-item">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/>
+        <rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>
+      </svg>
+      Dashboard Overview
+    </a>
+    <a href="{{ url_for('admin.user_list') }}" class="sidebar-item">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+      Student Management
+    </a>
+    <a href="{{ url_for('reading_admin.list_tests_page') }}" class="sidebar-item active">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+      </svg>
+      Reading Tests
+    </a>
+  </nav>
+</aside>
+
+<!-- ═══════════════════════════════════════════
+     BUILDER MAIN
+═══════════════════════════════════════════ -->
+<main class="builder-main">
+
+  <!-- Page Header -->
+  <div class="builder-page-header">
+    <div class="page-header-left">
+      <h1 id="headerTitle">New Reading Test</h1>
+      <span id="statusBadge" class="status-badge draft">Draft</span>
+    </div>
+    <div class="page-header-actions">
+      <a href="/admin/reading/list" class="btn btn-secondary">← All Tests</a>
+      <button class="btn btn-publish" id="publishToggleBtn" disabled title="Save the test first">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+        <span id="publishBtnLabel">Publish</span>
+      </button>
+      <button class="btn btn-primary" id="saveBtn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+          <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
+        </svg>
+        Save Test
+      </button>
+    </div>
+  </div>
+
+  <!-- 3-Tab Navigation -->
+  <div class="builder-tab-nav">
+    <button class="tab-nav-btn active" data-tab="basic">
+      <div class="tab-icon-wrap">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+      </div>
+      <div class="tab-label">
+        <strong>Basic Edit</strong>
+        <span>Edit basic details</span>
+      </div>
+    </button>
+
+    <button class="tab-nav-btn" data-tab="passages">
+      <div class="tab-icon-wrap">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+          <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+        </svg>
+      </div>
+      <div class="tab-label">
+        <strong>Passages</strong>
+        <span>Reading passages</span>
+      </div>
+    </button>
+
+    <button class="tab-nav-btn" data-tab="questions">
+      <div class="tab-icon-wrap">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
+          <line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/>
+          <line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+        </svg>
+      </div>
+      <div class="tab-label">
+        <strong>Questions</strong>
+        <span>Reading questions</span>
+      </div>
+    </button>
+  </div>
+
+  <!-- ── Tab Content ──────────────────────────────────── -->
+  <div class="builder-tab-content">
+
+    <!-- ── TAB 1: Basic Edit ──────────────────────────── -->
+    <div id="tab-basic" class="tab-panel active">
+      <div class="content-card">
+        <div class="form-group">
+          <label for="testTitle">Quiz Title *</label>
+          <input type="text" id="testTitle" class="form-input" placeholder="e.g. Cambridge IELTS 18 Academic Test 1">
+        </div>
+        <div class="form-group">
+          <label for="testSlug">Slug *</label>
+          <input type="text" id="testSlug" class="form-input" placeholder="cambridge-ielts-18-academic-test-1">
+          <small>Auto-generated from title. Must be unique. Letters, numbers, hyphens only.</small>
+        </div>
+        <div class="form-group">
+          <label for="testDescription">Description</label>
+          <textarea id="testDescription" class="form-textarea" rows="3" placeholder="Optional description shown to students..."></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Time (minutes)</label>
+            <div class="time-stepper">
+              <button type="button" id="timeMinus">−</button>
+              <input type="number" id="testTime" value="60" min="1" max="180">
+              <button type="button" id="timePlus">+</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="testCategory">Category</label>
+            <select id="testCategory" class="form-select">
+              <option value="academic">Academic</option>
+              <option value="general">General Training</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="testStatus">Status</label>
+            <select id="testStatus" class="form-select">
+              <option value="draft">Draft</option>
+              <option value="published">Published</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-secondary" id="discardBasicBtn">Discard</button>
+          <button class="btn btn-primary" id="saveBasicBtn">Save Changes</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TAB 2: Passages ────────────────────────────── -->
+    <div id="tab-passages" class="tab-panel">
+      <div class="section-toolbar">
+        <h2>List of Reading Passages</h2>
+        <button class="btn btn-primary" id="addPassageBtn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Add Passage
+        </button>
+      </div>
+      <div id="passageList"></div>
+    </div>
+
+    <!-- ── TAB 3: Questions ───────────────────────────── -->
+    <div id="tab-questions" class="tab-panel">
+      <div class="questions-toolbar">
+        <h2>List of Questions</h2>
+        <div class="passage-selector-wrap">
+          <select id="passageSelector" class="form-select" style="width:200px">
+            <option value="">— SELECT PASSAGE —</option>
+          </select>
+        </div>
+        <div class="dropdown-wrapper" id="addGroupWrapper" style="display:none">
+          <button class="btn btn-primary" id="addGroupBtn" onclick="toggleAddGroupMenu(event)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Add Question Group ▾
+          </button>
+          <div id="addGroupMenu" class="dropdown-menu hidden">
+            <button type="button" onclick="openGroupModal('matching_headings')">Matching Headings</button>
+            <button type="button" onclick="openGroupModal('matching_information')">Matching Information</button>
+            <button type="button" onclick="openGroupModal('tfng')">True/False / Yes/No + Not Given</button>
+            <button type="button" onclick="openGroupModal('mcq_single')">Multiple Choice (A–D)</button>
+            <button type="button" onclick="openGroupModal('sentence_completion')">Sentence Completion</button>
+            <button type="button" onclick="openGroupModal('note_completion')">Note / Bullet Completion</button>
+            <button type="button" onclick="openGroupModal('summary_completion')">Summary / Paragraph Completion</button>
+            <button type="button" onclick="openGroupModal('table_completion')">Table Completion</button>
+            <button type="button" onclick="openGroupModal('short_answer')">Short Answer</button>
+          </div>
+        </div>
+      </div>
+      <div id="questionArea"></div>
+    </div>
+
+  </div><!-- /.builder-tab-content -->
+</main><!-- /.builder-main -->
+
+
+<!-- ═══════════════════════════════════════════
+     MODAL: Add / Edit Passage
+═══════════════════════════════════════════ -->
+<div id="passageModal" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="passageModalTitle">Add Reading Passage</h3>
+      <button class="modal-close" data-close="passageModal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="passageTitleInput">Title *</label>
+        <input type="text" id="passageTitleInput" class="form-input" placeholder="e.g. Part 1">
+      </div>
+      <div class="form-group">
+        <label for="passageContentInput">Passage Content *</label>
+        <small>Separate paragraphs with a blank line.</small>
+        <textarea id="passageContentInput" class="form-textarea" rows="14"
+          placeholder="Type or paste the full passage here.&#10;&#10;Start a new paragraph by leaving a blank line between them."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-close="passageModal">Cancel</button>
+      <button class="btn btn-primary" id="savePassageBtn">Add Passage</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     MODAL: Matching Headings Group Config
+═══════════════════════════════════════════ -->
+<div id="matchingHeadingsModal" class="modal-overlay hidden">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3 id="mhModalTitle">Add Matching Headings Group</h3>
+      <button class="modal-close" data-close="matchingHeadingsModal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="mhInstructions">Instructions</label>
+        <textarea id="mhInstructions" class="form-textarea" rows="3"
+          placeholder="The passage has paragraphs A–G. Choose the correct heading for each paragraph from the list of headings below. Write the correct number, i–x, in boxes on your answer sheet."></textarea>
+      </div>
+      <div class="form-group">
+        <label>
+          Heading Options
+          <small style="font-weight:400; display:inline; margin-left:6px">— add the list of headings students choose from</small>
+        </label>
+        <div id="headingInputsList"></div>
+        <button type="button" class="btn btn-secondary btn-sm" id="addHeadingRowBtn" style="margin-top:8px">
+          + Add Heading
+        </button>
+      </div>
+      <div class="form-group checkbox-inline" style="margin-bottom:0">
+        <input type="checkbox" id="mhAllowReuse">
+        <label for="mhAllowReuse">Allow reuse — students may use a heading more than once</label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-close="matchingHeadingsModal">Cancel</button>
+      <button class="btn btn-primary" id="saveMHGroupBtn">Save Group</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     MODAL: Generic Group Config
+     (TFNG, MCQ Single, Sentence Completion, Short Answer)
+═══════════════════════════════════════════ -->
+<div id="groupConfigModal" class="modal-overlay hidden">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3 id="gcModalTitle">Add Group</h3>
+      <button class="modal-close" data-close="groupConfigModal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="gcType">
+      <input type="hidden" id="gcGroupId">
+      <!-- Variant selector: shown only for TFNG / YNNG -->
+      <div class="form-group" id="gcVariantGroup" style="display:none">
+        <label>Question Variant</label>
+        <div class="gc-variant-row">
+          <label class="gc-variant-option">
+            <input type="radio" name="gcVariant" value="tfng" checked>
+            <span>True / False / Not Given</span>
+            <small>Factual statements from the passage</small>
+          </label>
+          <label class="gc-variant-option">
+            <input type="radio" name="gcVariant" value="ynng">
+            <span>Yes / No / Not Given</span>
+            <small>Writer's views or claims</small>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="gcInstructions">Instructions *</label>
+        <textarea id="gcInstructions" class="form-textarea" rows="3"
+          placeholder="e.g. Do the following statements agree with the information given in the passage?"></textarea>
+      </div>
+      <div class="form-group" id="gcConstraintGroup" style="display:none">
+        <label for="gcConstraint">Word Limit</label>
+        <input type="text" id="gcConstraint" class="form-input" placeholder="e.g. NO MORE THAN TWO WORDS">
+        <small>Shown above questions as a constraint reminder for students.</small>
+      </div>
+      <div class="form-group" id="gcContextHtmlGroup" style="display:none">
+        <label for="gcContextHtml">Context HTML *</label>
+        <small>Paste the sentence/paragraph HTML. Use <code>[[N]]</code> to mark blanks — e.g. <code>[[1]]</code>, <code>[[2]]</code>.</small>
+        <textarea id="gcContextHtml" class="form-textarea" rows="8"
+          placeholder="&lt;p&gt;Scientists found that [[1]] plays a key role in [[2]] metabolism.&lt;/p&gt;"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-close="groupConfigModal">Cancel</button>
+      <button class="btn btn-primary" id="saveGroupConfigBtn">Save Group</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     MODAL: Add / Edit Question (inside a group)
+═══════════════════════════════════════════ -->
+<div id="questionModal" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="questionModalTitle">Add Question</h3>
+      <button class="modal-close" data-close="questionModal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group" style="flex:0 0 120px">
+          <label for="qNumber">Question Number *</label>
+          <input type="number" id="qNumber" class="form-input" min="1" max="40" value="1">
+        </div>
+      </div>
+
+      <!-- Stem: label + hint change based on type -->
+      <div class="form-group" id="qStemGroup">
+        <label id="qStemLabel" for="qStem">Statement / Label *</label>
+        <input type="text" id="qStem" class="form-input" placeholder="">
+        <small id="qStemHint"></small>
+      </div>
+
+      <!-- Optional image (any type) -->
+      <div class="form-group" id="qImageGroup">
+        <label>Question Image <small style="font-weight:400">(optional)</small></label>
+        <div class="q-image-upload-row">
+          <input type="file" id="qImageFile" accept="image/*" style="display:none">
+          <button type="button" class="btn btn-secondary btn-sm" id="qImageUploadBtn">
+            Upload Image
+          </button>
+          <span id="qImageStatus" class="q-image-status"></span>
+        </div>
+        <input type="hidden" id="qImageUrl">
+        <div id="qImagePreview" style="display:none; margin-top:8px; display:flex; align-items:flex-start; gap:8px">
+          <img id="qImagePreviewImg" style="max-width:100%; max-height:180px; border-radius:6px; border:1px solid var(--admin-border); display:block">
+          <button type="button" class="btn-icon danger" id="qImageRemoveBtn" title="Remove image">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- MCQ options (shown for mcq_single only) -->
+      <div id="qMcqOptions" style="display:none">
+        <div class="form-group" style="margin-bottom:4px">
+          <label>Options * <small style="font-weight:400">(min 2)</small></label>
+          <div id="qMcqOptionsList"></div>
+          <button type="button" class="btn btn-secondary btn-sm" id="qAddMcqOptionBtn" style="margin-top:6px">
+            + Add Option
+          </button>
+        </div>
+      </div>
+
+      <!-- Dropdown answer (matching_headings, tfng, ynng, mcq_single) -->
+      <div class="form-group" id="qCorrectAnswerGroup">
+        <label for="qCorrectAnswer">Correct Answer *</label>
+        <select id="qCorrectAnswer" class="form-select">
+          <option value="">— select answer —</option>
+        </select>
+      </div>
+
+      <!-- Free-text answer (sentence_completion, short_answer) -->
+      <div class="form-group" id="qAnswerTextGroup" style="display:none">
+        <label id="qAnswerTextLabel" for="qAnswerText">Correct Answer *</label>
+        <input type="text" id="qAnswerText" class="form-input" placeholder="e.g. carbon-14">
+        <small id="qAnswerTextHint"></small>
+      </div>
+
+      <div class="form-group">
+        <label for="qExplanation">Explanation <small style="font-weight:400">(shown after test)</small></label>
+        <textarea id="qExplanation" class="form-textarea" rows="3" placeholder="Optional explanation..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-close="questionModal">Cancel</button>
+      <button class="btn btn-primary" id="saveQuestionBtn">Add Question</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     TOAST
+═══════════════════════════════════════════ -->
+<div id="builderToast" class="builder-toast hidden"></div>
+
+
+<!-- ═══════════════════════════════════════════
+     DATA BOOTSTRAP
+═══════════════════════════════════════════ -->
+<script>
+  window.BUILDER_DATA = {{ test_data | tojson | safe }};
+</script>
+<script src="{{ url_for('static', filename='js/reading_builder.js') }}"></script>
+
+</body>
+</html>
