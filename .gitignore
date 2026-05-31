@@ -16,6 +16,12 @@ full_models.txt
 LLM_CONTEXT.md
 CLAUDE.md
 
+# macOS
+.DS_Store
+
+# Local design references
+Reading_quizBuilder/
+
 # Database files
 *.db
 *.sqlite3
