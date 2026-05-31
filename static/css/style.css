@@ -1574,3 +1574,168 @@ textarea::placeholder {
     color: white;
     border-color: var(--primary);
 }
+
+/* ══════════════════════════════════════════════
+   Reading Hub — Student Test Listing
+══════════════════════════════════════════════ */
+#readingHubSection {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 24px 60px;
+}
+
+.rh-page-header {
+    margin-bottom: 28px;
+}
+
+.rh-page-header h1 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    margin: 0 0 6px;
+}
+
+.rh-page-header p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin: 0 0 16px;
+}
+
+.rh-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-family: inherit;
+    transition: all 0.15s;
+}
+.rh-back-btn:hover { color: var(--primary); border-color: var(--primary); }
+
+/* Filter tabs */
+.rh-filter-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 28px;
+}
+
+.rh-tab {
+    padding: 8px 18px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: transparent;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-family: inherit;
+    transition: all 0.15s;
+}
+.rh-tab:hover { border-color: var(--primary); color: var(--primary); }
+.rh-tab.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+/* Loading / empty states */
+.rh-loading,
+.rh-empty {
+    text-align: center;
+    padding: 64px 24px;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+.rh-empty a { color: var(--primary); }
+
+/* Card grid */
+.rh-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+/* Individual test card */
+.rh-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: box-shadow 0.2s, border-color 0.2s;
+    cursor: default;
+}
+.rh-card:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border-color: var(--primary);
+}
+
+.rh-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.rh-badge {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 3px 10px;
+    border-radius: 999px;
+}
+.rh-badge.academic { background: rgba(99,102,241,0.12); color: #6366f1; }
+.rh-badge.general  { background: rgba(37,99,235,0.1);   color: #2563eb; }
+
+[data-theme="dark"] .rh-badge.academic { background: rgba(99,102,241,0.2); color: #a5b4fc; }
+[data-theme="dark"] .rh-badge.general  { background: rgba(96,165,250,0.15); color: #93c5fd; }
+
+.rh-card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.rh-card-source {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.rh-card-meta {
+    display: flex;
+    gap: 16px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.rh-start-btn {
+    margin-top: auto;
+    padding: 11px 18px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 9px;
+    font-size: 0.875rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s, transform 0.1s;
+    width: 100%;
+}
+.rh-start-btn:hover   { background: var(--primary-hover); }
+.rh-start-btn:active  { transform: scale(0.98); }
+
+@media (max-width: 600px) {
+    .rh-grid { grid-template-columns: 1fr; }
+}

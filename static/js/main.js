@@ -51,6 +51,8 @@ window.showSection = function (sectionId, updateState = true) {
     if (task2GeneratorSection) task2GeneratorSection.style.display = 'none';
     if (task1GeneratorSection) task1GeneratorSection.style.display = 'none';
     if (listeningSection) listeningSection.style.display = 'none';
+    const readingHubSection = document.getElementById('readingHubSection');
+    if (readingHubSection) readingHubSection.style.display = 'none';
     // Reading test uses class toggle instead of display (it's fixed-position)
     if (readingTestSection) readingTestSection.classList.remove('reading-active');
 
@@ -307,6 +309,19 @@ window.showSection = function (sectionId, updateState = true) {
                 window.location.hash = sectionId;
             }
         }
+    } else if (sectionId === 'reading_hub') {
+        // ── Reading Tests Hub (student listing) ───────────────
+        const rhSection = document.getElementById('readingHubSection');
+        if (rhSection) rhSection.style.display = 'block';
+        if (updateState) {
+            try {
+                history.pushState({ section: 'reading_hub' }, '', '#reading_hub');
+            } catch (e) {
+                window.location.hash = 'reading_hub';
+            }
+        }
+        loadReadingTests();
+
     } else if (sectionId === 'reading_test') {
         // ── Reading Test section ──────────────────────────────
         const slug = arguments[2] || null;
@@ -372,6 +387,8 @@ window.addEventListener('load', () => {
         showSection('task1_general_generator', false);
     } else if (hash === 'listening') {
         showSection('listening', false);
+    } else if (hash === 'reading_hub') {
+        showSection('reading_hub', false);
     } else {
         // Ensure landing is shown if no hash
         showSection('landing', false);
@@ -1497,3 +1514,65 @@ window.onpopstate = function (event) {
         showSection(sectionMap[sectionId] || sectionId, false);
     }
 };
+
+// Reading Hub
+let _rhAllTests = null;
+
+async function loadReadingTests(category = 'all') {
+    const loading = document.getElementById('rhLoading');
+    const empty   = document.getElementById('rhEmpty');
+    const grid    = document.getElementById('rhGrid');
+    if (!loading || !grid) return;
+
+    loading.style.display = 'block';
+    empty.style.display   = 'none';
+    grid.style.display    = 'none';
+
+    document.querySelectorAll('#rhFilterTabs .rh-tab').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.cat === category);
+    });
+
+    try {
+        const url = category === 'all'
+            ? '/api/reading/tests?per_page=50'
+            : `/api/reading/tests?category=${category}&per_page=50`;
+        const res  = await fetch(url);
+        const json = await res.json();
+
+        loading.style.display = 'none';
+        const tests = json.tests || [];
+
+        if (!tests.length) {
+            empty.style.display = 'block';
+            return;
+        }
+
+        grid.innerHTML = tests.map(t => {
+            const cat      = t.category || 'academic';
+            const catLabel = cat === 'academic' ? 'Academic' : 'General Training';
+            return `<div class="rh-card">
+              <div class="rh-card-top">
+                <span class="rh-badge ${cat}">${catLabel}</span>
+              </div>
+              <h3 class="rh-card-title">${t.title}</h3>
+              ${t.source_book ? `<p class="rh-card-source">${t.source_book}</p>` : ''}
+              <div class="rh-card-meta">
+                <span>📋 ${t.total_questions} questions</span>
+                <span>⏱ ${t.time_limit} min</span>
+              </div>
+              <button class="rh-start-btn" onclick="showSection('reading_test', true, '${t.slug}')">
+                Start Test →
+              </button>
+            </div>`;
+        }).join('');
+        grid.style.display = 'grid';
+    } catch (err) {
+        loading.textContent = 'Failed to load tests. Please try again.';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('#rhFilterTabs .rh-tab').forEach(btn => {
+        btn.addEventListener('click', () => loadReadingTests(btn.dataset.cat));
+    });
+});

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reading Tests — ScoreMate Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+  <script>(function(){ var t=localStorage.getItem('sm-theme')||'light'; document.documentElement.setAttribute('data-theme',t); })();</script>
+  <style>
+    .rl-main   { margin-left: 260px; padding: 36px; min-height: 100vh; background: var(--admin-bg); }
+    .rl-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; }
+    .rl-header h1 { font-size:1.4rem; font-weight:800; color:#f1f5f9; margin:0; }
+    .rl-header p  { font-size:.85rem; color:#64748b; margin:4px 0 0; }
+
+    .btn-new {
+      display:inline-flex; align-items:center; gap:8px;
+      padding:10px 20px; background:#6366f1; color:white;
+      border:none; border-radius:8px; font-size:.875rem;
+      font-weight:600; cursor:pointer; text-decoration:none;
+      font-family:'Inter',sans-serif; transition:background .15s;
+    }
+    .btn-new:hover { background:#4f46e5; }
+
+    .tests-table-wrap {
+      background: var(--admin-card);
+      border: 1px solid var(--admin-border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .tests-table { width:100%; border-collapse:collapse; }
+
+    .tests-table thead tr {
+      background: var(--admin-bg);
+      border-bottom: 1px solid var(--admin-border);
+    }
+
+    .tests-table th {
+      padding: 12px 18px;
+      text-align: left;
+      font-size: .75rem;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .tests-table td {
+      padding: 14px 18px;
+      font-size: .875rem;
+      color: var(--admin-text-main);
+      border-bottom: 1px solid var(--admin-border);
+      vertical-align: middle;
+    }
+
+    .tests-table tbody tr:last-child td { border-bottom: none; }
+    .tests-table tbody tr:hover td { background: rgba(255,255,255,0.02); }
+
+    .test-title { font-weight: 600; }
+    .test-slug  { font-size: .75rem; color: #64748b; margin-top: 2px; }
+
+    .badge {
+      display:inline-block; padding:3px 10px; border-radius:999px;
+      font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+    }
+    .badge-published { background:#14532d; color:#4ade80; }
+    .badge-draft     { background:#1e293b; color:#94a3b8; }
+    .badge-academic  { background:#1e1b4b; color:#a5b4fc; }
+    .badge-general   { background:#172554; color:#93c5fd; }
+
+    .action-row { display:flex; gap:8px; align-items:center; }
+
+    .btn-act {
+      display:inline-flex; align-items:center; gap:5px;
+      padding:6px 12px; border-radius:6px; font-size:.78rem;
+      font-weight:600; cursor:pointer; border:1px solid transparent;
+      font-family:'Inter',sans-serif; text-decoration:none; transition:all .15s;
+    }
+    .btn-edit   { background:transparent; color:#94a3b8; border-color:var(--admin-border); }
+    .btn-edit:hover { background:var(--admin-bg); color:#f1f5f9; }
+    .btn-pub    { background:transparent; color:#4ade80; border-color:#4ade80; }
+    .btn-pub:hover  { background:rgba(74,222,128,.1); }
+    .btn-unpub  { background:transparent; color:#f87171; border-color:#f87171; }
+    .btn-unpub:hover { background:rgba(248,113,113,.1); }
+    .btn-del    { background:transparent; color:#94a3b8; border-color:transparent; }
+    .btn-del:hover  { color:#f87171; background:rgba(248,113,113,.08); }
+
+    .empty-row td {
+      text-align: center;
+      padding: 56px 20px;
+      color: #64748b;
+    }
+
+    .toast {
+      position:fixed; bottom:24px; right:24px;
+      padding:12px 20px; border-radius:10px; font-size:.875rem;
+      font-weight:600; z-index:999; box-shadow:0 8px 24px rgba(0,0,0,.3);
+      transition:opacity .3s; font-family:'Inter',sans-serif;
+    }
+    .toast.hidden { opacity:0; pointer-events:none; }
+    .toast.success { background:#14532d; color:#4ade80; }
+    .toast.error   { background:#7f1d1d; color:#fca5a5; }
+    .toast.info    { background:#1e1b4b; color:#a5b4fc; }
+  </style>
+</head>
+<body class="admin-body">
+
+<!-- Sidebar -->
+<aside class="admin-sidebar">
+  <a href="{{ url_for('admin.user_list') }}" class="admin-logo">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
+    </svg>
+    <span>ScoreMate Admin</span>
+  </a>
+  <nav class="sidebar-menu">
+    <a href="{{ url_for('admin.user_list') }}" class="sidebar-item">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/>
+        <rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>
+      </svg>
+      Dashboard Overview
+    </a>
+    <a href="{{ url_for('admin.user_list') }}" class="sidebar-item">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+      Student Management
+    </a>
+    <a href="{{ url_for('reading_admin.list_tests_page') }}" class="sidebar-item active">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+      </svg>
+      Reading Tests
+    </a>
+  </nav>
+</aside>
+
+<!-- Main -->
+<main class="rl-main">
+  <div class="rl-header">
+    <div>
+      <h1>Reading Tests</h1>
+      <p>Create and manage reading tests</p>
+    </div>
+    <a href="{{ url_for('reading_admin.create_form') }}" class="btn-new">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      New Test
+    </a>
+  </div>
+
+  <div class="tests-table-wrap">
+    <table class="tests-table">
+      <thead>
+        <tr>
+          <th>Test</th>
+          <th>Category</th>
+          <th>Questions</th>
+          <th>Time</th>
+          <th>Status</th>
+          <th>Created</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="testsBody">
+        {% if tests %}
+          {% for t in tests %}
+          <tr id="row-{{ t.id }}">
+            <td>
+              <div class="test-title">{{ t.title }}</div>
+              <div class="test-slug">{{ t.slug }}</div>
+            </td>
+            <td>
+              <span class="badge {% if t.category == 'academic' %}badge-academic{% else %}badge-general{% endif %}">
+                {{ 'Academic' if t.category == 'academic' else 'General' }}
+              </span>
+            </td>
+            <td>{{ t.total_questions }}</td>
+            <td>{{ t.time_limit }} min</td>
+            <td>
+              <span class="badge {% if t.is_published %}badge-published{% else %}badge-draft{% endif %}" id="badge-{{ t.id }}">
+                {{ 'Published' if t.is_published else 'Draft' }}
+              </span>
+            </td>
+            <td>{{ t.created_at[:10] if t.created_at else '—' }}</td>
+            <td>
+              <div class="action-row">
+                <a href="{{ url_for('reading_admin.edit_form', test_id=t.id) }}" class="btn-act btn-edit">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                  </svg>
+                  Edit
+                </a>
+                <button class="btn-act {% if t.is_published %}btn-unpub{% else %}btn-pub{% endif %}"
+                        id="pub-{{ t.id }}"
+                        onclick="togglePublish('{{ t.id }}', {{ 'true' if t.is_published else 'false' }})">
+                  {{ 'Unpublish' if t.is_published else 'Publish' }}
+                </button>
+                <button class="btn-act btn-del" onclick="deleteTest('{{ t.id }}', '{{ t.title | e }}')">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                    <path d="M10 11v6"/><path d="M14 11v6"/>
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr class="empty-row">
+            <td colspan="7">
+              No reading tests yet.<br>
+              <a href="{{ url_for('reading_admin.create_form') }}" style="color:#6366f1">Create your first test →</a>
+            </td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<div id="toast" class="toast hidden"></div>
+
+<script>
+let _toastTimer = null;
+function showToast(msg, type) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast ${type}`;
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.add('hidden'), 3500);
+}
+
+async function togglePublish(testId, currentlyPublished) {
+  try {
+    const res  = await fetch(`/admin/reading/${testId}/publish`, { method: 'POST' });
+    const json = await res.json();
+    if (!json.success) throw new Error(json.error || 'Failed');
+
+    const isNowPublished = json.is_published;
+    const badge  = document.getElementById(`badge-${testId}`);
+    const btn    = document.getElementById(`pub-${testId}`);
+
+    badge.textContent = isNowPublished ? 'Published' : 'Draft';
+    badge.className   = `badge ${isNowPublished ? 'badge-published' : 'badge-draft'}`;
+    btn.textContent   = isNowPublished ? 'Unpublish' : 'Publish';
+    btn.className     = `btn-act ${isNowPublished ? 'btn-unpub' : 'btn-pub'}`;
+    btn.setAttribute('onclick', `togglePublish('${testId}', ${isNowPublished})`);
+
+    showToast(isNowPublished ? 'Test published.' : 'Test unpublished.', isNowPublished ? 'success' : 'info');
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+async function deleteTest(testId, title) {
+  if (!confirm(`Delete "${title}"? This cannot be undone.`)) return;
+  try {
+    const res  = await fetch(`/admin/reading/${testId}`, { method: 'DELETE' });
+    const json = await res.json();
+    if (!json.success) throw new Error(json.error || 'Delete failed');
+    const row = document.getElementById(`row-${testId}`);
+    if (row) row.remove();
+    showToast('Test deleted.', 'info');
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+</script>
+</body>
+</html>

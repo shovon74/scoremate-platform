@@ -92,7 +92,24 @@ def create_app():
                 'attempts': len(results),
                 'last_score': last_score,
             })
-        return render_template('dashboard.html', stats=stats)
+        from models.reading import ReadingAttempt
+        raw_attempts = (
+            ReadingAttempt.query
+            .filter_by(user_id=current_user.id)
+            .order_by(ReadingAttempt.completed_at.desc())
+            .limit(10)
+            .all()
+        )
+        reading_data = [{
+            'test_title':   a.test.title if a.test else 'Deleted Test',
+            'test_slug':    a.test.slug  if a.test else None,
+            'score':        a.score,
+            'total':        a.test.total_questions if a.test else 0,
+            'band_score':   a.band_score,
+            'time_taken':   a.time_taken,
+            'completed_at': a.completed_at.strftime('%b %d, %Y') if a.completed_at else '',
+        } for a in raw_attempts]
+        return render_template('dashboard.html', stats=stats, reading_data=reading_data)
 
     return app
 
