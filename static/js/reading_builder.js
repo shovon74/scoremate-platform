@@ -973,11 +973,6 @@ function _configureQuestionModal(group, q) {
   stemInput.value = q ? (q.text || '') : '';
   answerTxt.value = q ? (q.answer || '') : '';
 
-  const opts = q?.options || [];
-  ['A','B','C','D'].forEach(l => {
-    document.getElementById(`qOpt${l}`).value = opts.find(o => o.letter === l)?.text || '';
-  });
-
   switch (type) {
     case 'matching_headings':
       stemGroup.style.display  = '';
