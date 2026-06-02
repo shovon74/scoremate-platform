@@ -8,10 +8,12 @@
     <!-- CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/reading.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/listening.css') }}">
     <!-- Scripts -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
     <script src="{{ url_for('static', filename='js/reading_renderer.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/listening_renderer.js') }}" defer></script>
 </head>
 
 <body>
@@ -126,6 +128,17 @@
                         </svg>
                     </div>
                     <a href="javascript:void(0)" onclick="showSection('reading_hub')" class="tool-link">Reading Practice
+                        <br>Tests</a>
+                </div>
+
+                <!-- Card 6: Listening Practice Tests -->
+                <div class="tool-card">
+                    <div class="tool-icon" style="display:flex;align-items:center;justify-content:center;width:64px;height:64px">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/>
+                        </svg>
+                    </div>
+                    <a href="javascript:void(0)" onclick="showSection('listening')" class="tool-link">Listening Practice
                         <br>Tests</a>
                 </div>
             </div>
@@ -902,111 +915,33 @@
             </div>
         </section>
 
-        <!-- App Section: Listening Practice -->
+        <!-- ══════════════════════════════════════════
+             Listening Hub — student test listing
+        ══════════════════════════════════════════ -->
         <section id="listeningSection" class="app-section" style="display: none;">
-            <!-- LIST VIEW: Select a Test -->
-            <div id="listeningListState">
-                <header>
-                    <h1>IELTS Listening Practice</h1>
-                    <p>Real exam-style listening tests with instant scoring (Band 1-9)</p>
-                    <button onclick="history.back()" class="btn btn-secondary btn-sm" style="margin-top: 10px;">
-                        <i data-lucide="arrow-left"></i> Back
-                    </button>
-                </header>
+          <div class="lh-header">
+            <button class="lh-back-btn" onclick="history.back()">
+              &#8592; Back
+            </button>
+            <h1>IELTS Listening Tests</h1>
+            <p>Real exam-style listening tests with instant Band scoring.</p>
+          </div>
 
-                <main>
-                    <div class="glass-panel">
-                        <div id="listeningTestsList" class="grid-inputs"
-                            style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));">
-                            <!-- Test cards injected here via JS -->
-                            <div class="loading-spinner">Loading tests...</div>
-                        </div>
-                    </div>
-                </main>
-            </div>
+          <!-- Category filter -->
+          <div class="lh-filter-tabs" id="lhFilterTabs">
+            <button class="lh-tab active" data-cat="all">All</button>
+            <button class="lh-tab" data-cat="academic">Academic</button>
+            <button class="lh-tab" data-cat="general">General Training</button>
+          </div>
 
-            <!-- PLAYER VIEW: Take a Test -->
-            <div id="listeningPlayerState" style="display: none;">
-                <!-- Header / Timer Bar -->
-                <div class="glass-panel"
-                    style="margin-bottom: 2rem; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 10px; z-index: 100;">
-                    <div>
-                        <h3 id="playerTestTitle" style="margin: 0; font-size: 1.2rem;">Test Title</h3>
-                        <button onclick="exitListeningTest()" class="text-btn"
-                            style="font-size: 0.9rem; color: var(--text-muted);">
-                            <i data-lucide="x"></i> Exit Test
-                        </button>
-                    </div>
-                    <div style="text-align: right;">
-                        <div id="listeningTimer"
-                            style="font-family: monospace; font-size: 1.5rem; font-weight: bold; color: var(--accent);">
-                            40:00</div>
-                        <span style="font-size: 0.8rem; color: var(--text-muted);">Time Remaining</span>
-                    </div>
-                </div>
-
-                <div class="grid-layout">
-                    <!-- LEFT: Audio & Questions -->
-                    <main>
-                        <!-- Audio Player -->
-                        <div class="glass-panel" style="margin-bottom: 2rem;">
-                            <audio id="listeningAudioPlayer" controls style="width: 100%; margin-top: 10px;"></audio>
-                            <div
-                                style="margin-top: 10px; font-size: 0.9rem; color: var(--text-muted); display: flex; justify-content: space-between;">
-                                <span>Part <span id="currentPartNum">1</span></span>
-                                <span id="audioStatus">Ready to play</span>
-                            </div>
-                        </div>
-
-                        <!-- Question Container -->
-                        <div id="questionsContainer" class="glass-panel">
-                            <!-- Injected via JS -->
-                        </div>
-
-                        <!-- Section Nav Buttons -->
-                        <div style="display: flex; justify-content: space-between; margin-top: 20px;">
-                            <button id="prevSectionBtn" class="btn btn-secondary" onclick="changeListeningSection(-1)"
-                                disabled>
-                                <i data-lucide="chevron-left"></i> Previous Part
-                            </button>
-                            <button id="nextSectionBtn" class="btn btn-primary" onclick="changeListeningSection(1)">
-                                Next Part <i data-lucide="chevron-right"></i>
-                            </button>
-                        </div>
-                    </main>
-
-                    <!-- RIGHT: Answer Sheet / Nav -->
-                    <aside>
-                        <div class="glass-panel" style="position: sticky; top: 100px;">
-                            <h3>Answer Sheet</h3>
-                            <div id="answerSheetNav"
-                                style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 15px 0;">
-                                <!-- Question number buttons (1-40) injected JS -->
-                            </div>
-                            <button onclick="submitListeningTest()" class="btn btn-danger btn-large"
-                                style="width: 100%; margin-top: 20px;">
-                                Submit Answers
-                            </button>
-                        </div>
-                    </aside>
-                </div>
-            </div>
-
-            <!-- RESULTS MODAL -->
-            <div id="listeningResultModal" class="modal-overlay" style="display: none;">
-                <div class="modal-content glass-panel" style="max-width: 600px; text-align: center;">
-                    <h2>Test Complete!</h2>
-                    <div id="listeningScoreDisplay" style="margin: 30px 0;">
-                        <!-- Score injected here -->
-                    </div>
-                    <div style="display: flex; gap: 10px; justify-content: center;">
-                        <button onclick="reviewListeningAnswers()" class="btn btn-secondary">Review Answers</button>
-                        <button onclick="exitListeningTest()" class="btn btn-primary">Back to List</button>
-                    </div>
-                </div>
-            </div>
+          <!-- States -->
+          <div id="lh-loading" class="lh-loading">Loading tests…</div>
+          <div id="lh-empty"   class="lh-empty"   style="display:none">No listening tests available yet.</div>
+          <div id="lh-grid"   class="lh-grid"    style="display:none"></div>
         </section>
-    </div>
+
+
+    </div><!-- /.container -->
 
     <!-- ═══════════════════════════════════════════════════════
          READING TEST — Full-screen section (outside .container)
@@ -1078,6 +1013,98 @@
 
     </section><!-- /#readingTestSection -->
 
+    <!-- ══════════════════════════════════════════════════
+         LISTENING TEST — Full-screen section (outside .container)
+         Activated by showSection('listening_test', slug)
+    ══════════════════════════════════════════════════ -->
+    <section id="listeningTestSection">
+
+      <!-- Header: Exit + Title + Timer only (no submit here) -->
+      <header class="lt-header">
+        <div class="lt-header-left">
+          <button class="lt-exit-btn" onclick="exitListeningTest()">
+            &#8592; Exit Test
+          </button>
+          <span class="lt-test-title" id="lt-test-title">Listening Test</span>
+        </div>
+        <div class="lt-header-right">
+          <div class="lt-timer-wrap">
+            <div class="lt-timer" id="lt-timer">30:00</div>
+            <span class="lt-timer-label">Time Remaining</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main: full-width scrollable questions panel -->
+      <div class="lt-questions-panel" id="lt-questions-panel">
+        <!-- Populated by listening_renderer.js (audio bar + groups) -->
+      </div>
+
+      <!-- Bottom Nav: Part tabs + answer palette + submit (mirrors reading) -->
+      <nav class="lt-bottom-nav">
+
+        <!-- Part tabs row -->
+        <div class="lt-bottom-part-tabs" id="lt-part-bar">
+          <!-- Populated by listening_renderer.js -->
+        </div>
+
+        <!-- Progress + palette bubbles -->
+        <div class="lt-bottom-palette-row">
+          <div class="lt-progress-bar-wrap">
+            <div class="lt-progress-bar" id="lt-progress-bar" style="width:0%"></div>
+          </div>
+          <span class="lt-progress-label" id="lt-progress-label">0 / 0 answered</span>
+          <div class="lt-palette" id="lt-palette">
+            <!-- Populated by listening_renderer.js -->
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <button class="lt-submit-btn" id="lt-submit-btn" onclick="submitListeningTest()">
+          Submit Test
+        </button>
+
+      </nav>
+
+    </section><!-- /#listeningTestSection -->
+
+
+    <!-- Score modal (lives outside section so it overlays everything) -->
+    <div class="lt-score-overlay" id="lt-score-overlay">
+      <div class="lt-score-card">
+        <h2 class="lt-score-title">🎉 Test Complete!</h2>
+
+        <!-- Ring score -->
+        <div class="lt-score-ring">
+          <div class="lt-score-inner">
+            <span class="lt-score-num">0</span>
+            <span class="lt-score-denom">/ 40</span>
+          </div>
+        </div>
+
+        <!-- Band + % chips -->
+        <div class="lt-band-row">
+          <div class="lt-band-chip">
+            <span class="val lt-band-val">0.0</span>
+            <span class="lbl">Band Score</span>
+          </div>
+          <div class="lt-band-chip">
+            <span class="val lt-pct-val">0%</span>
+            <span class="lbl">Score %</span>
+          </div>
+          <div class="lt-band-chip">
+            <span class="val lt-time-val">0m 0s</span>
+            <span class="lbl">Time Taken</span>
+          </div>
+        </div>
+
+        <div class="lt-score-actions">
+          <button class="lt-btn-exit" onclick="exitListeningTest()">Exit</button>
+          <button class="lt-btn-review" onclick="reviewListeningAnswers()">Review Answers</button>
+        </div>
+      </div>
+    </div>
+
     <script>
         // Initialize Lucide icons
         window.addEventListener('load', () => {
@@ -1086,6 +1113,16 @@
             }
             // Boot resize handle (must run after DOM is ready)
             if (window.initReadingResize) window.initReadingResize();
+
+            // Listening hub: filter tab click handlers
+            const filterTabs = document.querySelectorAll('#lhFilterTabs .lh-tab');
+            filterTabs.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    filterTabs.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    if (window.loadListeningTests) window.loadListeningTests(btn.dataset.cat);
+                });
+            });
         });
     </script>
 </body>
