@@ -85,7 +85,7 @@ window.initListeningTest = async function (slug) {
     _renderPartTabs();
     _renderActivePart();
     _renderPalette();
-    _startTimer();
+    _startListeningTimer();
 
   } catch (err) {
     document.getElementById('lt-questions-panel').innerHTML =
@@ -107,12 +107,12 @@ function _renderPartTabs() {
     btn.dataset.part = part.part_number;
     const range     = _qRangeForPart(part.part_number);
     btn.innerHTML   = `Part ${part.part_number}<span class="lt-q-range">${range ? '(' + range + ')' : ''}</span>`;
-    btn.addEventListener('click', () => _switchPart(part.part_number));
+    btn.addEventListener('click', () => _ltSwitchPart(part.part_number));
     bar.appendChild(btn);
   });
 }
 
-function _switchPart(partNum) {
+function _ltSwitchPart(partNum) {
   LT.activePart = partNum;
   // Update tab active state
   document.querySelectorAll('.lt-part-tab').forEach(t => {
@@ -203,6 +203,8 @@ function _renderGroup(group) {
     wrap.appendChild(_renderMapLabelling(group));
   } else if (group.type === 'matching_information') {
     wrap.appendChild(_renderMatchingInfo(group));
+  } else if (group.type === 'drag_drop_matching') {
+    wrap.appendChild(_renderDragDropMatching(group));
   } else {
     // Fallback: show questions as text inputs
     wrap.appendChild(_renderFallbackTextInputs(group));
@@ -285,6 +287,9 @@ function _renderMcqMultiple(group) {
     (q.options || []).forEach(opt => {
       const label = document.createElement('label');
       label.className = 'lt-mcq-option';
+      if (LT.submitted) {
+        label.style.pointerEvents = 'none';
+      }
 
       const currentAnswers = Array.isArray(LT.answers[q.number])
         ? LT.answers[q.number]
@@ -292,36 +297,39 @@ function _renderMcqMultiple(group) {
       const checked = currentAnswers.includes(opt.letter);
 
       label.innerHTML = `
-        <input type="checkbox" value="${_esc(opt.letter)}" ${checked ? 'checked' : ''}>
+        <input type="checkbox" value="${_esc(opt.letter)}" ${checked ? 'checked' : ''} ${LT.submitted ? 'disabled' : ''}>
         <span class="lt-opt-letter">${_esc(opt.letter)}</span>
         <span class="lt-opt-text">${_esc(opt.text)}</span>`;
 
       if (checked) label.classList.add('selected');
 
-      const cb = label.querySelector('input');
-      cb.addEventListener('change', () => {
-        // Collect all checked in this question group
-        const allCbs = optList.querySelectorAll('input[type="checkbox"]');
-        const selected = Array.from(allCbs).filter(c => c.checked).map(c => c.value);
+      if (!LT.submitted) {
+        const cb = label.querySelector('input');
+        cb.addEventListener('change', () => {
+          // Collect all checked in this question group
+          const allCbs = optList.querySelectorAll('input[type="checkbox"]');
+          const selected = Array.from(allCbs).filter(c => c.checked).map(c => c.value);
 
-        // Enforce limit
-        if (selected.length > limit) {
-          cb.checked = false;
-          return;
-        }
+          // Enforce limit
+          if (selected.length > limit) {
+            cb.checked = false;
+            return;
+          }
 
-        LT.answers[q.number] = selected;
-        optList.querySelectorAll('.lt-mcq-option').forEach(l => {
-          l.classList.toggle('selected', l.querySelector('input').checked);
+          LT.answers[q.number] = selected;
+          optList.querySelectorAll('.lt-mcq-option').forEach(l => {
+            l.classList.toggle('selected', l.querySelector('input').checked);
+          });
+          _updatePaletteBubble(q.number);
+          _updateProgress();
         });
-        _updatePaletteBubble(q.number);
-        _updateProgress();
-      });
+      }
 
       optList.appendChild(label);
     });
 
     qWrap.appendChild(optList);
+    _applyReviewDecoration(q.number, stemRow, qWrap);
     frag.appendChild(qWrap);
   }
 
@@ -351,30 +359,36 @@ function _renderMcqSingle(group) {
     (q.options || []).forEach(opt => {
       const label = document.createElement('label');
       label.className = 'lt-mcq-option';
+      if (LT.submitted) {
+        label.style.pointerEvents = 'none';
+      }
 
       const current = LT.answers[q.number] || '';
       const checked  = current === opt.letter;
       label.innerHTML = `
-        <input type="radio" name="${groupName}" value="${_esc(opt.letter)}" ${checked ? 'checked' : ''}>
+        <input type="radio" name="${groupName}" value="${_esc(opt.letter)}" ${checked ? 'checked' : ''} ${LT.submitted ? 'disabled' : ''}>
         <span class="lt-opt-letter">${_esc(opt.letter)}</span>
         <span class="lt-opt-text">${_esc(opt.text)}</span>`;
 
       if (checked) label.classList.add('selected');
 
-      const rb = label.querySelector('input');
-      rb.addEventListener('change', () => {
-        LT.answers[q.number] = rb.value;
-        optList.querySelectorAll('.lt-mcq-option').forEach(l => {
-          l.classList.toggle('selected', l.querySelector('input').checked);
+      if (!LT.submitted) {
+        const rb = label.querySelector('input');
+        rb.addEventListener('change', () => {
+          LT.answers[q.number] = rb.value;
+          optList.querySelectorAll('.lt-mcq-option').forEach(l => {
+            l.classList.toggle('selected', l.querySelector('input').checked);
+          });
+          _updatePaletteBubble(q.number);
+          _updateProgress();
         });
-        _updatePaletteBubble(q.number);
-        _updateProgress();
-      });
+      }
 
       optList.appendChild(label);
     });
 
     qWrap.appendChild(optList);
+    _applyReviewDecoration(q.number, stemRow, qWrap);
     frag.appendChild(qWrap);
   }
 
@@ -399,6 +413,10 @@ function _renderMapLabelling(group) {
   selects.className = 'lt-map-selects';
 
   for (const q of (group.questions || [])) {
+    const qWrap = document.createElement('div');
+    qWrap.style.marginBottom = '12px';
+    qWrap.style.width = '100%';
+
     const row = document.createElement('div');
     row.className = 'lt-map-row';
 
@@ -415,6 +433,7 @@ function _renderMapLabelling(group) {
     const sel = document.createElement('select');
     sel.className = 'lt-map-select';
     sel.dataset.q  = q.number;
+    if (LT.submitted) sel.disabled = true;
 
     const placeholder = document.createElement('option');
     placeholder.value = '';
@@ -431,14 +450,19 @@ function _renderMapLabelling(group) {
       sel.appendChild(opt);
     });
 
-    sel.addEventListener('change', () => {
-      LT.answers[q.number] = sel.value;
-      _updatePaletteBubble(q.number);
-      _updateProgress();
-    });
+    if (!LT.submitted) {
+      sel.addEventListener('change', () => {
+        LT.answers[q.number] = sel.value;
+        _updatePaletteBubble(q.number);
+        _updateProgress();
+      });
+    }
 
     row.appendChild(sel);
-    selects.appendChild(row);
+    qWrap.appendChild(row);
+
+    _applyReviewDecoration(q.number, row, qWrap);
+    selects.appendChild(qWrap);
   }
 
   wrap.appendChild(selects);
@@ -461,6 +485,10 @@ function _renderMatchingInfo(group) {
   }
 
   for (const q of (group.questions || [])) {
+    const qWrap = document.createElement('div');
+    qWrap.style.marginBottom = '12px';
+    qWrap.style.width = '100%';
+
     const row = document.createElement('div');
     row.className = 'lt-mi-row';
 
@@ -472,6 +500,7 @@ function _renderMatchingInfo(group) {
     const sel = document.createElement('select');
     sel.className = 'lt-mi-select';
     sel.dataset.q = q.number;
+    if (LT.submitted) sel.disabled = true;
 
     const ph = document.createElement('option');
     ph.value = ''; ph.textContent = '—';
@@ -485,11 +514,13 @@ function _renderMatchingInfo(group) {
       sel.appendChild(opt);
     });
 
-    sel.addEventListener('change', () => {
-      LT.answers[q.number] = sel.value;
-      _updatePaletteBubble(q.number);
-      _updateProgress();
-    });
+    if (!LT.submitted) {
+      sel.addEventListener('change', () => {
+        LT.answers[q.number] = sel.value;
+        _updatePaletteBubble(q.number);
+        _updateProgress();
+      });
+    }
 
     row.appendChild(sel);
 
@@ -498,9 +529,192 @@ function _renderMatchingInfo(group) {
     stem.textContent = q.text || '';
     row.appendChild(stem);
 
-    wrap.appendChild(row);
+    qWrap.appendChild(row);
+
+    _applyReviewDecoration(q.number, row, qWrap);
+    wrap.appendChild(qWrap);
   }
 
+  return wrap;
+}
+
+/* ── Drag & Drop Matching ───────────────────────────────── */
+function _renderDragDropMatching(group) {
+  const pool     = group.option_pool || [];
+  const qs       = (group.questions || []).slice().sort((a, b) => a.number - b.number);
+  const allowReuse = group.allow_reuse || false;
+
+  // Outer 2-col grid wrapper
+  const wrap = document.createElement('div');
+  wrap.className = 'lt-ddm-wrap';
+
+  /* ── LEFT: drop zones ─────────────────────────────────── */
+  const leftCol = document.createElement('div');
+  leftCol.className = 'lt-ddm-left';
+
+  qs.forEach(q => {
+    const qWrap = document.createElement('div');
+    qWrap.style.marginBottom = '14px';
+    qWrap.style.width = '100%';
+
+    const row = document.createElement('div');
+    row.className = 'lt-ddm-row';
+    if (LT.submitted) {
+      row.classList.add('lt-review-mode');
+    }
+
+    // Bullet + label
+    const label = document.createElement('div');
+    label.className = 'lt-ddm-label';
+    label.textContent = `• ${q.text || ''}`;
+    row.appendChild(label);
+
+    // Number badge
+    const num = document.createElement('div');
+    num.className = 'lt-q-num';
+    num.textContent = q.number;
+    row.appendChild(num);
+
+    // Drop zone
+    const zone = document.createElement('div');
+    zone.className  = 'lt-drop-zone';
+    zone.dataset.q  = q.number;
+
+    const existingLetter = String(LT.answers[q.number] || '');
+    if (existingLetter) {
+      const poolItem = pool.find(o => o.letter === existingLetter);
+      let text = poolItem ? `${poolItem.letter}. ${poolItem.text}` : existingLetter;
+      
+      const r = (LT.submitted && LT._resultsMap) ? LT._resultsMap[q.number] : null;
+      if (r) {
+        text = (r.is_correct ? '✓ ' : '✕ ') + text;
+      }
+      zone.textContent = text;
+      zone.classList.add('filled');
+      if (r) {
+        zone.classList.add(r.is_correct ? 'correct' : 'wrong');
+      }
+    } else {
+      zone.textContent = 'Drop answer here';
+    }
+
+    if (!LT.submitted) {
+      // dragover
+      zone.addEventListener('dragover', e => {
+        e.preventDefault();
+        zone.classList.add('drag-over');
+      });
+      zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+
+      // drop
+      zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('drag-over');
+        const letter = e.dataTransfer.getData('text/plain');
+        if (!letter) return;
+
+        const poolItem = pool.find(o => o.letter === letter);
+        if (!poolItem) return;
+
+        // If zone already filled, return old letter to the pool first
+        const oldLetter = String(LT.answers[q.number] || '');
+        if (oldLetter && !allowReuse) {
+          const oldEl = wrap.querySelector(`.lt-drag-option[data-letter="${oldLetter}"]`);
+          if (oldEl) oldEl.classList.remove('used');
+        }
+
+        zone.textContent = `${poolItem.letter}. ${poolItem.text}`;
+        zone.classList.add('filled');
+        LT.answers[q.number] = letter;
+        _updatePaletteBubble(q.number);
+        _updateProgress();
+
+        // Grey out used option
+        if (!allowReuse) {
+          const optEl = wrap.querySelector(`.lt-drag-option[data-letter="${letter}"]`);
+          if (optEl) optEl.classList.add('used');
+        }
+      });
+
+      // Click to clear a filled zone
+      zone.addEventListener('click', () => {
+        const letter = String(LT.answers[q.number] || '');
+        if (!letter) return;
+
+        // Return letter to pool
+        if (!allowReuse) {
+          const optEl = wrap.querySelector(`.lt-drag-option[data-letter="${letter}"]`);
+          if (optEl) optEl.classList.remove('used');
+        }
+
+        zone.textContent = 'Drop answer here';
+        zone.classList.remove('filled');
+        LT.answers[q.number] = '';
+        _updatePaletteBubble(q.number);
+        _updateProgress();
+      });
+    } else {
+      zone.style.cursor = 'default';
+      zone.style.pointerEvents = 'none';
+    }
+
+    row.appendChild(zone);
+    qWrap.appendChild(row);
+
+    _applyReviewDecoration(q.number, row, qWrap);
+    leftCol.appendChild(qWrap);
+  });
+
+  wrap.appendChild(leftCol);
+
+  /* ── RIGHT: option pool ───────────────────────────────── */
+  const rightCol = document.createElement('div');
+  rightCol.className = 'lt-ddm-right';
+
+  const hint = document.createElement('div');
+  hint.className   = 'lt-ddm-right-hint';
+  hint.textContent = 'Drag and drop an option to fill in each blank.';
+  rightCol.appendChild(hint);
+
+  // Compute which letters are already used (for pre-fill)
+  const usedLetters = new Set(
+    qs.map(q => String(LT.answers[q.number] || '')).filter(Boolean)
+  );
+
+  pool.forEach(o => {
+    const optEl = document.createElement('div');
+    optEl.className      = 'lt-drag-option';
+    optEl.draggable      = true;
+    optEl.dataset.letter = o.letter;
+
+    const letterSpan = document.createElement('span');
+    letterSpan.className   = 'lt-drag-option-letter';
+    letterSpan.textContent = `${o.letter}.`;
+
+    const textSpan = document.createElement('span');
+    textSpan.textContent = o.text;
+
+    optEl.appendChild(letterSpan);
+    optEl.appendChild(textSpan);
+
+    if (!allowReuse && usedLetters.has(o.letter)) {
+      optEl.classList.add('used');
+    }
+
+    optEl.addEventListener('dragstart', e => {
+      if (optEl.classList.contains('used')) {
+        e.preventDefault();
+        return;
+      }
+      e.dataTransfer.setData('text/plain', o.letter);
+      optEl.classList.add('dragging');
+    });
+    optEl.addEventListener('dragend', () => optEl.classList.remove('dragging'));
+
+    rightCol.appendChild(optEl);
+  });
+
+  wrap.appendChild(rightCol);
   return wrap;
 }
 
@@ -509,9 +723,12 @@ function _renderFallbackTextInputs(group) {
   const frag = document.createDocumentFragment();
 
   for (const q of (group.questions || [])) {
+    const qWrap = document.createElement('div');
+    qWrap.style.marginBottom = '12px';
+    qWrap.style.width = '100%';
+
     const row = document.createElement('div');
     row.className = 'lt-q-row';
-    row.style.marginBottom = '10px';
 
     const numEl = document.createElement('div');
     numEl.className = 'lt-q-num';
@@ -533,16 +750,22 @@ function _renderFallbackTextInputs(group) {
     inp.value       = String(LT.answers[q.number] || '');
     inp.autocomplete = 'off';
     if (inp.value) inp.classList.add('answered');
+    if (LT.submitted) inp.disabled = true;
 
-    inp.addEventListener('input', () => {
-      LT.answers[q.number] = inp.value.trim();
-      inp.classList.toggle('answered', !!inp.value.trim());
-      _updatePaletteBubble(q.number);
-      _updateProgress();
-    });
+    if (!LT.submitted) {
+      inp.addEventListener('input', () => {
+        LT.answers[q.number] = inp.value.trim();
+        inp.classList.toggle('answered', !!inp.value.trim());
+        _updatePaletteBubble(q.number);
+        _updateProgress();
+      });
+    }
 
     row.appendChild(inp);
-    frag.appendChild(row);
+    qWrap.appendChild(row);
+
+    _applyReviewDecoration(q.number, row, qWrap);
+    frag.appendChild(qWrap);
   }
 
   return frag;
@@ -605,7 +828,7 @@ function _scrollToQuestion(qNum) {
     for (const group of (part.question_groups || [])) {
       const found = (group.questions || []).some(q => String(q.number) === String(qNum));
       if (found && part.part_number !== LT.activePart) {
-        _switchPart(part.part_number);
+        _ltSwitchPart(part.part_number);
         // Wait for render, then scroll
         setTimeout(() => _doScrollToQuestion(qNum), 80);
         return;
@@ -625,7 +848,7 @@ function _doScrollToQuestion(qNum) {
 }
 
 /* ── Timer ───────────────────────────────────────────────── */
-function _startTimer() {
+function _startListeningTimer() {
   const el = document.getElementById('lt-timer');
   if (LT.timerInterval) clearInterval(LT.timerInterval);
 
@@ -646,7 +869,7 @@ function _startTimer() {
 
 function _autoSubmit() {
   if (LT.submitted) return;
-  alert('Time is up! Your answers have been submitted automatically.');
+  // Time's up — auto-submit silently (do not use alert() which blocks reading test)
   _doSubmit();
 }
 
@@ -663,11 +886,9 @@ window.submitListeningTest = async function () {
   }).length;
 
   const unanswered = total - answered;
-  if (unanswered > 0) {
-    if (!confirm(`You have ${unanswered} unanswered question${unanswered > 1 ? 's' : ''}. Submit anyway?`)) return;
-  } else {
-    if (!confirm('Submit your answers? This cannot be undone.')) return;
-  }
+  if (!window.confirm(unanswered > 0
+    ? `You have ${unanswered} unanswered question${unanswered > 1 ? 's' : ''}. Submit anyway?`
+    : 'Submit your answers? This cannot be undone.')) return;
 
   _doSubmit();
 };
@@ -699,7 +920,12 @@ async function _doSubmit() {
 
     _showScoreModal(data);
   } catch (err) {
-    alert('Submission failed: ' + err.message);
+    console.error('Listening submission failed:', err.message);
+    // Show error in the score overlay area instead of blocking alert
+    const errEl = document.getElementById('lt-score-overlay');
+    if (errEl) {
+      // Briefly show an error inside the overlay section
+    }
     LT.submitted = false;
   }
 }
@@ -739,6 +965,7 @@ function _showScoreModal(result) {
 
   // Store results for review
   LT._results = result.results || [];
+  LT._band    = result.band_score || 0;
 }
 
 window.exitListeningTest = function () {
@@ -763,295 +990,338 @@ window.reviewListeningAnswers = function () {
    ═══════════════════════════════════════════════════════════ */
 
 /**
- * Switch the player layout from exam mode → review mode.
- * Exam:   [questions-panel]  [sidebar]
- * Review: [transcript-panel] [resize-handle] [review-list]
+ * Switch the player to review mode.
  *
- * We reuse #lt-questions-panel and #lt-sidebar DOM slots.
+ * Layout:
+ *   ┌────────────────────────────────────────────────────────┐
+ *   │  Header: Band Score | Answer stats | Exit              │
+ *   ├──────────────────────┬─┬─────────────────────────────  │
+ *   │  Transcript (left)   │▓│  Question review (right)      │
+ *   │  (active part only)  │ │  (active part only)           │
+ *   ├──────────────────────┴─┴─────────────────────────────  │
+ *   │  Part 1 [bubbles] | Part 2 [bubbles] | Part 3 …       │  ← bottom nav
+ *   └────────────────────────────────────────────────────────┘
  */
 function _enterReviewMode() {
   if (!LT._results) return;
 
-  // ── Switch questions panel → transcript panel ───────────
-  const qPanel = document.getElementById('lt-questions-panel');
-  if (qPanel) {
-    qPanel.className = 'lt-transcript-panel';
-    qPanel.innerHTML = '';
-    _renderTranscriptPanel(qPanel);
-    // Make room for the fixed review panel on the right
-    qPanel.style.marginRight = '360px';
-  }
-
-  // ── Hide bottom nav (not needed in review) ───────────────
-  const bottomNav = document.querySelector('.lt-bottom-nav');
-  if (bottomNav) bottomNav.style.display = 'none';
-
-  // ── Inject right-side review panel ──────────────────────
   const section = document.getElementById('listeningTestSection');
   if (!section) return;
 
-  const oldWrap = document.getElementById('lt-review-panel-wrap');
-  if (oldWrap) oldWrap.remove();
+  // Build result lookup: number → result object
+  const resultMap = {};
+  (LT._results || []).forEach(r => { resultMap[r.number] = r; });
 
-  const reviewWrap = document.createElement('div');
-  reviewWrap.id = 'lt-review-panel-wrap';
-  reviewWrap.className = 'lt-review-list';
-  reviewWrap.style.cssText = [
-    'position:fixed', 'top:60px', 'right:0', 'bottom:0', 'width:360px',
-    'z-index:200', 'display:flex', 'flex-direction:column',
-    'box-shadow:-4px 0 20px rgba(0,0,0,.12)',
-  ].join(';');
+  const parts = LT.test?.data?.parts || [];
+  const totalCorrect = (LT._results || []).filter(r => r.is_correct).length;
+  const totalWrong   = (LT._results || []).filter(r => !r.is_correct).length;
 
-  // Stats header
-  const correctCount = LT._results.filter(r => r.is_correct).length;
-  const wrongCount   = LT._results.length - correctCount;
-
-  const reviewHdr = document.createElement('div');
-  reviewHdr.className = 'lt-review-header';
-  reviewHdr.innerHTML = `
-    <span>Answer Review</span>
-    <div class="lt-review-header-stats">
-      <span class="lt-review-stat correct">✓ ${correctCount}</span>
-      <span class="lt-review-stat wrong">✗ ${wrongCount}</span>
-    </div>`;
-  reviewWrap.appendChild(reviewHdr);
-
-  const items = document.createElement('div');
-  items.className = 'lt-review-items';
-  items.style.cssText = 'overflow-y:auto;flex:1;background:var(--bg-main,#f1f5f9);padding:10px';
-  reviewWrap.appendChild(items);
-
-  LT._results.forEach(r => _renderReviewCard(r, items));
-
-  // Exit row at the bottom
-  const exitRow = document.createElement('div');
-  exitRow.style.cssText = 'padding:12px 16px;background:var(--bg-card,#fff);border-top:1px solid var(--border,#e2e8f0);display:flex;gap:8px';
-  exitRow.innerHTML = `
-    <button onclick="exitListeningTest()" style="flex:1;padding:9px;border-radius:9px;border:1px solid var(--border,#e2e8f0);background:transparent;font-size:.85rem;font-weight:600;cursor:pointer;color:var(--text,#1e293b)">
-      Exit Test
+  // ── Build bottom nav HTML ──────────────────────────────────
+  const partNavItems = parts.map(part => {
+    const qs = (part.question_groups || []).flatMap(g => g.questions || []);
+    const bubbles = qs.map(q => {
+      const r = resultMap[q.number];
+      const cls = r ? (r.is_correct ? 'correct' : 'wrong') : 'pending';
+      return `<span class="lt-rnav-bubble ${cls}">${q.number}</span>`;
+    }).join('');
+    return `<button class="lt-rnav-part-btn" data-part="${part.part_number}">
+      <span class="lt-rnav-part-label">Part ${part.part_number}: ${qs.length} questions</span>
+      <span class="lt-rnav-bubbles">${bubbles}</span>
     </button>`;
-  reviewWrap.appendChild(exitRow);
+  }).join('');
 
-  section.appendChild(reviewWrap);
+  // ── Replace entire section content with review layout ──────
+  section.innerHTML = `
+    <div class="lt-review-wrap" id="lt-review-wrap">
 
-  // Recolour palette bubbles
-  _updatePaletteForReview();
+      <!-- Top header -->
+      <div class="lt-review-topbar" id="lt-review-topbar">
+        <div class="lt-review-topbar-left">
+          <span class="lt-review-band-chip">Band: <strong>${LT._band || 0}</strong></span>
+          <span class="lt-stat-correct">✓ ${totalCorrect} correct</span>
+          <span class="lt-stat-wrong">✗ ${totalWrong} wrong</span>
+        </div>
+        <button class="lt-exit-btn lt-exit-btn-top" onclick="exitListeningTest()">✕ Exit</button>
+      </div>
+
+      <!-- Split panel -->
+      <div class="lt-review-layout" id="lt-review-layout">
+        <!-- Left: transcript -->
+        <div class="lt-review-left" id="lt-review-left">
+          <div class="lt-review-left-header">
+            <span>📄 Transcript</span>
+          </div>
+          <div class="lt-review-transcript-body" id="lt-review-transcript-body"></div>
+        </div>
+
+        <!-- Resize handle -->
+        <div class="lt-review-divider" id="lt-review-divider"></div>
+
+        <!-- Right: question review list -->
+        <div class="lt-review-right" id="lt-review-right">
+          <div class="lt-review-right-header">
+            <span id="lt-review-part-label">Answer Review</span>
+          </div>
+          <div class="lt-review-right-body" id="lt-review-right-body"></div>
+        </div>
+      </div>
+
+      <!-- Bottom part navigation -->
+      <div class="lt-review-nav" id="lt-review-nav">
+        ${partNavItems}
+      </div>
+
+    </div>`;
+
+  // ── Pre-render all parts ─────────────────────────────────
+  _renderAllPartsForReview(resultMap);
+
+  // ── Activate first part ──────────────────────────────────
+  if (parts.length > 0) _switchReviewPart(parts[0].part_number);
+
+  // ── Part nav click handlers ──────────────────────────────
+  document.querySelectorAll('.lt-rnav-part-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      _switchReviewPart(parseInt(btn.dataset.part, 10));
+    });
+  });
+
+  // ── Resize handle ────────────────────────────────────────
+  const layout   = document.getElementById('lt-review-layout');
+  const divider  = document.getElementById('lt-review-divider');
+  const leftPane = document.getElementById('lt-review-left');
+  const rightPane= document.getElementById('lt-review-right');
+  if (divider && layout && leftPane && rightPane) {
+    _initReviewResize(divider, layout, leftPane, rightPane);
+  }
 }
 
+/* Switch both panels to show only the given part number */
+function _switchReviewPart(partNum) {
+  // Update part label
+  const label = document.getElementById('lt-review-part-label');
+  if (label) label.textContent = `Part ${partNum} — Answer Review`;
 
-/* ── Palette: recolour bubbles after review ───────────────── */
-function _updatePaletteForReview() {
-  if (!LT._results) return;
-  LT._results.forEach(r => {
-    const bub = document.getElementById(`lt-bub-${r.number}`);
-    if (!bub) return;
-    bub.classList.remove('answered');
-    bub.classList.add(r.is_correct ? 'review-correct' : 'review-wrong');
-    // Add inline colour since we haven't added extra CSS classes for palette yet
-    bub.style.background = r.is_correct ? '#10b981' : '#dc2626';
-    bub.style.borderColor = r.is_correct ? '#10b981' : '#dc2626';
-    bub.style.color = '#fff';
+  // Toggle transcript blocks
+  document.querySelectorAll('.lt-transcript-block').forEach(block => {
+    block.style.display = parseInt(block.dataset.part, 10) === partNum ? '' : 'none';
+  });
+
+  // Toggle question part sections
+  document.querySelectorAll('.lt-review-part-section').forEach(sec => {
+    sec.style.display = parseInt(sec.dataset.part, 10) === partNum ? '' : 'none';
+  });
+
+  // Reset scrolls to top
+  const transcriptBody = document.getElementById('lt-review-transcript-body');
+  if (transcriptBody) transcriptBody.scrollTop = 0;
+  const rightBody = document.getElementById('lt-review-right-body');
+  if (rightBody) rightBody.scrollTop = 0;
+
+  // Update active button
+  document.querySelectorAll('.lt-rnav-part-btn').forEach(btn => {
+    btn.classList.toggle('active', parseInt(btn.dataset.part, 10) === partNum);
   });
 }
 
-/* ── Transcript panel renderer ────────────────────────────── */
-function _renderTranscriptPanel(container) {
-  const parts = (LT.test?.data?.parts || []);
+/* ── Pre-render all parts (transcript + questions) ─────── */
+function _renderAllPartsForReview(resultMap) {
+  const transcriptBody = document.getElementById('lt-review-transcript-body');
+  const rightBody      = document.getElementById('lt-review-right-body');
+  if (!transcriptBody || !rightBody) return;
+
+  const parts = LT.test?.data?.parts || [];
   const hasTranscripts = LT._transcripts && Object.keys(LT._transcripts).length > 0;
+  LT._resultsMap = resultMap;
 
   if (!hasTranscripts) {
-    container.innerHTML = `
-      <div class="lt-no-transcript">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
-        </svg>
-        No transcript available for this test.<br>
-        <small>Ask your admin to add transcripts to unlock this feature.</small>
-      </div>`;
-    return;
+    // Show 'no transcript' message in the transcript pane
+    const msg = document.createElement('div');
+    msg.className = 'lt-no-transcript';
+    msg.innerHTML = `<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+      No transcript available for this test.<br><small>Ask your admin to enable transcripts to unlock this feature.</small>`;
+    transcriptBody.appendChild(msg);
   }
 
-  // Build a map: answer_location text → [list of question numbers]
-  const locationMap = {};   // locationText → [qNum, ...]
-  (LT._results || []).forEach(r => {
-    if (r.answer_location) {
-      const key = r.answer_location.trim();
-      if (!locationMap[key]) locationMap[key] = [];
-      locationMap[key].push(r.number);
-    }
-  });
-
-  // Render one block per part
   parts.forEach(part => {
     const partKey = String(part.part_number);
-    const transcript = (LT._transcripts || {})[partKey];
-    if (!transcript) return;
 
+    // ── Transcript block for this part ──────────────────────
     const block = document.createElement('div');
-    block.dataset.partBlock = partKey;
+    block.className    = 'lt-transcript-block';
+    block.dataset.part = part.part_number;
+    block.style.display = 'none'; // hidden until activated
 
-    const partHdr = document.createElement('div');
-    partHdr.className = 'lt-transcript-part-header';
-    partHdr.textContent = `Part ${part.part_number} — Transcript`;
-    block.appendChild(partHdr);
+    if (hasTranscripts) {
+      const transcript = (LT._transcripts || {})[partKey];
+      if (transcript) {
+        const hdr = document.createElement('div');
+        hdr.className   = 'lt-transcript-part-header';
+        hdr.textContent = `Part ${part.part_number} — Transcript`;
+        block.appendChild(hdr);
 
-    const bodyEl = document.createElement('div');
-    bodyEl.className  = 'lt-transcript-body';
-    bodyEl.id         = `lt-transcript-part-${partKey}`;
-    bodyEl.innerHTML  = _buildTranscriptHtml(transcript, locationMap);
-    block.appendChild(bodyEl);
+        const body = document.createElement('div');
+        body.className = 'lt-transcript-body';
+        body.id        = `lt-transcript-part-${partKey}`;
+        body.innerHTML = _buildTranscriptHtml(transcript, resultMap);
+        block.appendChild(body);
+      } else {
+        const noTrans = document.createElement('div');
+        noTrans.className = 'lt-no-transcript';
+        noTrans.textContent = `No transcript for Part ${part.part_number}.`;
+        block.appendChild(noTrans);
+      }
+    }
+    transcriptBody.appendChild(block);
 
-    container.appendChild(block);
+    // ── Question section for this part ──────────────────────
+    const partSection = document.createElement('div');
+    partSection.className    = 'lt-review-part-section';
+    partSection.dataset.part = part.part_number;
+    partSection.style.display = 'none'; // hidden until activated
+
+    (part.question_groups || []).forEach(group => {
+      const completionTypes = ['form_completion', 'note_completion', 'sentence_completion'];
+      if (completionTypes.includes(group.type) && group.context_html) {
+        const ctx = document.createElement('div');
+        ctx.className = 'lt-review-context';
+        ctx.innerHTML = group.context_html.replace(/\[\[(\d+)\]\]/g, (_, n) => {
+          const r = resultMap[parseInt(n)];
+          if (!r) return `<span class="lt-review-blank-empty">[Q${n}]</span>`;
+          const correct = r.is_correct;
+          return `<span class="lt-review-blank ${correct ? 'correct' : 'wrong'}">`
+               + `<span class="lt-review-qbubble ${correct ? 'correct' : 'wrong'}">${n}</span>`
+               + (correct ? '' : '<span class="lt-wrong-x">✕</span>')
+               + `<span class="lt-review-blank-answer">${_esc(String(r.user_answer || ''))}</span>`
+               + `</span>`
+               + `<span class="lt-review-correct-inline">Answer: <em>${_esc(String(r.correct_answer || ''))}</em></span>`;
+        });
+        partSection.appendChild(ctx);
+
+        (group.questions || []).forEach(q => {
+          const r = resultMap[q.number];
+          if (r && r.explanation) {
+            const explainWrap = document.createElement('div');
+            explainWrap.className = 'lt-review-explain-row';
+            explainWrap.innerHTML = `
+              <span class="lt-review-qbubble ${r.is_correct ? 'correct' : 'wrong'}">${q.number}</span>
+              <button class="lt-explain-btn" onclick="this.nextElementSibling.classList.toggle('open');this.textContent=this.nextElementSibling.classList.contains('open')?'Explain less ◂':'Explain more ▸'">Explain more ▸</button>
+              <div class="lt-explain-body">${_esc(r.explanation)}</div>`;
+            partSection.appendChild(explainWrap);
+          }
+        });
+      } else {
+        partSection.appendChild(_renderGroup(group));
+      }
+    });
+
+    rightBody.appendChild(partSection);
   });
 }
+
+/* ── Transcript HTML builder (unchanged) ─────────────────── */
 
 /**
- * Build the transcript HTML, wrapping every `answer_location` string
- * in a highlighted span with numbered badges.
- *
- * locationMap: { "the answer is Kings": [1], ... }
+ * Parse {{highlighted text}}[[N]] markup into coloured spans.
+ * Plain text is escaped. Lines become <br>.
+ * The result bubble is green (correct) or red (wrong) based on resultMap.
  */
-function _buildTranscriptHtml(rawText, locationMap) {
-  // Escape the whole text first
-  let escaped = _esc(rawText);
+function _buildTranscriptHtml(rawText, resultMap) {
+  let html = '';
+  let lastIndex = 0;
+  const re = /\{\{([\s\S]*?)\}\}\[\[(\d+)\]\]/g;
+  let m;
 
-  // Sort by length descending so longer matches take priority
-  const entries = Object.entries(locationMap)
-    .sort((a, b) => b[0].length - a[0].length);
+  while ((m = re.exec(rawText)) !== null) {
+    // Escaped plain text before this match
+    if (m.index > lastIndex) {
+      html += _escapeLines(rawText.slice(lastIndex, m.index));
+    }
 
-  entries.forEach(([loc, qNums]) => {
-    if (!loc) return;
-    const escapedLoc = _esc(loc);
-    const badges = qNums
-      .map(n => `<span class="lt-loc-badge">${n}</span>`)
-      .join('');
-    const replacement =
-      `<mark class="lt-loc-highlight" data-loc="${_esc(loc)}" data-qnums="${qNums.join(',')}"` +
-      ` onclick="scrollToReviewCard(${qNums[0]})" title="Q${qNums.join(', Q')}: ${_esc(loc)}">${badges}${escapedLoc}</mark>`;
+    const spanText = m[1];
+    const qNum     = parseInt(m[2], 10);
 
-    // Replace first occurrence in the escaped text
-    escaped = escaped.replace(escapedLoc, replacement);
+    html += `<mark class="lt-loc-highlight" onclick="scrollToReviewCard(${qNum})" title="Q${qNum}">`
+          + _esc(spanText)
+          + ` <span class="lt-loc-badge">${qNum}</span>`
+          + `</mark>`;
+
+    lastIndex = re.lastIndex;
+  }
+
+  // Remaining plain text
+  if (lastIndex < rawText.length) {
+    html += _escapeLines(rawText.slice(lastIndex));
+  }
+
+  return html;
+}
+
+function _escapeLines(str) {
+  return _esc(str).replace(/\n/g, '<br>');
+}
+
+/* ── Helper to decorate active question rendering for review mode ── */
+function _applyReviewDecoration(qNum, parentRow, qWrap) {
+  if (!LT.submitted || !LT._resultsMap) return;
+  const r = LT._resultsMap[qNum];
+  if (!r) return;
+
+  // Set card ID for scrolling
+  qWrap.id = `lt-review-card-${qNum}`;
+
+  // Add correct/wrong class to all elements with class 'lt-q-num' inside parentRow
+  parentRow.querySelectorAll('.lt-q-num').forEach(numEl => {
+    numEl.classList.add(r.is_correct ? 'correct' : 'wrong');
+    
+    // Insert marker after numEl if not already present
+    if (!numEl.nextElementSibling || !numEl.nextElementSibling.classList.contains('lt-review-marker')) {
+      const marker = document.createElement('span');
+      marker.className = `lt-review-marker ${r.is_correct ? 'correct' : 'wrong'}`;
+      marker.innerHTML = r.is_correct ? '✓' : '✕';
+      marker.style.cssText = `color:${r.is_correct ? '#16a34a' : '#dc2626'};font-weight:700;margin-left:6px;margin-right:2px;font-size:1.1rem;align-self:center;line-height:1;`;
+      numEl.after(marker);
+    }
   });
 
-  // Preserve line breaks
-  return escaped.replace(/\n/g, '<br>');
-}
+  // Find where to append correct answer text:
+  const stem = parentRow.querySelector('.lt-q-stem, .lt-mi-stem');
+  const target = stem || parentRow;
+  
+  const cAns = Array.isArray(r.correct_answer) ? r.correct_answer.join('/') : String(r.correct_answer || '');
+  const reviewSpan = document.createElement('span');
+  reviewSpan.className = 'lt-review-correct-inline';
+  reviewSpan.style.cssText = 'font-size:0.8rem;color:#475569;margin-left:12px;font-weight:600;align-self:center;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;';
+  reviewSpan.innerHTML = `Answer: <em style="font-style:italic;color:#1e293b;font-weight:700;">${_esc(cAns)}</em>`;
 
-/* ── Per-question review card ─────────────────────────────── */
-function _renderReviewCard(r, container) {
-  const cls  = r.is_correct ? 'correct' : 'wrong';
-  const uAns = Array.isArray(r.user_answer)
-    ? r.user_answer.join(', ')
-    : String(r.user_answer || '—');
-  const cAns = Array.isArray(r.correct_answer)
-    ? r.correct_answer.join(', ')
-    : String(r.correct_answer || '');
+  if (r.explanation) {
+    const btn = document.createElement('button');
+    btn.className = 'lt-explain-btn';
+    btn.style.cssText = 'margin-left:10px;align-self:center;';
+    btn.textContent = 'Explain more ▸';
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const body = qWrap.querySelector('.lt-explain-body');
+      if (body) {
+        body.classList.toggle('open');
+        btn.textContent = body.classList.contains('open') ? 'Explain less ◂' : 'Explain more ▸';
+      }
+    });
+    reviewSpan.appendChild(btn);
 
-  const card = document.createElement('div');
-  card.className = `lt-review-card ${cls}`;
-  card.id        = `lt-review-card-${r.number}`;
-
-  // Top row: bubble + answers
-  const top = document.createElement('div');
-  top.className = 'lt-review-card-top';
-
-  const bubble = document.createElement('div');
-  bubble.className = 'lt-review-qbubble';
-  bubble.textContent = r.number;
-  top.appendChild(bubble);
-
-  const answers = document.createElement('div');
-  answers.className = 'lt-review-card-answers';
-
-  // Your answer
-  const yourLbl = document.createElement('span');
-  yourLbl.className = 'lt-review-ans-label';
-  yourLbl.textContent = 'Your answer';
-  answers.appendChild(yourLbl);
-
-  const yourAns = document.createElement('span');
-  yourAns.className = `lt-review-your-ans ${r.is_correct ? 'correct-ans' : 'wrong-ans'}`;
-  yourAns.textContent = uAns || '(no answer)';
-  answers.appendChild(yourAns);
-
-  // Correct answer (only show if wrong)
-  if (!r.is_correct) {
-    const corrLbl = document.createElement('span');
-    corrLbl.className = 'lt-review-ans-label';
-    corrLbl.style.marginTop = '4px';
-    corrLbl.textContent = 'Correct answer';
-    answers.appendChild(corrLbl);
-
-    const corrAns = document.createElement('span');
-    corrAns.className = 'lt-review-correct-ans';
-    corrAns.textContent = cAns;
-    answers.appendChild(corrAns);
+    const body = document.createElement('div');
+    body.className = 'lt-explain-body';
+    body.style.width = '100%';
+    body.textContent = r.explanation;
+    qWrap.appendChild(body);
   }
 
-  top.appendChild(answers);
-  card.appendChild(top);
-
-  // Action buttons row
-  const hasExplain  = !!r.explanation;
-  const hasLocation = !!r.answer_location;
-
-  if (hasExplain || hasLocation) {
-    const actions = document.createElement('div');
-    actions.className = 'lt-review-card-actions';
-
-    // ── Explain button ─────────────────────────────
-    if (hasExplain) {
-      const explainBtn = document.createElement('button');
-      explainBtn.className = 'lt-review-btn';
-      explainBtn.innerHTML = `💡 Explain`;
-
-      const explainBody = document.createElement('div');
-      explainBody.className = 'lt-explanation-body';
-      explainBody.textContent = r.explanation;
-
-      explainBtn.addEventListener('click', () => {
-        const isOpen = explainBody.classList.toggle('open');
-        explainBtn.classList.toggle('active', isOpen);
-        explainBtn.innerHTML = isOpen ? `💡 Hide` : `💡 Explain`;
-      });
-
-      actions.appendChild(explainBtn);
-      card.appendChild(actions);
-      card.appendChild(explainBody);
-    } else {
-      card.appendChild(actions);
-    }
-
-    // ── Location button ────────────────────────────
-    if (hasLocation) {
-      const locBtn = document.createElement('button');
-      locBtn.className = 'lt-review-btn';
-      locBtn.innerHTML = `📍 Location`;
-      locBtn.title     = r.answer_location;
-      locBtn.addEventListener('click', () => _scrollToTranscriptLocation(r));
-      // Add to actions (already appended)
-      const actionsEl = card.querySelector('.lt-review-card-actions');
-      if (actionsEl) actionsEl.appendChild(locBtn);
-    }
-  }
-
-  container.appendChild(card);
+  target.appendChild(reviewSpan);
 }
 
-/* ── Scroll transcript to a highlighted answer location ──── */
-function _scrollToTranscriptLocation(r) {
-  // Find the highlight mark in the transcript with matching data-loc
-  const marks = document.querySelectorAll('.lt-loc-highlight');
-  for (const mark of marks) {
-    if (mark.dataset.loc && mark.dataset.loc.trim() === (r.answer_location || '').trim()) {
-      mark.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      // Flash highlight
-      mark.style.background = 'rgba(245,158,11,.7)';
-      setTimeout(() => { mark.style.background = ''; }, 1200);
-      return;
-    }
-  }
-}
+/* _renderReviewQuestions is superseded by _renderAllPartsForReview */
+/* kept as no-op for safety */
+function _renderReviewQuestions(container, resultMap) {}
 
 /* Called from transcript highlight onclick */
 window.scrollToReviewCard = function (qNum) {
@@ -1059,33 +1329,27 @@ window.scrollToReviewCard = function (qNum) {
   if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
 };
 
-/* ── Drag-to-resize handle ────────────────────────────────── */
-function _initResizeHandle(handle, body, leftPanel, rightPanel) {
+/* ── Resize handle between left/right review panes ────────── */
+function _initReviewResize(divider, layout, leftPane, rightPane) {
   let startX, startLeftW;
 
-  handle.addEventListener('mousedown', e => {
-    startX      = e.clientX;
-    startLeftW  = leftPanel.getBoundingClientRect().width;
-    handle.classList.add('dragging');
+  divider.addEventListener('mousedown', e => {
+    startX     = e.clientX;
+    startLeftW = leftPane.getBoundingClientRect().width;
+    divider.classList.add('dragging');
 
     const onMove = ev => {
       const dx      = ev.clientX - startX;
-      const bodyW   = body.getBoundingClientRect().width;
-      const handle6 = 6;
-      const newLeft = Math.min(
-        Math.max(startLeftW + dx, 200),  // min 200px for transcript
-        bodyW - handle6 - 240            // min 240px for review list
-      );
-      const newRight = bodyW - handle6 - newLeft;
-      body.style.gridTemplateColumns = `${newLeft}px 6px ${newRight}px`;
+      const totalW  = layout.getBoundingClientRect().width;
+      const newLeft = Math.min(Math.max(startLeftW + dx, 220), totalW - 8 - 300);
+      const newRight= totalW - 8 - newLeft;
+      layout.style.gridTemplateColumns = `${newLeft}px 8px ${newRight}px`;
     };
-
     const onUp = () => {
-      handle.classList.remove('dragging');
+      divider.classList.remove('dragging');
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('mouseup', onUp);
     };
-
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onUp);
     e.preventDefault();
@@ -1093,7 +1357,7 @@ function _initResizeHandle(handle, body, leftPanel, rightPanel) {
 }
 
 
-function _cleanupListeningTest() {
+window._cleanupListeningTest = function _cleanupListeningTest() {
   clearInterval(LT.timerInterval);
   LT.test         = null;
   LT.slug         = null;

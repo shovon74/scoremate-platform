@@ -37,6 +37,7 @@ window.showSection = function (sectionId, updateState = true) {
     const task2GeneratorSection = document.getElementById('task2GeneratorSection');
     const task1GeneratorSection = document.getElementById('task1GeneratorSection');
     const readingTestSection = document.getElementById('readingTestSection');
+    const listeningTestSection = document.getElementById('listeningTestSection');
 
 
     // Hide all sections first
@@ -55,6 +56,11 @@ window.showSection = function (sectionId, updateState = true) {
     if (readingHubSection) readingHubSection.style.display = 'none';
     // Reading test uses class toggle instead of display (it's fixed-position)
     if (readingTestSection) readingTestSection.classList.remove('reading-active');
+    // Listening test: hide section AND stop its background timer
+    if (listeningTestSection) listeningTestSection.classList.remove('lt-active');
+    if (sectionId !== 'listening_test' && window._cleanupListeningTest) {
+        window._cleanupListeningTest();
+    }
 
 
     // Show requested section
@@ -269,32 +275,37 @@ window.showSection = function (sectionId, updateState = true) {
             }
         }
     } else if (sectionId === 'listening') {
-        const listeningSection = document.getElementById('listeningSection');
-        const listState = document.getElementById('listeningListState');
-        const playerState = document.getElementById('listeningPlayerState');
-
-        if (listeningSection) {
-            listeningSection.style.display = 'block';
-            // Default to list view
-            if (listState) listState.style.display = 'block';
-            if (playerState) playerState.style.display = 'none';
-
-            // Load tests if empty
-            const listContainer = document.getElementById('listeningTestsList');
-            if (listContainer && listContainer.children.length <= 1) { // 1 because of loading spinner
-                loadListeningTests();
-            }
-
+        // ── Listening Tests Hub ───────────────────────────────────────
+        const lSection = document.getElementById('listeningSection');
+        if (lSection) {
+            lSection.style.display = 'block';
             window.scrollTo({ top: 0, behavior: 'smooth' });
+            // Load tests list
+            if (window.loadListeningTests) window.loadListeningTests('all');
         }
         if (updateState) {
             try {
-                history.pushState({ section: sectionId }, '', '#' + sectionId);
+                history.pushState({ section: sectionId }, '', '#listening');
             } catch (e) {
                 console.warn('History pushState failed:', e);
-                window.location.hash = sectionId;
+                window.location.hash = 'listening';
             }
         }
+    } else if (sectionId === 'listening_test') {
+        // ── Listening Test Player ────────────────────────────────
+        const slug = arguments[2] || null;
+        const ltSection = document.getElementById('listeningTestSection');
+        if (ltSection) ltSection.classList.add('lt-active');
+        if (updateState) {
+            try {
+                history.pushState({ section: 'listening_test', slug }, '', slug ? `#listening-test/${slug}` : '#listening-test');
+            } catch (e) {
+                console.warn('History pushState failed:', e);
+            }
+        }
+        // Boot the listening renderer
+        if (window.initListeningTest && slug) window.initListeningTest(slug);
+
     } else if (sectionId === 'task2_generator') {
         const task2GeneratorSection = document.getElementById('task2GeneratorSection');
         if (task2GeneratorSection) {
@@ -312,7 +323,10 @@ window.showSection = function (sectionId, updateState = true) {
     } else if (sectionId === 'reading_hub') {
         // ── Reading Tests Hub (student listing) ───────────────
         const rhSection = document.getElementById('readingHubSection');
-        if (rhSection) rhSection.style.display = 'block';
+        if (rhSection) {
+            rhSection.style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
         if (updateState) {
             try {
                 history.pushState({ section: 'reading_hub' }, '', '#reading_hub');
@@ -367,9 +381,19 @@ window.addEventListener('popstate', (event) => {
 });
 
 // Check URL on initial load and handle hashes
-window.addEventListener('load', () => {
-    const hash = window.location.hash.replace('#', '');
-    if (hash === 'task2') {
+function handleHashRoute(hash) {
+    if (!hash) {
+        showSection('landing', false);
+        return;
+    }
+    
+    if (hash.startsWith('reading-test/')) {
+        const slug = hash.split('/')[1];
+        showSection('reading_test', false, slug);
+    } else if (hash.startsWith('listening-test/')) {
+        const slug = hash.split('/')[1];
+        showSection('listening_test', false, slug);
+    } else if (hash === 'task2') {
         showSection('task2', false);
     } else if (hash === 'calculators') {
         showSection('calculators', false);
@@ -389,10 +413,21 @@ window.addEventListener('load', () => {
         showSection('listening', false);
     } else if (hash === 'reading_hub') {
         showSection('reading_hub', false);
+    } else if (hash === 'landing') {
+        showSection('landing', false);
     } else {
-        // Ensure landing is shown if no hash
         showSection('landing', false);
     }
+}
+
+window.addEventListener('load', () => {
+    const hash = window.location.hash.replace('#', '');
+    handleHashRoute(hash);
+});
+
+window.addEventListener('hashchange', () => {
+    const hash = window.location.hash.replace('#', '');
+    handleHashRoute(hash);
 });
 
 
@@ -409,13 +444,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentTheme = localStorage.getItem('sm-theme') || 'light';
     htmlElement.setAttribute('data-theme', currentTheme);
 
-    themeToggle.addEventListener('click', () => {
-        const currentTheme = htmlElement.getAttribute('data-theme');
-        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = htmlElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
 
-        htmlElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('sm-theme', newTheme);
-    });
+            htmlElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('sm-theme', newTheme);
+        });
+    }
 
     // Timer state
     let timerInterval;
@@ -1539,11 +1576,12 @@ async function loadReadingTests(category = 'all') {
         const res  = await fetch(url);
         const json = await res.json();
 
-        loading.style.display = 'none';
-        const tests = json.tests || [];
+        if (loading) loading.style.display = 'none';
+
+        const tests = (json && json.tests) ? json.tests : [];
 
         if (!tests.length) {
-            empty.style.display = 'block';
+            if (empty) empty.style.display = 'block';
             return;
         }
 

@@ -1,0 +1,275 @@
+/* Navbar Styles */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 72px;
+    background: rgba(var(--bg-card-rgb, 255, 255, 255), 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+}
+
+.nav-container {
+    max-width: 1536px; /* Wider container size for modern layouts */
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 24px; /* Reduced from 40px to make cornered content more cornered */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 60px; /* Increased gap to space out logo and links */
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--text-primary);
+    font-weight: 700;
+    font-size: 1.5rem;
+    transition: color 0.2s;
+}
+
+.logo:hover {
+    color: var(--primary);
+}
+
+.logo i {
+    color: var(--primary);
+    width: 28px;
+    height: 28px;
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 32px; /* Increased spacing between navbar links */
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.2s;
+}
+
+.nav-links a:hover {
+    color: var(--primary);
+}
+
+.nav-links i {
+    width: 16px;
+    height: 16px;
+}
+
+/* Dropdown */
+.dropdown {
+    position: relative;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    min-width: 200px;
+    padding: 8px 0;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.2s ease;
+}
+
+.dropdown:hover .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-menu li {
+    list-style: none;
+}
+
+.dropdown-menu a {
+    padding: 10px 20px;
+    display: block;
+    color: var(--text-primary);
+    text-decoration: none;
+}
+
+.dropdown-menu a:hover {
+    background: var(--surface);
+}
+
+.dropdown-menu .divider {
+    height: 1px;
+    background-color: var(--border);
+    margin: 6px 0;
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 24px; /* Spacious gap on the right-side elements */
+}
+
+/* Navbar Buttons Sizing & Consistency */
+.navbar .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px !important;
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+    text-decoration: none !important;
+    cursor: pointer;
+    border: none !important;
+    transition: all 0.2s ease;
+    height: 36px !important;
+    box-sizing: border-box !important;
+    line-height: 1 !important;
+    box-shadow: var(--shadow-sm) !important;
+}
+
+.navbar .btn-primary {
+    background: var(--primary) !important;
+    color: white !important;
+}
+
+.navbar .btn-primary:hover {
+    background: var(--primary-hover) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: var(--shadow-md) !important;
+}
+
+.navbar .btn-secondary {
+    background: var(--surface) !important;
+    color: var(--text-primary) !important;
+}
+
+.navbar .btn-secondary:hover {
+    background: var(--border) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Nested Dropdown */
+.nested-dropdown {
+    position: relative;
+}
+
+.nested-menu {
+    position: absolute;
+    top: 0;
+    left: 100%;
+    margin-left: 1px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    min-width: 180px;
+    padding: 8px 0;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(10px);
+    transition: all 0.2s ease;
+}
+
+.nested-dropdown:hover .nested-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+}
+
+.nav-icon-btn {
+    background: rgba(var(--bg-card-rgb, 255, 255, 255), 0.1);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    color: var(--text-primary);
+}
+
+.nav-icon-btn:hover {
+    background: var(--surface);
+    color: var(--primary);
+    transform: scale(1.1);
+    border-color: var(--primary);
+}
+
+[data-theme="dark"] .nav-icon-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Theme Icon Toggling */
+#sunIcon,
+#moonIcon {
+    width: 22px;
+    height: 22px;
+    stroke-width: 2.5px;
+}
+
+/* Light Mode: Show Moon icon to switch to dark */
+[data-theme="light"] #sunIcon {
+    display: none !important;
+}
+
+[data-theme="light"] #moonIcon {
+    display: block !important;
+    color: var(--text-secondary);
+}
+
+/* Dark Mode: Show Sun icon to switch to light */
+[data-theme="dark"] #moonIcon {
+    display: none !important;
+}
+
+[data-theme="dark"] #sunIcon {
+    display: block !important;
+    color: #ffcc00 !important;
+    filter: drop-shadow(0 0 4px rgba(255, 204, 0, 0.3));
+}
+
+/* Hide theme toggle on dashboard */
+.dashboard-body #themeToggle {
+    display: none !important;
+}
+
+@media (max-width: 900px) {
+    .nav-links {
+        display: none;
+    }
+
+    .nav-left {
+        gap: 0;
+    }
+}
+
+@media (max-width: 600px) {
+    .nav-container {
+        padding: 0 16px;
+    }
+}

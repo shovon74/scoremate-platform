@@ -189,23 +189,33 @@ showSection('reading_test', true, slug)  // loads test by slug
 showSection('reading_hub', true)         // loads reading test list
 ```
 
-### CSS Variable System
-Two sets of variables in use:
+### CSS Variable System & Brand Colors
 
-**Global (`style.css`)**:
-```css
---primary: #6366f1
---primary-hover: #4f46e5
---bg-main, --bg-card, --bg-input
---border, --border-focus
---text, --text-muted, --text-light
-```
+The website uses a unified and consistent brand color palette across the landing page and the student dashboard. These variables are declared under `:root` in the stylesheets:
 
-**Admin (`admin.css`)**:
-```css
---admin-sidebar-bg, --admin-header-bg
---admin-accent: #6366f1
-```
+**Primary Accent & Buttons**:
+*   `--primary: #2563eb` (Primary Brand Blue)
+*   `--primary-hover: #1d4ed8` (Brand Blue Hover State)
+*   `--secondary: #7c3aed` (Accent Purple)
+
+**Backgrounds & Fills**:
+*   `--bg-card: #ffffff` (Card & Dropdown Backgrounds)
+*   `--bg-card-rgb: 255, 255, 255` (RGB version for alpha values)
+*   `--bg-main: #f8fafc` (Landing Page Body Background)
+*   `#f5f6fb` (Student Dashboard Body Background - warmer blue-gray tint)
+*   `--surface: #f1f5f9` (Light gray fills for section containers/panels)
+
+**Borders**:
+*   `--border: #e2e8f0` (Standard container and divider borders)
+
+**Typography**:
+*   `--text-primary: #1e293b` (Primary body text / headings)
+*   `--text-secondary: #64748b` (Secondary / sub-text)
+*   `--text-muted: #94a3b8` (Muted captions or placeholders)
+
+**Admin Layout Colors (`admin.css`)**:
+*   `--admin-sidebar-bg`, `--admin-header-bg`
+*   `--admin-accent: #6366f1`
 
 **Reading player (`reading.css`, `ScoreMate_CSS_Design_Guide.md`)**:
 ```css

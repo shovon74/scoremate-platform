@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reading Quiz Builder — ScoreMate</title>
+  <title>Listening Quiz Builder — ScoreMate</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/sidebar.css') }}">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/reading_builder.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/listening_builder.css') }}">
   <script>(function(){ var t=localStorage.getItem('sm-theme')||'light'; document.documentElement.setAttribute('data-theme',t); })();</script>
 </head>
 <body class="admin-body">
@@ -19,7 +19,7 @@
 <!-- ═══════════════════════════════════════════
      ADMIN SIDEBAR
 ═══════════════════════════════════════════ -->
-{% set active_page = 'reading_tests' %}
+{% set active_page = 'listening_tests' %}
 {% include 'sidebar.html' %}
 
 <!-- ═══════════════════════════════════════════
@@ -30,15 +30,14 @@
   <!-- Page Header -->
   <div class="builder-page-header">
     <div class="page-header-left">
-      <h1 id="headerTitle">New Reading Test</h1>
+      <h1 id="headerTitle">New Listening Test</h1>
       <span id="statusBadge" class="status-badge draft">Draft</span>
     </div>
     <div class="page-header-actions">
-      <a href="/admin/reading/list" class="btn btn-secondary">← All Tests</a>
+      <a href="/admin/listening/list" class="btn btn-secondary">← All Tests</a>
       <button class="btn btn-publish" id="publishToggleBtn" disabled title="Save the test first">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-          <polyline points="22 4 12 14.01 9 11.01"/>
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
         </svg>
         <span id="publishBtnLabel">Publish</span>
       </button>
@@ -63,20 +62,20 @@
       </div>
       <div class="tab-label">
         <strong>Basic Edit</strong>
-        <span>Edit basic details</span>
+        <span>Test details</span>
       </div>
     </button>
 
-    <button class="tab-nav-btn" data-tab="passages">
+    <button class="tab-nav-btn" data-tab="audio">
       <div class="tab-icon-wrap">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-          <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+          <path d="M3 18v-6a9 9 0 0 1 18 0v6"/>
+          <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>
         </svg>
       </div>
       <div class="tab-label">
-        <strong>Passages</strong>
-        <span>Reading passages</span>
+        <strong>Audio &amp; Transcript</strong>
+        <span>4-part audio files</span>
       </div>
     </button>
 
@@ -90,36 +89,36 @@
       </div>
       <div class="tab-label">
         <strong>Questions</strong>
-        <span>Reading questions</span>
+        <span>All 4 parts</span>
       </div>
     </button>
   </div>
 
-  <!-- ── Tab Content ──────────────────────────────────── -->
+  <!-- Tab Content -->
   <div class="builder-tab-content">
 
-    <!-- ── TAB 1: Basic Edit ──────────────────────────── -->
+    <!-- ── TAB 1: Basic Edit ──────────────────────────────── -->
     <div id="tab-basic" class="tab-panel active">
       <div class="content-card">
         <div class="form-group">
-          <label for="testTitle">Quiz Title *</label>
-          <input type="text" id="testTitle" class="form-input" placeholder="e.g. Cambridge IELTS 18 Academic Test 1">
+          <label for="testTitle">Test Title *</label>
+          <input type="text" id="testTitle" class="form-input" placeholder="e.g. Cambridge IELTS 18 Listening Test 1">
         </div>
         <div class="form-group">
           <label for="testSlug">Slug *</label>
-          <input type="text" id="testSlug" class="form-input" placeholder="cambridge-ielts-18-academic-test-1">
+          <input type="text" id="testSlug" class="form-input" placeholder="cambridge-ielts-18-listening-test-1">
           <small>Auto-generated from title. Must be unique. Letters, numbers, hyphens only.</small>
         </div>
         <div class="form-group">
-          <label for="testDescription">Description</label>
-          <textarea id="testDescription" class="form-textarea" rows="3" placeholder="Optional description shown to students..."></textarea>
+          <label for="testSourceBook">Source Book</label>
+          <input type="text" id="testSourceBook" class="form-input" placeholder="e.g. Cambridge IELTS 18">
         </div>
         <div class="form-row">
           <div class="form-group">
             <label>Time (minutes)</label>
             <div class="time-stepper">
               <button type="button" id="timeMinus">−</button>
-              <input type="number" id="testTime" value="60" min="1" max="180">
+              <input type="number" id="testTime" value="30" min="1" max="180">
               <button type="button" id="timePlus">+</button>
             </div>
           </div>
@@ -138,6 +137,15 @@
             </select>
           </div>
         </div>
+        <!-- Locate Question toggle -->
+        <div class="form-group">
+          <label>Transcript &amp; Answer Location</label>
+          <div class="transcript-toggle-row">
+            <input type="checkbox" id="hasTranscriptToggle">
+            <label for="hasTranscriptToggle">Enable "Locate Question" — admins can add transcripts and students see highlighted answer locations after submission</label>
+          </div>
+          <small>When enabled, a transcript field appears for each part in Tab 2.</small>
+        </div>
         <div class="form-actions">
           <button class="btn btn-secondary" id="discardBasicBtn">Discard</button>
           <button class="btn btn-primary" id="saveBasicBtn">Save Changes</button>
@@ -145,30 +153,29 @@
       </div>
     </div>
 
-    <!-- ── TAB 2: Passages ────────────────────────────── -->
-    <div id="tab-passages" class="tab-panel">
+    <!-- ── TAB 2: Audio & Transcript ─────────────────────── -->
+    <div id="tab-audio" class="tab-panel">
       <div class="section-toolbar">
-        <h2>List of Reading Passages</h2>
-        <button class="btn btn-primary" id="addPassageBtn">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-          </svg>
-          Add Passage
-        </button>
+        <h2>Audio Files &amp; Transcripts</h2>
+        <small style="color:var(--admin-text-muted); font-size:.8rem">Each IELTS listening test has exactly 4 parts. Upload one .mp3 file per part.</small>
       </div>
-      <div id="passageList"></div>
+      <div class="parts-grid" id="partsGrid">
+        <!-- Part cards rendered by JS -->
+      </div>
     </div>
 
-    <!-- ── TAB 3: Questions ───────────────────────────── -->
+    <!-- ── TAB 3: Questions ───────────────────────────────── -->
     <div id="tab-questions" class="tab-panel">
       <div class="questions-toolbar">
-        <h2>List of Questions</h2>
-        <div class="passage-selector-wrap">
-          <select id="passageSelector" class="form-select" style="width:200px">
-            <option value="">— SELECT PASSAGE —</option>
-          </select>
+        <h2>Questions</h2>
+        <!-- Part tabs: Part 1 / Part 2 / Part 3 / Part 4 -->
+        <div class="part-selector-tabs" id="partSelectorTabs">
+          <button class="part-selector-tab active" data-part="1">Part 1</button>
+          <button class="part-selector-tab" data-part="2">Part 2</button>
+          <button class="part-selector-tab" data-part="3">Part 3</button>
+          <button class="part-selector-tab" data-part="4">Part 4</button>
         </div>
-        <div class="dropdown-wrapper" id="addGroupWrapper" style="display:none">
+        <div class="dropdown-wrapper" id="addGroupWrapper">
           <button class="btn btn-primary" id="addGroupBtn" onclick="toggleAddGroupMenu(event)">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
@@ -176,15 +183,14 @@
             Add Question Group ▾
           </button>
           <div id="addGroupMenu" class="dropdown-menu hidden">
-            <button type="button" onclick="openGroupModal('matching_headings')">Matching Headings</button>
-            <button type="button" onclick="openGroupModal('matching_information')">Matching Information</button>
-            <button type="button" onclick="openGroupModal('tfng')">True/False / Yes/No + Not Given</button>
-            <button type="button" onclick="openGroupModal('mcq_single')">Multiple Choice (A–D)</button>
-            <button type="button" onclick="openGroupModal('sentence_completion')">Sentence Completion</button>
+            <button type="button" onclick="openGroupModal('form_completion')">Form / Table Completion</button>
             <button type="button" onclick="openGroupModal('note_completion')">Note / Bullet Completion</button>
-            <button type="button" onclick="openGroupModal('summary_completion')">Summary / Paragraph Completion</button>
-            <button type="button" onclick="openGroupModal('table_completion')">Table Completion</button>
-            <button type="button" onclick="openGroupModal('short_answer')">Short Answer</button>
+            <button type="button" onclick="openGroupModal('sentence_completion')">Sentence Completion</button>
+            <button type="button" onclick="openGroupModal('matching_information')">Matching Information</button>
+            <button type="button" onclick="openGroupModal('drag_drop_matching')">Drag &amp; Drop Matching</button>
+            <button type="button" onclick="openGroupModal('mcq_single')">Multiple Choice (Choose ONE)</button>
+            <button type="button" onclick="openGroupModal('mcq_multiple')">Multiple Choice (Choose TWO/THREE)</button>
+            <button type="button" onclick="openGroupModal('map_labelling')">Map / Plan Labelling</button>
           </div>
         </div>
       </div>
@@ -192,121 +198,104 @@
     </div>
 
   </div><!-- /.builder-tab-content -->
-</main><!-- /.builder-main -->
+</main>
 
 
 <!-- ═══════════════════════════════════════════
-     MODAL: Add / Edit Passage
+     MODAL: Matching Information Group
 ═══════════════════════════════════════════ -->
-<div id="passageModal" class="modal-overlay hidden">
-  <div class="modal">
-    <div class="modal-header">
-      <h3 id="passageModalTitle">Add Reading Passage</h3>
-      <button class="modal-close" data-close="passageModal">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-group">
-        <label for="passageTitleInput">Title *</label>
-        <input type="text" id="passageTitleInput" class="form-input" placeholder="e.g. Part 1">
-      </div>
-      <div class="form-group">
-        <label for="passageContentInput">Passage Content *</label>
-        <small>Separate paragraphs with a blank line.</small>
-        <textarea id="passageContentInput" class="form-textarea" rows="14"
-          placeholder="Type or paste the full passage here.&#10;&#10;Start a new paragraph by leaving a blank line between them."></textarea>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" data-close="passageModal">Cancel</button>
-      <button class="btn btn-primary" id="savePassageBtn">Add Passage</button>
-    </div>
-  </div>
-</div>
-
-
-<!-- ═══════════════════════════════════════════
-     MODAL: Matching Headings Group Config
-═══════════════════════════════════════════ -->
-<div id="matchingHeadingsModal" class="modal-overlay hidden">
+<div id="matchingInfoModal" class="modal-overlay hidden">
   <div class="modal modal-lg">
     <div class="modal-header">
-      <h3 id="mhModalTitle">Add Matching Headings Group</h3>
-      <button class="modal-close" data-close="matchingHeadingsModal">&times;</button>
+      <h3 id="miModalTitle">Add Matching Information Group</h3>
+      <button class="modal-close" data-close="matchingInfoModal">&times;</button>
     </div>
     <div class="modal-body">
       <div class="form-group">
-        <label for="mhInstructions">Instructions</label>
-        <textarea id="mhInstructions" class="form-textarea" rows="3"
-          placeholder="The passage has paragraphs A–G. Choose the correct heading for each paragraph from the list of headings below. Write the correct number, i–x, in boxes on your answer sheet."></textarea>
+        <label for="miInstructions">Instructions *</label>
+        <textarea id="miInstructions" class="form-textarea" rows="3"
+          placeholder="e.g. Which section (A–E) contains the following information? Write the correct letter."></textarea>
       </div>
       <div class="form-group">
-        <label>
-          Heading Options
-          <small style="font-weight:400; display:inline; margin-left:6px">— add the list of headings students choose from</small>
+        <label class="checkbox-inline" style="gap:10px;cursor:pointer">
+          <input type="checkbox" id="miAllowReuse">
+          <span>Allow reuse — students may use the same letter more than once</span>
         </label>
-        <div id="headingInputsList"></div>
-        <button type="button" class="btn btn-secondary btn-sm" id="addHeadingRowBtn" style="margin-top:8px">
-          + Add Heading
-        </button>
       </div>
-      <div class="form-group checkbox-inline" style="margin-bottom:0">
-        <input type="checkbox" id="mhAllowReuse">
-        <label for="mhAllowReuse">Allow reuse — students may use a heading more than once</label>
+      <div class="form-group">
+        <label>Option Pool * <small style="font-weight:400">(the labelled sections students pick from)</small></label>
+        <small style="color:var(--admin-text-muted)">Each row is one option. The letter (A, B, C…) is auto-assigned.<br>Leave the description blank if the section title is already in the question instructions.</small>
+        <div id="miOptionsList" style="margin-top:10px"></div>
+        <button type="button" class="btn btn-secondary btn-sm" id="miAddOptionBtn" style="margin-top:8px">
+          + Add Option
+        </button>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" data-close="matchingHeadingsModal">Cancel</button>
-      <button class="btn btn-primary" id="saveMHGroupBtn">Save Group</button>
+      <button class="btn btn-secondary" data-close="matchingInfoModal">Cancel</button>
+      <button class="btn btn-primary" id="saveMIGroupBtn">Save Group</button>
     </div>
   </div>
 </div>
 
 
 <!-- ═══════════════════════════════════════════
-     MODAL: Generic Group Config
-     (TFNG, MCQ Single, Sentence Completion, Short Answer)
+     MODAL: Group Config (completion + map)
 ═══════════════════════════════════════════ -->
 <div id="groupConfigModal" class="modal-overlay hidden">
   <div class="modal modal-lg">
     <div class="modal-header">
-      <h3 id="gcModalTitle">Add Group</h3>
+      <h3 id="gcModalTitle">Add Question Group</h3>
       <button class="modal-close" data-close="groupConfigModal">&times;</button>
     </div>
     <div class="modal-body">
       <input type="hidden" id="gcType">
       <input type="hidden" id="gcGroupId">
-      <!-- Variant selector: shown only for TFNG / YNNG -->
-      <div class="form-group" id="gcVariantGroup" style="display:none">
-        <label>Question Variant</label>
-        <div class="gc-variant-row">
-          <label class="gc-variant-option">
-            <input type="radio" name="gcVariant" value="tfng" checked>
-            <span>True / False / Not Given</span>
-            <small>Factual statements from the passage</small>
-          </label>
-          <label class="gc-variant-option">
-            <input type="radio" name="gcVariant" value="ynng">
-            <span>Yes / No / Not Given</span>
-            <small>Writer's views or claims</small>
-          </label>
-        </div>
-      </div>
 
       <div class="form-group">
         <label for="gcInstructions">Instructions *</label>
         <textarea id="gcInstructions" class="form-textarea" rows="3"
-          placeholder="e.g. Do the following statements agree with the information given in the passage?"></textarea>
+          placeholder="e.g. Write ONE WORD AND/OR A NUMBER for each answer."></textarea>
       </div>
+
+      <!-- Constraint (completion + map_labelling) -->
       <div class="form-group" id="gcConstraintGroup" style="display:none">
         <label for="gcConstraint">Word Limit</label>
-        <input type="text" id="gcConstraint" class="form-input" placeholder="e.g. NO MORE THAN TWO WORDS">
-        <small>Shown above questions as a constraint reminder for students.</small>
+        <input type="text" id="gcConstraint" class="form-input" placeholder="e.g. ONE WORD AND/OR A NUMBER">
+        <small>Shown above questions as a constraint reminder.</small>
       </div>
+
+      <!-- Context HTML (completion types) -->
       <div class="form-group" id="gcContextHtmlGroup" style="display:none">
         <label for="gcContextHtml">Context HTML *</label>
-        <small>Paste the sentence/paragraph HTML. Use <code>[[N]]</code> to mark blanks — e.g. <code>[[1]]</code>, <code>[[2]]</code>.</small>
-        <textarea id="gcContextHtml" class="form-textarea" rows="8"
-          placeholder="&lt;p&gt;Scientists found that [[1]] plays a key role in [[2]] metabolism.&lt;/p&gt;"></textarea>
+        <small>Paste the table/note/sentence HTML. Use <code>[[N]]</code> to mark blanks — e.g. <code>[[1]]</code>, <code>[[2]]</code>. N must match the question numbers you add below.</small>
+        <textarea id="gcContextHtml" class="form-textarea" rows="10"
+          placeholder="&lt;table&gt;&lt;tr&gt;&lt;td&gt;Name:&lt;/td&gt;&lt;td&gt;[[1]]&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;"></textarea>
+      </div>
+
+      <!-- MCQ multiple: limit selector -->
+      <div class="form-group" id="gcLimitGroup" style="display:none">
+        <label for="gcLimit">Number of Correct Answers</label>
+        <select id="gcLimit" class="form-select" style="max-width:200px">
+          <option value="2">Choose TWO</option>
+          <option value="3">Choose THREE</option>
+        </select>
+        <small>Students must select exactly this many options to score the question.</small>
+      </div>
+
+      <!-- Map labelling: image upload -->
+      <div class="form-group" id="gcMapImageGroup" style="display:none">
+        <label>Map / Plan Image *</label>
+        <div class="q-image-upload-row">
+          <input type="file" id="gcMapImageFile" accept="image/*" style="display:none">
+          <button type="button" class="btn btn-secondary btn-sm" id="gcMapImageUploadBtn">Upload Image</button>
+          <span id="gcMapImageStatus" class="q-image-status"></span>
+        </div>
+        <input type="hidden" id="gcMapImageUrl">
+        <div id="gcMapImagePreview" style="display:none; margin-top:8px">
+          <img id="gcMapImagePreviewImg" style="max-width:100%; max-height:200px; border-radius:6px; border:1px solid var(--admin-border)">
+        </div>
+        <small>The map/plan image will appear above the questions in the student view.</small>
       </div>
     </div>
     <div class="modal-footer">
@@ -318,7 +307,7 @@
 
 
 <!-- ═══════════════════════════════════════════
-     MODAL: Add / Edit Question (inside a group)
+     MODAL: Add / Edit Question
 ═══════════════════════════════════════════ -->
 <div id="questionModal" class="modal-overlay hidden">
   <div class="modal">
@@ -334,38 +323,17 @@
         </div>
       </div>
 
-      <!-- Stem: label + hint change based on type -->
+      <!-- Stem: label changes by type -->
       <div class="form-group" id="qStemGroup">
-        <label id="qStemLabel" for="qStem">Statement / Label *</label>
+        <label id="qStemLabel" for="qStem">Question Stem / Label *</label>
         <input type="text" id="qStem" class="form-input" placeholder="">
         <small id="qStemHint"></small>
       </div>
 
-      <!-- Optional image (any type) -->
-      <div class="form-group" id="qImageGroup">
-        <label>Question Image <small style="font-weight:400">(optional)</small></label>
-        <div class="q-image-upload-row">
-          <input type="file" id="qImageFile" accept="image/*" style="display:none">
-          <button type="button" class="btn btn-secondary btn-sm" id="qImageUploadBtn">
-            Upload Image
-          </button>
-          <span id="qImageStatus" class="q-image-status"></span>
-        </div>
-        <input type="hidden" id="qImageUrl">
-        <div id="qImagePreview" style="display:none; margin-top:8px; display:flex; align-items:flex-start; gap:8px">
-          <img id="qImagePreviewImg" style="max-width:100%; max-height:180px; border-radius:6px; border:1px solid var(--admin-border); display:block">
-          <button type="button" class="btn-icon danger" id="qImageRemoveBtn" title="Remove image">
-            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- MCQ options (shown for mcq_single only) -->
+      <!-- MCQ options (shown for mcq_multiple only) -->
       <div id="qMcqOptions" style="display:none">
         <div class="form-group" style="margin-bottom:4px">
-          <label>Options * <small style="font-weight:400">(min 2)</small></label>
+          <label>Options * <small style="font-weight:400">(min 2, max 8)</small></label>
           <div id="qMcqOptionsList"></div>
           <button type="button" class="btn btn-secondary btn-sm" id="qAddMcqOptionBtn" style="margin-top:6px">
             + Add Option
@@ -373,24 +341,67 @@
         </div>
       </div>
 
-      <!-- Dropdown answer (matching_headings, tfng, ynng, mcq_single) -->
-      <div class="form-group" id="qCorrectAnswerGroup">
-        <label for="qCorrectAnswer">Correct Answer *</label>
-        <select id="qCorrectAnswer" class="form-select">
-          <option value="">— select answer —</option>
+      <!-- MCQ answer: checkboxes for mcq_multiple (Choose TWO/THREE) -->
+      <div id="qMcqAnswerGroup" style="display:none">
+        <div class="form-group">
+          <label id="qMcqAnswerLabel">Correct Answers * <small style="font-weight:400">(select the correct ones)</small></label>
+          <div id="qMcqAnswerChecks"></div>
+        </div>
+      </div>
+
+      <!-- MCQ answer: radio buttons for mcq_single (Choose ONE) -->
+      <div id="qMcqSingleAnswerGroup" style="display:none">
+        <div class="form-group">
+          <label>Correct Answer * <small style="font-weight:400">(select one)</small></label>
+          <div id="qMcqSingleAnswerRadios"></div>
+        </div>
+      </div>
+
+      <!-- Matching information: dynamic letter select -->
+      <div class="form-group" id="qMIAnswerGroup" style="display:none">
+        <label for="qMIAnswer">Correct Option *</label>
+        <select id="qMIAnswer" class="form-select" style="max-width:220px">
+          <option value="">— select —</option>
+        </select>
+        <small>The letter that correctly answers this question.</small>
+      </div>
+
+      <!-- Map labelling answer: letter dropdown -->
+      <div class="form-group" id="qMapAnswerGroup" style="display:none">
+        <label for="qMapAnswer">Correct Letter (A–I) *</label>
+        <select id="qMapAnswer" class="form-select" style="max-width:140px">
+          <option value="">— select —</option>
+          <option>A</option><option>B</option><option>C</option>
+          <option>D</option><option>E</option><option>F</option>
+          <option>G</option><option>H</option><option>I</option>
         </select>
       </div>
 
-      <!-- Free-text answer (sentence_completion, short_answer) -->
+      <!-- Text answer (completion types + map_labelling label) -->
       <div class="form-group" id="qAnswerTextGroup" style="display:none">
         <label id="qAnswerTextLabel" for="qAnswerText">Correct Answer *</label>
-        <input type="text" id="qAnswerText" class="form-input" placeholder="e.g. carbon-14">
-        <small id="qAnswerTextHint"></small>
+        <input type="text" id="qAnswerText" class="form-input" placeholder="e.g. Kings">
+        <small id="qAnswerTextHint">Case-insensitive matching. For multiple acceptable spellings, add them in "Acceptable Answers" below.</small>
       </div>
 
+      <!-- Acceptable answers (text-type groups) -->
+      <div class="form-group" id="qAcceptableGroup" style="display:none">
+        <label for="qAcceptable">Acceptable Answers <small style="font-weight:400">(optional)</small></label>
+        <input type="text" id="qAcceptable" class="form-input" placeholder="e.g. King's, kings, the Kings">
+        <small class="acceptable-answers-hint">Comma-separated. Any of these will be marked correct.</small>
+      </div>
+
+      <!-- Answer location (shown when has_transcript is true) -->
+      <div class="form-group" id="qAnswerLocationGroup" style="display:none">
+        <label for="qAnswerLocation">Answer Location <small style="font-weight:400">(transcript quote)</small></label>
+        <input type="text" id="qAnswerLocation" class="form-input" placeholder="Paste the exact sentence from the transcript that contains the answer">
+        <small>This text will be highlighted in the transcript during post-test review.</small>
+      </div>
+
+      <!-- Explanation -->
       <div class="form-group">
         <label for="qExplanation">Explanation <small style="font-weight:400">(shown after test)</small></label>
-        <textarea id="qExplanation" class="form-textarea" rows="3" placeholder="Optional explanation..."></textarea>
+        <textarea id="qExplanation" class="form-textarea" rows="3" placeholder="Optional explanation shown to students after submission..."></textarea>
       </div>
     </div>
     <div class="modal-footer">
@@ -413,7 +424,7 @@
 <script>
   window.BUILDER_DATA = {{ test_data | tojson | safe }};
 </script>
-<script src="{{ url_for('static', filename='js/reading_builder.js') }}"></script>
+<script src="{{ url_for('static', filename='js/listening_builder.js') }}"></script>
 
 </body>
 </html>

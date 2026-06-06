@@ -33,6 +33,7 @@ def create_app():
     with app.app_context():
         from models.user import User, EvaluationResult  # ensure models are registered
         from models.reading import ReadingTest, ReadingAttempt
+        from models.listening import ListeningTest, ListeningAttempt
         db.create_all()
 
     # Register Blueprints
@@ -42,10 +43,14 @@ def create_app():
     from blueprints.admin.admin import admin_bp
     from blueprints.reading.reading_api import reading_api_bp
     from blueprints.reading.reading_admin import reading_admin_bp
+    from blueprints.listening.listening_api import listening_api_bp
+    from blueprints.listening.listening_admin import listening_admin_bp
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(admin_bp, url_prefix='/admin')
     app.register_blueprint(reading_api_bp, url_prefix='/api/reading')
     app.register_blueprint(reading_admin_bp, url_prefix='/admin/reading')
+    app.register_blueprint(listening_api_bp, url_prefix='/api/listening')
+    app.register_blueprint(listening_admin_bp, url_prefix='/admin/listening')
 
     @app.route('/')
     def index():
@@ -109,7 +114,36 @@ def create_app():
             'time_taken':   a.time_taken,
             'completed_at': a.completed_at.strftime('%b %d, %Y') if a.completed_at else '',
         } for a in raw_attempts]
-        return render_template('dashboard.html', stats=stats, reading_data=reading_data)
+
+        from models.listening import ListeningAttempt
+        raw_listening = (
+            ListeningAttempt.query
+            .filter_by(user_id=current_user.id)
+            .order_by(ListeningAttempt.completed_at.desc())
+            .limit(10)
+            .all()
+        )
+        def _fmt_time(secs):
+            if not secs:
+                return None
+            return f"{secs // 60}:{secs % 60:02d}"
+
+        listening_data = [{
+            'test_title':   a.test.title if a.test else 'Deleted Test',
+            'test_slug':    a.test.slug  if a.test else None,
+            'score':        a.score,
+            'total':        a.test.total_questions if a.test else 0,
+            'band_score':   a.band_score,
+            'time_str':     _fmt_time(a.time_taken),
+            'completed_at': a.completed_at.strftime('%b %d, %Y') if a.completed_at else '',
+        } for a in raw_listening]
+
+        return render_template(
+            'dashboard.html',
+            stats=stats,
+            reading_data=reading_data,
+            listening_data=listening_data,
+        )
 
     return app
 

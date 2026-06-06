@@ -7,6 +7,7 @@
     <title>ScoreMate | Professional IELTS Writing Support</title>
     <!-- CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/reading.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/listening.css') }}">
     <!-- Scripts -->
@@ -17,62 +18,7 @@
 </head>
 
 <body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-left">
-                <a href="javascript:void(0)" onclick="showSection('landing')" class="logo">
-                    <i data-lucide="graduation-cap"></i>
-                    <span>ScoreMate</span>
-                </a>
-                <ul class="nav-links">
-                    <li><a href="javascript:void(0)" onclick="showSection('calculators')">Calculators</a></li>
-                    <li><a href="javascript:void(0)">Tips</a></li>
-                    <li class="dropdown">
-                        <a href="#">Tests <i data-lucide="chevron-down"></i></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="javascript:void(0)" onclick="showSection('task1_academic')">IELTS Academic
-                                    Writing Task 1 Evaluation</a></li>
-                            <li><a href="javascript:void(0)" onclick="showSection('task1_general')">IELTS General
-                                    Writing Task 1 Evaluation</a></li>
-                            <li><a href="javascript:void(0)" onclick="showSection('task2')">IELTS Writing Task 2
-                                    Evaluation</a></li>
-                            <li><a href="javascript:void(0)" onclick="showSection('speaking_part1')">IELTS Speaking Part
-                                    1 Evaluator</a></li>
-                            <li><a href="javascript:void(0)" onclick="showSection('speaking_part2')">IELTS Speaking Part
-                                    2 Evaluator</a></li>
-                            <li><a href="javascript:void(0)" onclick="showSection('speaking_part3')">IELTS Speaking Part
-                                    3 Evaluator</a></li>
-                            <li class="divider"></li>
-                            <li><a href="javascript:void(0)" onclick="showSection('task2_generator')">IELTS Writing Task
-                                    2 Generator</a></li>
-                            <li><a href="javascript:void(0)" onclick="showSection('task1_academic_generator')">IELTS
-                                    Academic Task 1 Generator</a></li>
-                            <li><a href="javascript:void(0)" onclick="showSection('task1_general_generator')">IELTS
-                                    General Task 1 Generator</a></li>
-                            <li class="divider"></li>
-                            <li><a href="javascript:void(0)" onclick="showSection('reading_test', true, 'preview-test')" id="triggerReadingTestBtn" style="color:var(--primary); font-weight:bold;">Reading Test Preview</a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
-            <div class="nav-right">
-                <button id="themeToggle" class="nav-icon-btn" aria-label="Toggle theme">
-                    <i id="sunIcon" data-lucide="sun"></i>
-                    <i id="moonIcon" data-lucide="moon" style="display: none;"></i>
-                </button>
-                {% if current_user.is_authenticated %}
-                {% if current_user.role in ['super_admin', 'teacher'] %}
-                <a href="{{ url_for('admin.user_list') }}" class="btn btn-secondary btn-sm">Admin</a>
-                {% endif %}
-                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary btn-sm">Dashboard</a>
-                <a href="{{ url_for('auth.logout') }}" class="btn btn-primary btn-sm">Logout</a>
-                {% else %}
-                <a href="{{ url_for('auth.login') }}" class="btn btn-secondary btn-sm">Login</a>
-                <a href="{{ url_for('auth.signup') }}" class="btn btn-primary btn-sm">Sign Up</a>
-                {% endif %}
-            </div>
-        </div>
-    </nav>
+    {% include 'navbar.html' %}
 
     <div class="container">
         <!-- Landing Section: Learning Tools -->

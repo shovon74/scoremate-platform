@@ -1,19 +1,18 @@
 /* ── Admin Dashboard Styles ── */
 :root {
-    /* Admin-specific palette: Deeper slates/greys while keeping brand primary */
-    --admin-bg: #0f172a;
-    --admin-sidebar: #1e293b;
+    /* Admin-specific palette: Light theme to match brand */
+    --admin-bg: #f8fafc;
+    --admin-sidebar: #ffffff;
     --admin-card: #ffffff;
     --admin-border: #e2e8f0;
     --admin-text-main: #1e293b;
     --admin-text-muted: #64748b;
     --admin-accent: var(--primary);
-    /* Keep brand primary */
 }
 
 [data-theme="dark"] {
-    --admin-bg: #020617;
-    --admin-sidebar: #0f172a;
+    --admin-bg: #0f172a;
+    --admin-sidebar: #1e293b;
     --admin-card: #1e293b;
     --admin-border: #334155;
     --admin-text-main: #f1f5f9;
@@ -47,7 +46,7 @@
     align-items: center;
     gap: 12px;
     text-decoration: none;
-    color: white;
+    color: var(--admin-text-main);
     font-weight: 700;
     font-size: 1.25rem;
 }
@@ -65,7 +64,7 @@
     align-items: center;
     gap: 12px;
     padding: 12px;
-    color: #94a3b8;
+    color: var(--admin-text-muted);
     text-decoration: none;
     border-radius: 8px;
     transition: all 0.2s;
@@ -74,18 +73,18 @@
 
 .sidebar-item:hover,
 .sidebar-item.active {
-    background: rgba(255, 255, 255, 0.05);
-    color: white;
+    background: var(--admin-bg);
+    color: var(--admin-text-main);
 }
 
 .sidebar-item.active {
     background: var(--admin-accent);
+    color: white;
 }
 
 /* Main Content */
 .admin-main {
     flex: 1;
-    margin-left: 260px;
     padding: 40px;
 }
 

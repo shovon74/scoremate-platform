@@ -50,6 +50,8 @@ window.initReadingTest = async function (slug) {
     if (!res.ok) throw new Error(res.statusText);
     const json = await res.json();
     if (!json.success) throw new Error(json.error || 'Failed to load test');
+    if (!json.test)    throw new Error('Test data not found in API response');
+    if (!json.test.data) throw new Error('Test content (data) missing from API response. Please contact support.');
 
     ReadingTest.testData = json.test;
     ReadingTest.timeLimitSecs = (json.test.time_limit || 60) * 60;
@@ -67,6 +69,7 @@ window.initReadingTest = async function (slug) {
     _setQuestions('');
   }
 };
+
 
 /* ────────────────────────────────────────────────────────────
    Part Tabs

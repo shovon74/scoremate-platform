@@ -25,3 +25,8 @@ Reading_quizBuilder/
 # Database files
 *.db
 *.sqlite3
+
+# Temporary and Scratch Files
+tmp_scraping/
+Listeningtestimgs/
+Adding basic info for quiz-2.png
